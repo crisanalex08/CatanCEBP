@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,16 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'CatanFE';
+  playerName: string = '';
+  serverCode: string = '';
+
+  constructor(private router:Router) {}
+
+  onSubmit() {
+    if (true) {
+      console.log('Starting game for player:', this.playerName);
+      this.router.navigate(['/game', this.serverCode, this.playerName]);
+      // Here you would typically navigate to the game component or start the game logic
+    }
+  }
 }

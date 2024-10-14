@@ -1,0 +1,115 @@
+.landing-container {
+  width: 100%;
+  margin: 0;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.blured-background {
+  box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/assets/img/back.webp');
+  background-size: cover;
+  filter: blur(10px);
+}
+
+.landing-form {
+  font-family: 'jsMath';
+  font-size: 3rem;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  width: 40%;
+  height: 100%;
+  position: inherit;
+  z-index: 2;
+}
+
+input{
+  background-color: rgba(169, 169, 169, 0.2);
+  color: rgb(245, 245, 245);
+  /* Black text color */
+  border: none;
+  margin-top: 10%;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  /* Stylized font */
+  letter-spacing: 2px;
+  border-radius: 40px;
+  /* Rounded corners */
+  text-align: center;
+  width: 70%;
+}
+::placeholder {
+  color: rgb(172, 172, 172);
+  /* Black text color */
+  font-size: 1.5rem;
+  /* Stylized font */
+  letter-spacing: 2px;
+  /* Spacing between letters */
+  text-align: center;
+  font-family: monospace;
+}
+
+button {
+  background-color: #44A127;
+  color: #FFF1F1;
+  /* Black text color */
+  border: none;
+  margin-top: 10%;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  /* Stylized font */
+  letter-spacing: 2px;
+  border-radius: 40px;
+  /* Rounded corners */
+  text-align: center;
+  cursor: pointer;
+  width: 70%;
+  /* Pointer cursor */
+}
+
+button:hover {
+  background-color: #3A7D23;
+}
+
+button:active {
+  background-color: #2F6A1D;
+}
+
+/* click smooth animation */
+button {
+  transition: transform 0.2s;
+}
+button:active {
+  transform: translateY(2px);
+}
+
+.landing {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 74px;
+  color: #FF8800;
+  font-family: 'jsMath';
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  width: 980px;
+  height: 550px;
+  position: absolute;
+  z-index: 2;
+}
