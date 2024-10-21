@@ -1,5 +1,6 @@
 import Classes.GameState;
 import Classes.Player;
+import Enums.ActionsType;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,10 +24,31 @@ public class GameSimulator {
         System.out.println("Starting round " + (round + 1));
         for (int i = 0; i < gameState.getPlayers().size(); i++) {
             Player currentPlayer = gameState.getCurrentPlayer();
-            currentPlayer.takeAction(gameState);
-            gameState.nextTurn();
+            currentPlayer.takeAction(gameState, ActionsType.ROLL_DICE);
+            switch (currentPlayer.getId()) {
+                case "1":
+                    currentPlayer.takeAction(gameState, ActionsType.INITIATE_TRADE);
+                    break;
+                case "2":
+               
+                    currentPlayer.takeAction(gameState, ActionsType.PLACE_ROAD);
+                    currentPlayer.takeAction(gameState, ActionsType.PLACE_SETTLEMENT);
+                    break;
+                case "3":
+                    currentPlayer.takeAction(gameState, ActionsType.ACCEPT_TRADE);
+                    currentPlayer.takeAction(gameState, ActionsType.PLACE_SETTLEMENT);
+                    break;
+                case "4":
+                    currentPlayer.takeAction(gameState, ActionsType.DECLINE_TRADE);
+                    currentPlayer.takeAction(gameState, ActionsType.PLACE_CITY);
+                    break;
+            
+                default:
+
+                    break;
+            }
         }
-        System.out.println("Finished round " + (round + 1));
+                
     }
 
     public void start() {
@@ -40,7 +62,7 @@ public class GameSimulator {
     }
 
     public static void main(String[] args) {
-        GameSimulator simulator = new GameSimulator(4, 10);
+        GameSimulator simulator = new GameSimulator(4, 2);
         simulator.start();
     }
 }

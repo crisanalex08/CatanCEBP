@@ -94,7 +94,7 @@ public class Board {
             put(5, 9);
             put(6, 7);
         }};
-        edgesFromVertices();
+      
       
     }
 
@@ -103,10 +103,7 @@ public class Board {
         vertices.put(vertex.getId(), vertex);
     }
 
-    private void edgesFromVertices() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'edgesFromVertices'");
-    }
+   
 
 }
 
