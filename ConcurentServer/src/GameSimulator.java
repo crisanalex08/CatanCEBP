@@ -1,46 +1,54 @@
 import Classes.GameState;
 import Classes.Player;
+import Enums.ActionsType;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class GameSimulator {
     private GameState gameState;
-    private ExecutorService executorService;
+    private List<Player> players;
+    private int numOfRounds;
+    private ArrayList<Thread> threads = new ArrayList<Thread>();
 
     public GameSimulator(int numPlayers, int numRounds) {
         this.gameState = new GameState(numPlayers);
-        this.executorService = Executors.newFixedThreadPool(numPlayers);
-
-        for (int i = 0; i < numRounds; i++) {
-            final int round = i;
-            executorService.submit(() -> playRound(round));
-        }
+        this.numOfRounds = numRounds;
+        this.players = Arrays.asList(
+                new Player("1", "Player1", null, gameState),
+                new Player("2", "Player2", null, gameState),
+                new Player("3", "Player3", null, gameState),
+                new Player("4", "Player4", null, gameState)
+        );
     }
 
     private void playRound(int round) {
         System.out.println("Starting round " + (round + 1));
-        for (int i = 0; i < gameState.getPlayers().size(); i++) {
-            Player currentPlayer = gameState.getCurrentPlayer();
-            currentPlayer.takeAction(gameState);
-            gameState.nextTurn();
+        for(Player player : players) {
+            Thread thread = new Thread(player);
+            thread.start();
+            threads.add(thread);
         }
-        System.out.println("Finished round " + (round + 1));
+
+        for(Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
-    public void start() {
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(1, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void startGame() {
+        for(int i = 0; i < numOfRounds; i++) {
+            playRound(i);
         }
-        System.out.println("Game simulation completed");
     }
 
     public static void main(String[] args) {
-        GameSimulator simulator = new GameSimulator(4, 10);
-        simulator.start();
+        GameSimulator simulator = new GameSimulator(4, 1);
+        simulator.startGame();
+        System.out.println("Game over");
     }
 }

@@ -1,49 +1,47 @@
 package Classes;
 
-import java.util.EnumMap;
-import java.util.concurrent.ThreadLocalRandom;
-import Enums.ResourceType;
-import Enums.ConstructionTypeEdge;
-import Enums.ConstructionTypeVertex;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class Player {
+import Enums.ActionsType;
+
+public class Player implements Runnable {
     String id;
     String name;
-    private EnumMap<ResourceType, Integer> resources;
+    ArrayList<ActionsType> actionsToTake;
+    GameState gameState;
 
-    public Player(String id, String name) {
+
+    public Player(String id, String name, ArrayList<ActionsType> actionsToTake, GameState gameState) {
         this.id = id;
         this.name = name;
-        this.resources = new EnumMap<>(ResourceType.class);
-        for (ResourceType type : ResourceType.values()) {
-            resources.put(type, 0);
+        if (gameState == null){
+            throw new IllegalArgumentException("gameState cannot be null");
         }
+        this.gameState = gameState;
+        if(actionsToTake != null) {
+            this.actionsToTake = actionsToTake;
+        } else {
+            if(this.id.equals("1")) {
+                this.actionsToTake = new ArrayList<>(Arrays.asList(ActionsType.ROLL_DICE, ActionsType.INITIATE_TRADE));
+            } else {
+                this.actionsToTake = new ArrayList<>(List.of(ActionsType.ROLL_DICE));
+            }
+        }
+
+    }
+    public String getId() {
+        return id;
+    }
+    public String getName() {
+        return name;
     }
 
-    public void takeAction(GameState gameState) {
-        // Simulate a player action
-        int action = ThreadLocalRandom.current().nextInt(0, 5);
-        switch (action) {
-            case 0:
-                gameState.rollDice(this);
-                break;
-            case 1:
-                gameState.placeConstruction(this, ConstructionTypeVertex.SETTLEMENT, null, 0);
-            
-                break;
-            case 2:
-                gameState.initiateTrade(this);
-                break;
-            case 3:
-                gameState.placeConstruction(this, ConstructionTypeVertex.CITY, null, 0);
-                break;
-            case 4:
-                gameState.placeConstruction(this, null, ConstructionTypeEdge.ROAD, 0);
-                break;
-            default:
-                break;
-        }
+    @Override
+    public void run() {
+            gameState.takeAction(this);
     }
 
-    // Methods for adding, removing, and querying resources
 }
+
