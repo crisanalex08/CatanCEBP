@@ -1,240 +1,191 @@
 package Classes;
 
 import java.util.*;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.ThreadLocalRandom;
-
-
-import Enums.ActionsType;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Condition;
 import Enums.ResourceType;
+import Interfaces.Building;
 
 
 public class GameState {
 
-    private int currentPlayerIndex;
-    private ReentrantReadWriteLock lock;
-    private static final boolean isLockFair = true;
-    private HashMap<String, Resources> playerResources = new HashMap<String, Resources>();
+   
+    private final ReentrantLock buildingLock;
+    private final ReentrantLock resourceLock;
+    private final ReentrantLock turnLock;  
+    private final Condition turnCondition; 
+    private final AtomicInteger currentPlayer;
+    private final Player[] players;
+    private volatile boolean gameEnded;
 
-    private HashMap<Integer, ArrayList<PlayerTiles>> diceRollResourceTypeMap = new HashMap<>() {{
-        put(2, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("1", new ResourceType[]{ResourceType.WOOD, ResourceType.WHEAT}),
-                new PlayerTiles("2", new ResourceType[]{ResourceType.SHEEP, ResourceType.WOOD}),
-                new PlayerTiles("4", new ResourceType[]{ResourceType.CLAY, ResourceType.WHEAT})
-        )));
-        put(3, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("2", new ResourceType[]{ResourceType.CLAY, ResourceType.WHEAT}),
-                new PlayerTiles("3", new ResourceType[]{ResourceType.STONE}),
-                new PlayerTiles("4", new ResourceType[]{ResourceType.SHEEP})
-        )));
-        put(4, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("1", new ResourceType[]{ResourceType.WHEAT}),
-                new PlayerTiles("2", new ResourceType[]{ResourceType.WOOD})
-        )));
-        put(5, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("1", new ResourceType[]{ResourceType.SHEEP}),
-                new PlayerTiles("3", new ResourceType[]{ResourceType.STONE})
-        )));
-        put(6, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("1", new ResourceType[]{ResourceType.CLAY}),
-                new PlayerTiles("3", new ResourceType[]{ResourceType.WHEAT})
-        )));
-        put(8, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("3", new ResourceType[]{ResourceType.SHEEP}),
-                new PlayerTiles("2", new ResourceType[]{ResourceType.WHEAT}),
-                new PlayerTiles("4", new ResourceType[]{ResourceType.STONE})
-        )));
-        put(9, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("1", new ResourceType[]{ResourceType.CLAY, ResourceType.WHEAT}),
-                new PlayerTiles("3", new ResourceType[]{ResourceType.WOOD})
-        )));
-        put(10, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("1", new ResourceType[]{ResourceType.CLAY}),
-                new PlayerTiles("3", new ResourceType[]{ResourceType.WOOD, ResourceType.SHEEP}),
-                new PlayerTiles("4", new ResourceType[]{ResourceType.WOOD})
-        )));
-        put(11, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("1", new ResourceType[]{ResourceType.WHEAT, ResourceType.SHEEP}),
-                new PlayerTiles("2", new ResourceType[]{ResourceType.WOOD})
-        )));
-        put(12, new ArrayList<PlayerTiles>(Arrays.asList(
-                new PlayerTiles("4", new ResourceType[]{ResourceType.STONE}),
-                new PlayerTiles("2", new ResourceType[]{ResourceType.SHEEP, ResourceType.WHEAT})
-        )));
-    }};
+    public GameState() {
+        this.buildingLock = new ReentrantLock();
+        this.resourceLock = new ReentrantLock();
+        this.turnLock = new ReentrantLock(true);
+        this.turnCondition = turnLock.newCondition();
+        this.currentPlayer = new AtomicInteger(0);
+        this.players = new Player[3];
+        this.gameEnded = false;
+    }
+  
+     
 
-    public GameState(int numPlayers) {
-        this.currentPlayerIndex = 0;
-        this.lock = new ReentrantReadWriteLock(isLockFair);
-        initPlayerResources();
+    
+    public void addPlayer(int playerIndex, Player player) {
+        players[playerIndex] = player;
     }
 
-    private void initPlayerResources() {
-        for (int i = 1; i <= 4; i++) {
-            Resources resources = new Resources();
-            playerResources.put("" + i, resources);
+    public boolean isPlayerTurn(int playerIndex) {
+        return currentPlayer.get() == playerIndex;
+    }
+
+    public void waitForTurn(int playerIndex) throws InterruptedException {
+        turnLock.lock();
+        try {
+            while (!isPlayerTurn(playerIndex) && !gameEnded) {
+                turnCondition.await();
+            }
+        } finally {
+            turnLock.unlock();
         }
     }
 
-    private void distributeResources(int roll) {
-        ArrayList<PlayerTiles> playerTiles = diceRollResourceTypeMap.get(roll);
-        for (PlayerTiles playerTile : playerTiles) {
-            Resources resources = playerResources.get(playerTile.getPlayerId());
-            if (resources == null) {
-                throw new IllegalArgumentException("Invalid player id");
+    public void endTurn() {
+        turnLock.lock();
+        try {
+            currentPlayer.updateAndGet(current -> (current + 1) % 3);
+            turnCondition.signalAll();
+        } finally {
+            turnLock.unlock();
+        }
+    }
+
+    public boolean build(int playerIndex, Building building) {
+        buildingLock.lock();
+        try {
+            if(!isPlayerTurn(playerIndex)) {
+                return false;
             }
-            for (ResourceType resource : playerTile.getResources()) {
-                switch (resource) {
-                    case WOOD:
-                        resources.addResource(ResourceType.WOOD, 1);
-                        break;
-                    case STONE:
-                        resources.addResource(ResourceType.STONE, 1);
-                        break;
-                    case CLAY:
-                        resources.addResource(ResourceType.CLAY, 1);
-                        break;
-                    case SHEEP:
-                        resources.addResource(ResourceType.SHEEP, 1);
-                        break;
-                    case WHEAT:
-                        resources.addResource(ResourceType.WHEAT, 1);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Invalid resource type");
+            Player player = players[playerIndex];
+            Map<ResourceType, Integer> cost = building.getRequiredResources();
+            for (Map.Entry<ResourceType, Integer> entry : cost.entrySet()) {
+                if(player.getResource(entry.getKey()) < entry.getValue()) {
+                    System.out.println("Player " + playerIndex + " does not have enough resources to build " + building.getName());
+                    return false;
+                }
+
+            }
+            for (Map.Entry<ResourceType, Integer> entry : cost.entrySet()) {
+                System.out.println("Player " + playerIndex +  " " + player.getResource(entry.getKey()) + " " + entry.getKey());
+                player.removeResource(entry.getKey(), entry.getValue());
+                System.out.println("Player " + playerIndex + " deducted " + entry.getValue() + " " + entry.getKey());
+                System.out.println("Player " + playerIndex +  " " + player.getResource(entry.getKey()) + " " + entry.getKey());
+
+            }
+            player.addBuilding(building);
+            return true;
+        } finally {
+            buildingLock.unlock();
+        }
+    }
+    public void initTradeOffer(int playerIndex, Trade trade)
+    {
+        if(!isPlayerTurn(playerIndex))
+        {
+            return;
+        }
+        Player initiator = players[playerIndex];
+        Player receiver = players[(playerIndex + 1) % 3];
+
+
+        for (Map.Entry<ResourceType, Integer> entry : trade.getOffering().entrySet()) {
+            if(initiator.getResource(entry.getKey()) < entry.getValue()) {
+                return;
+            }
+        }
+        receiver.handleTradeOffer(trade);
+        try{
+            if(!trade.waitForResponse(5000))
+            {
+                trade.setRejected();
+                return;
+            }
+        }catch (InterruptedException e)
+        {
+            return;
+        }
+        if(trade.isAccepted())
+        {
+
+            resourceLock.lock();
+            try {
+                for (Map.Entry<ResourceType, Integer> entry : trade.getOffering().entrySet()) {
+                    initiator.removeResource(entry.getKey(), entry.getValue());
+                    receiver.addResource(entry.getKey(), entry.getValue());
+                    System.out.println("Player " + playerIndex + " transferred " + entry.getValue() + " " + entry.getKey());
+                    System.out.println("Player " + playerIndex +  " " + initiator.getResource(entry.getKey()) + " " + entry.getKey());
+                }
+                for (Map.Entry<ResourceType, Integer> entry : trade.getRequesting().entrySet()) {
+                    receiver.removeResource(entry.getKey(), entry.getValue());
+                    initiator.addResource(entry.getKey(), entry.getValue());
+                    System.out.println("Player " + playerIndex + " received " + entry.getValue() + " " + entry.getKey());
+                    System.out.println("Player " + playerIndex +  " " + initiator.getResource(entry.getKey()) + " " + entry.getKey());
+                }
+            } finally {
+                resourceLock.unlock();
+            }
+        }
+
+    }
+    public boolean isGameEnded() {
+        return gameEnded;
+    }
+    public void distributeResources(int diceRoll, int playerIndex) {
+        resourceLock.lock();
+        try {
+            for (Player player : players) {
+                for (Building building : player.getBuildings()) {
+                    if (building instanceof Settlement) {
+                        Settlement settlement = (Settlement) building;
+                        Map<Integer, ResourceType> diceRollResources = settlement.getDiceRollResources();
+                        for (Map.Entry<Integer, ResourceType> entry : diceRollResources.entrySet()) {
+                            if (entry.getKey() == diceRoll) {
+                                player.addResource(entry.getValue(), 1);
+                                System.out.println("Player " + player.getPlayerIndex() + 
+                                    " received " + 1 + " " + entry.getValue());
+                            }
+                        }
+                    }
                 }
             }
-        }
-    }
-
-    private void printResources() {
-        for (Map.Entry<String, Resources> entry : playerResources.entrySet()) {
-            System.out.println("\n\nPlayer " + entry.getKey());
-            Resources resources = entry.getValue();
-            for(Map.Entry<ResourceType, Integer> resource : resources.getResources().entrySet()) {
-                System.out.println(resource.getKey() + ": " + resource.getValue());
-            }
-        }
-    }
-//
-//    public List<Player> getPlayers() {
-//        lock.readLock().lock();
-//        try {
-//            return players;
-//        } finally {
-//            lock.readLock().unlock();
-//        }
-//    }
-//
-//
-    public void rollDice(Player player) {
-        lock.writeLock().lock();
-        try {
-            int roll = ThreadLocalRandom.current().nextInt(2, 13);
-            while(roll == 7) {
-                roll = ThreadLocalRandom.current().nextInt(2, 13);
-            }
-            System.out.println(player.name + " rolled a " + roll + " at timestamp " + System.currentTimeMillis()/1000 + "s\n\n");
-            distributeResources(roll);
-            printResources();
         } finally {
-            lock.writeLock().unlock();
+            resourceLock.unlock();
         }
     }
-//
-//    public void placeConstruction(Player player, ConstructionTypeVertex build, ConstructionTypeEdge road, int location) {
-//        lock.writeLock().lock();
-//        try {
-//
-//            // Implement construction placement logic
-//        } finally {
-//            lock.writeLock().unlock();
-//        }
-//    }
-//
 
-
-    public void initiateTrade(Player player) {
-        lock.writeLock().lock();
+    public void checkGameEndCondition() {
+        turnLock.lock();
         try {
-//            System.out.println(player.name + " is initiating trade at timestamp " + System.currentTimeMillis()/1000 + "s\n\n");
-
-
-
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-
-//    public void acceptTrade(Player player) {
-//        lock.writeLock().lock();
-//        try {
-//            // Implement trade acceptance logic
-//        } finally {
-//            lock.writeLock().unlock();
-//        }
-//    }
-//    public void declineTrade(Player player) {
-//        lock.writeLock().lock();
-//        try {
-//            // Implement trade rejection logic
-//        } finally {
-//            lock.writeLock().unlock();
-//        }
-//    }
-//
-//    public Player getCurrentPlayer() {
-//        lock.readLock().lock();
-//        try {
-//            return players.get(currentPlayerIndex);
-//        } finally {
-//            lock.readLock().unlock();
-//        }
-//    }
-//
-//    public void nextTurn() {
-//        lock.writeLock().lock();
-//        try {
-//            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-//        } finally {
-//            lock.writeLock().unlock();
-//        }
-//    }
-
-    public void takeAction(Player currentPlayer) {
-        for (ActionsType actionTaken : currentPlayer.actionsToTake) {
-            System.out.println(currentPlayer.name + " is taking action: " + actionTaken);
-
-            switch (actionTaken) {
-                case ROLL_DICE:
-                    this.rollDice(currentPlayer);
-                    break;
-//            case PLACE_SETTLEMENT:
-//                gameState.placeConstruction(this, ConstructionTypeVertex.SETTLEMENT, null, 0);
-//
-//                break;
-                case INITIATE_TRADE:
-                    this.initiateTrade(currentPlayer);
-                    break;
-//            case PLACE_CITY:
-//                gameState.placeConstruction(this, ConstructionTypeVertex.CITY, null, 0);
-//                break;
-//            case    PLACE_ROAD:
-//                gameState.placeConstruction(this, null, ConstructionTypeEdge.ROAD, 0);
-//                break;
-//            case ACCEPT_TRADE:
-//                gameState.acceptTrade(this);
-//                break;
-//            case DECLINE_TRADE:
-//                gameState.declineTrade(this);
-//                break;
-
-                default:
-                    System.out.println("Invalid action");
-                    throw new IllegalArgumentException("Invalid action");
+            if (!gameEnded) {
+                for (Player player : players) {
+                    if (player.getBuildings().size() >= 4) {
+                        gameEnded = true;
+                        System.out.println("Player " + player.getPlayerIndex() + 
+                            " with " + player.getBuildings() + 
+                            " buildings won the game at timestamp " + 
+                            System.currentTimeMillis());
+                        turnCondition.signalAll(); 
+                        break;
+                    }
+                }
             }
+        } finally {
+            turnLock.unlock();
         }
     }
+
+   
 
 
 }
