@@ -4,11 +4,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import Enums.ResourceType;
+import Interfaces.Building;
 
 public class Player implements Runnable {
     private final int playerIndex;
     private final GameState state;
-    private final Map<ResourceType, Integer> resources;
+    private final ConcurrentHashMap<ResourceType, Integer> resources;
     private final List<Building> buildings;
     private final Random random;
 
@@ -19,54 +20,56 @@ public class Player implements Runnable {
         this.buildings = new ArrayList<>();
         this.random = new Random();
 
-        // Starting resources
-        for (ResourceType type : ResourceType.values()) {
-            resources.put(type,1); // Starting amount for each player
+        for (ResourceType resourceType : ResourceType.values()) {
+            resources.put(resourceType, 1);
         }
+     
+       buildings.add(new Settlement());
+       buildings.add(new Settlement());
+       System.out.println("Player " + playerIndex + " created with buildings: " + buildings);
+
     }
 
 
     @Override
     public void run() {
-        while (true) {
-            synchronized(state) {
-                // Check game end condition before processing turn
+        while (!state.isGameEnded()) {
+            try {
+     
+                state.waitForTurn(playerIndex);
+
                 if (state.isGameEnded()) {
                     break;
                 }
+                
+                
+                System.out.println("Player " + playerIndex + " starting turn at " + System.currentTimeMillis());
+                
+              
+                int roll = random.nextInt(11) + 2;
+                System.out.println("Player " + playerIndex + " rolled " + roll + " at " + System.currentTimeMillis());
+                state.distributeResources(roll, playerIndex);
 
-                if (state.isPlayerTurn(playerIndex)) {
-                    // Roll dice
-                    int roll = random.nextInt(6) + 1;
-                    System.out.println("Player " + playerIndex + " rolled " + roll + System.currentTimeMillis());
-
-                    // Collect resources based on buildings
-                    collectResources();
-
-
-                    if (random.nextBoolean()) {
-                        System.out.println("Player " + playerIndex + " initiated trade" + System.currentTimeMillis());
-                        initiateRandomTrade();
-                    }
-
-                    // Try to build something
-                    tryToBuild();
-
-                    // End turn and check game end condition atomically
-                    state.endTurn();
-                    state.checkGameEndCondition();
-
+                
+                if (random.nextBoolean()) {
+                    System.out.println("Player " + playerIndex + " initiated trade at " + System.currentTimeMillis());
+                    initiateRandomTrade();
                 }
 
+               
+                tryToBuild();
 
-            }
-            try {
+              
+                state.checkGameEndCondition();
+                state.endTurn();
+
+              
                 Thread.sleep(1000);
+
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                break;
             }
-
-
         }
     }
 
@@ -74,25 +77,16 @@ public class Player implements Runnable {
         return playerIndex;
     }
 
-    private void collectResources() {
-        for (Building building : buildings) {
-            Map<ResourceType, Integer> production = building.getResourceProduction();
-            System.out.println("Player " + playerIndex + " collecting resources" + System.currentTimeMillis());
-            for (Map.Entry<ResourceType, Integer> entry : production.entrySet()) {
-                addResource(entry.getKey(), entry.getValue());
-                System.out.println("Player " + playerIndex + " collected " + entry.getValue() + " " + entry.getKey());
-            }
-        }
-    }
+    
 
     private void initiateRandomTrade() {
 
         Map<ResourceType, Integer> offering = new HashMap<>();
         Map<ResourceType, Integer> requesting = new HashMap<>();
 
-        ResourceType offerType = ResourceType.values()[random.nextInt(ResourceType.values().length)];
-        ResourceType requestType = ResourceType.values()[random.nextInt(ResourceType.values().length)];
-
+        ResourceType offerType = Collections.max(resources.entrySet(), Map.Entry.comparingByValue()).getKey();
+      
+        ResourceType requestType = Collections.min(resources.entrySet(), Map.Entry.comparingByValue()).getKey();
         offering.put(offerType, 1);
         requesting.put(requestType, 1);
 
@@ -102,7 +96,7 @@ public class Player implements Runnable {
     }
 
     private void tryToBuild() {
-        Building building = state.getAvailableBuildings().get(random.nextInt(state.getAvailableBuildings().size()));
+        Building building = new Settlement();
         if (state.build(playerIndex, building)) {
             System.out.println("Player " + playerIndex + " built " + building.getName() + System.currentTimeMillis());
         }
@@ -160,4 +154,3 @@ public class Player implements Runnable {
 
 
 }
-
