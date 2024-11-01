@@ -27,11 +27,11 @@ public class Player implements Runnable{
                     Thread.sleep(randomWait/3);
                 }
                 state.tryToBuild(this, new Settlement());
+    
                 Thread.sleep(1000);
-            
+        
             } catch (InterruptedException e) {
-               Thread.currentThread().interrupt();
-               break;
+                System.out.println("Player " + this.id + " was interrupted");
             }
         }
 

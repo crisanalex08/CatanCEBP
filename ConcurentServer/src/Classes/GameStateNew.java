@@ -3,12 +3,12 @@ package Classes;
 import Enums.ResourceType;
 import Interfaces.Building;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class GameStateNew {
@@ -18,8 +18,7 @@ public class GameStateNew {
     private ReentrantLock diceRollLock;
 
     private ReentrantReadWriteLock resourcesLock;
-    private volatile boolean gameEnded;
-    private volatile int winner = -1;
+    private volatile AtomicBoolean gameEnded;
     private volatile int currentPlayer = 0;
 
 
@@ -35,7 +34,7 @@ public class GameStateNew {
         this.playersBuildings = new ConcurrentHashMap<Integer, List<Building>>();
         this.diceRollLock = new ReentrantLock(true);
         
-        this.gameEnded = false;
+        this.gameEnded = new AtomicBoolean(false);
         this.resourcesLock = new ReentrantReadWriteLock();
 
         initPlayerResources();
@@ -46,7 +45,7 @@ public class GameStateNew {
 
         Building settlement = new Settlement();
         List<Building> buildings = new ArrayList<>(
-                Collections.nCopies(2, settlement));
+                Collections.nCopies(1, settlement));
 
         playersBuildings.put(i,buildings);
     }
@@ -108,54 +107,57 @@ public class GameStateNew {
             resourcesLock.readLock().unlock();
         }
     }
-    public void tryToBuild(Player player, Building building) throws InterruptedException {
+    public void tryToBuild(Player player, Building building)   {
+        
+
         resourcesLock.readLock().lock();
         try {
-
+           
+            if(gameEnded.get()) {
+                return;
+            }
+            
             if(hasEnoughResources(player, building))
             {
                 System.out.println("Player " + player.getId() + " has enough resources to build " + building.getName() + " at " + System.currentTimeMillis());
                 building.getRequiredResources().forEach((resourceType, quantity) -> {
                     playersResources.get(player.getId()).removeResource(resourceType, quantity);
                 });
+
+                System.out.println("Player " + player.getId() + " has " + "resources: " + playersResources.get(player.getId()).getResources() + " at " + System.currentTimeMillis());
                 playersBuildings.get(player.getId()).add(building);
+
                 System.out.println("Player " + player.getId() + " built " + building.getName() + " at " + System.currentTimeMillis());
-                
-                checkGameEndCondition(currentPlayer);
-                
-              
 
-
+                checkGameEndCondition();
             } else {
                 System.out.println("Player " + player.getId() + " does not have enough resources to build " + building.getName() + " at " + System.currentTimeMillis());
+                return;
             }
         } 
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         finally
         {
             resourcesLock.readLock().unlock();
         }
     }
     public boolean isGameEnded() {
-        System.out.println("Game ended: " + gameEnded);
-        return gameEnded;
+        return gameEnded.get();
     }
-    public void checkGameEndCondition(int playerId) throws InterruptedException {
-        System.out.println("Check " + playersBuildings.get(playerId).size());
-        if(playersBuildings.get(playerId).size() >= 3) {
-            
-            gameEnded = true;
-            winner = playerId;
+    public void checkGameEndCondition()  {
 
-            throw new InterruptedException("Player " + playerId + " has won the game!");
-
-        
+        for (int i = 0; i < numPlayers; i++) {
+            if (playersBuildings.get(i).size() >= 3) {
+                gameEnded.set(true);
+                System.out.println("Player " + i + " has won the game at " + System.currentTimeMillis());
+                break;
+            }
         }
-     
-
+    }
+      
        
-    }
 
-    public int getWinner() {
-        return winner;
-    }
+  
 }
