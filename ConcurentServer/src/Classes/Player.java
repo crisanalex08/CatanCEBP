@@ -26,10 +26,8 @@ public class Player implements Runnable{
                 else{
                     Thread.sleep(randomWait/3);
                 }
-                state.tryToBuild(this, new Settlement());
+                state.tryToBuild(this, new Settlement(true));
     
-                Thread.sleep(1000);
-        
             } catch (InterruptedException e) {
                 System.out.println("Player " + this.id + " was interrupted");
             }

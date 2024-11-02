@@ -1,7 +1,7 @@
 package Classes;
 
 import Enums.ResourceType;
-import Interfaces.Building;
+import Interfaces.IBuilding;
 
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.ArrayList;
@@ -10,16 +10,19 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameStateNew {
     private final int numPlayers;
     private ConcurrentHashMap<Integer, Resources> playersResources;
-    private ConcurrentHashMap<Integer, List<Building>> playersBuildings;
+    private ConcurrentHashMap<Integer, List<IBuilding>> playersBuildings;
     private ReentrantLock diceRollLock;
 
     private ReentrantReadWriteLock resourcesLock;
     private volatile AtomicBoolean gameEnded;
     private volatile int currentPlayer = 0;
+    private final ReentrantReadWriteLock distributionLock = new ReentrantReadWriteLock();
 
 
     public void setCurrentPlayer(int currentPlayer) {
@@ -31,7 +34,7 @@ public class GameStateNew {
     public GameStateNew(int numPlayers) {
         this.numPlayers = numPlayers;
         this.playersResources = new ConcurrentHashMap<Integer, Resources>();
-        this.playersBuildings = new ConcurrentHashMap<Integer, List<Building>>();
+        this.playersBuildings = new ConcurrentHashMap<Integer, List<IBuilding>>();
         this.diceRollLock = new ReentrantLock(true);
         
         this.gameEnded = new AtomicBoolean(false);
@@ -43,8 +46,8 @@ public class GameStateNew {
     private void initPlayerBuildings() {
     for (int i = 0; i < numPlayers; i++) {
 
-        Building settlement = new Settlement();
-        List<Building> buildings = new ArrayList<>(
+        IBuilding settlement = new Settlement();
+        List<IBuilding> buildings = new ArrayList<>(
                 Collections.nCopies(1, settlement));
 
         playersBuildings.put(i,buildings);
@@ -53,18 +56,12 @@ public class GameStateNew {
     private void initPlayerResources() {
         for (int i = 0; i <numPlayers; i++) {
             Resources resources = new Resources();
-            if(i == 0) {
-                resources.addResource(ResourceType.WOOD, 2);
-                resources.addResource(ResourceType.CLAY, 2);
-                resources.addResource(ResourceType.SHEEP, 2);
-                resources.addResource(ResourceType.WHEAT, 2);
-            }
-            else {
+          
                 resources.addResource(ResourceType.WOOD, 1);
                 resources.addResource(ResourceType.CLAY, 1);
                 resources.addResource(ResourceType.SHEEP, 1);
                 resources.addResource(ResourceType.WHEAT, 1);
-            }
+            
             playersResources.put(i, resources);
         }
     }
@@ -90,14 +87,45 @@ public class GameStateNew {
         }
     }
     public void distributeResources(int roll){
-        resourcesLock.writeLock().lock();
+       
+        distributionLock.writeLock().lock();
         try {
-            System.out.println("Distributing resources for roll " + roll + " at " + System.currentTimeMillis());
+            for (int i = 0; i < numPlayers; i++) {
+                final int playerId = i;
+                
+                Map<ResourceType, Integer> resourcesToAdd = new HashMap<>();
+                
+                List<IBuilding> buildings = playersBuildings.get(playerId);
+                for (IBuilding building : buildings) {
+                    if (building instanceof Settlement) {
+                        Settlement settlement = (Settlement) building;
+                        ResourceType resource = settlement.getDiceRollResources().get(roll);
+                        if (resource != null) {
+                            resourcesToAdd.merge(resource, 1, Integer::sum);
+                        }
+                    }
+                }
+                
+                
+                if (!resourcesToAdd.isEmpty()) {
+                    resourcesLock.writeLock().lock();
+                    try {
+                        Resources playerResources = playersResources.get(playerId);
+                        resourcesToAdd.forEach((resource, amount) -> {
+                            playerResources.addResource(resource, amount);
+                            System.out.println("Player " + playerId + " received " + resource + " at " + System.currentTimeMillis());
+                        });
+                        System.out.println("Player " + playerId + " has resources: " + playerResources.getResources() + " at " + System.currentTimeMillis());
+                    } finally {
+                        resourcesLock.writeLock().unlock();
+                    }
+                }
+            }
         } finally {
-            resourcesLock.writeLock().unlock();
+            distributionLock.writeLock().unlock();
         }
     }
-    public boolean hasEnoughResources(Player player, Building building) {
+    public boolean hasEnoughResources(Player player, IBuilding building) {
         resourcesLock.readLock().lock();
         try {
             Resources playerResources = playersResources.get(player.getId());
@@ -107,7 +135,7 @@ public class GameStateNew {
             resourcesLock.readLock().unlock();
         }
     }
-    public void tryToBuild(Player player, Building building)   {
+    public void tryToBuild(Player player, IBuilding building)   {
         
 
         resourcesLock.readLock().lock();
@@ -131,6 +159,7 @@ public class GameStateNew {
 
                 checkGameEndCondition();
             } else {
+                initTrade(player);
                 System.out.println("Player " + player.getId() + " does not have enough resources to build " + building.getName() + " at " + System.currentTimeMillis());
                 return;
             }
@@ -142,6 +171,9 @@ public class GameStateNew {
         {
             resourcesLock.readLock().unlock();
         }
+    }
+    public void initTrade(Player player) {
+        System.out.println("Player " + player.getId() + " is trading at " + System.currentTimeMillis());
     }
     public boolean isGameEnded() {
         return gameEnded.get();
