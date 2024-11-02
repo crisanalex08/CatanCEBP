@@ -22,8 +22,7 @@ public class GameStateNew {
     private ReentrantReadWriteLock resourcesLock;
     private volatile AtomicBoolean gameEnded;
     private volatile int currentPlayer = 0;
-    private final ReentrantReadWriteLock distributionLock = new ReentrantReadWriteLock();
-
+    
 
     public void setCurrentPlayer(int currentPlayer) {
         this.currentPlayer = currentPlayer;
@@ -86,43 +85,35 @@ public class GameStateNew {
             }
         }
     }
-    public void distributeResources(int roll){
-       
-        distributionLock.writeLock().lock();
-        try {
-            for (int i = 0; i < numPlayers; i++) {
-                final int playerId = i;
-                
-                Map<ResourceType, Integer> resourcesToAdd = new HashMap<>();
-                
-                List<IBuilding> buildings = playersBuildings.get(playerId);
-                for (IBuilding building : buildings) {
-                    if (building instanceof Settlement) {
-                        Settlement settlement = (Settlement) building;
-                        ResourceType resource = settlement.getDiceRollResources().get(roll);
-                        if (resource != null) {
-                            resourcesToAdd.merge(resource, 1, Integer::sum);
-                        }
+    public void distributeResources(int roll) {
+        for (int i = 0; i < numPlayers; i++) {
+            final int playerId = i;
+            Map<ResourceType, Integer> resourcesToAdd = new HashMap<>();
+
+          
+            List<IBuilding> buildings = playersBuildings.get(playerId);
+            for (IBuilding building : buildings) {
+                if (building instanceof Settlement) {
+                    Settlement settlement = (Settlement) building;
+                    ResourceType resource = settlement.getDiceRollResources().get(roll);
+                    if (resource != null) {
+                        resourcesToAdd.merge(resource, 1, Integer::sum);
                     }
-                }
-                
-                
-                if (!resourcesToAdd.isEmpty()) {
-                    resourcesLock.writeLock().lock();
-                    try {
-                        Resources playerResources = playersResources.get(playerId);
-                        resourcesToAdd.forEach((resource, amount) -> {
-                            playerResources.addResource(resource, amount);
-                            System.out.println("Player " + playerId + " received " + resource + " at " + System.currentTimeMillis());
-                        });
-                        System.out.println("Player " + playerId + " has resources: " + playerResources.getResources() + " at " + System.currentTimeMillis());
-                    } finally {
-                        resourcesLock.writeLock().unlock();
-                    }
+
                 }
             }
-        } finally {
-            distributionLock.writeLock().unlock();
+
+            if (!resourcesToAdd.isEmpty()) {
+               
+                resourcesLock.writeLock().lock();
+                try {
+                    Resources playerResources = playersResources.get(playerId);
+                    resourcesToAdd.forEach(playerResources::addResource);
+                    System.out.println("Player " + playerId + " received resources: " + resourcesToAdd + " at " + System.currentTimeMillis());
+                } finally {
+                    resourcesLock.writeLock().unlock();
+                }
+            }
         }
     }
     public boolean hasEnoughResources(Player player, IBuilding building) {
