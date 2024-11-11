@@ -5,6 +5,7 @@ import com.example.gameserver.enums.GameStatus;
 import java.util.List;
 
 @Data
+
 public class Game {
     private String id;
     private String hostName;

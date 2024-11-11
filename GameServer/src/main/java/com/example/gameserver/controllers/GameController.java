@@ -36,7 +36,7 @@ public class GameController {
 
     @GetMapping("/{gameId}")
     public ResponseEntity<Game> getGameDetails(@PathVariable String gameId) {
-        com.example.gameserver.aggregates.Game game = gameService.getGameById(gameId);
+        Game game = gameService.getGameById(gameId);
         if (game == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
