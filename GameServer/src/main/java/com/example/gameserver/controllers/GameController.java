@@ -6,6 +6,9 @@ import com.example.gameserver.exceptions.GameFullException;
 import com.example.gameserver.exceptions.GameNotFoundException;
 import com.example.gameserver.exceptions.InvalidGameStateException;
 import com.example.gameserver.services.GameService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import com.example.gameserver.aggregates.Game;
 
 @RestController
 @RequestMapping("/api/games")
+@Tag(name = "Game Controller", description = "Operations to manage games")
 public class GameController {
 
     private final GameService gameService;
