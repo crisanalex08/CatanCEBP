@@ -23,11 +23,7 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<String> getGameDetails() {
-        return new ResponseEntity<>("Hello project", HttpStatus.OK);
-    }
-
+ 
     @PostMapping("/create")
     public ResponseEntity<Game> createGame(@RequestBody GameCreateRequest request) {
         Game newGame = gameService.createGame(request);
