@@ -13,6 +13,8 @@ public class SpringFoxConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
+                .apis(RequestHandlerSelectors.basePackage("com.example.gameserver"))
+                .paths(PathSelectors.any())
                 .build();
     }
 }
