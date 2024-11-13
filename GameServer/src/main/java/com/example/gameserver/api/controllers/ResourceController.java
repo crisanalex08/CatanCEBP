@@ -1,4 +1,4 @@
-package com.example.gameserver.controllers;
+package com.example.gameserver.api.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -7,19 +7,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.gameserver.aggregates.Resources;
+import com.example.gameserver.entity.Resources;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.services.ResourceService;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 
 @RestController
-@RequestMapping("/api/games/{gameId}/resources")
+@RequestMapping("/api/games/{gameId}/resources/")
 
 @Tag(name = "Resource Controller", description = "Operations to manage resources")
 public class ResourceController {
@@ -51,7 +51,7 @@ public class ResourceController {
     }
 
     @GetMapping("/{playerId}/add")
-    public ResponseEntity<Resources> addResource(@PathVariable String gameId,@PathVariable String playerId,@RequestParam ResourceType resourceType,@RequestParam int amount) {
+    public ResponseEntity<Resources> addResource(@PathVariable String gameId,@PathVariable String playerId,@RequestBody ResourceType resourceType,@RequestBody int amount) {
         Resources resources = resourceService.addResource(gameId, playerId, resourceType, amount);
         if (resources == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -61,7 +61,7 @@ public class ResourceController {
 
 
     @GetMapping("/{playerId}/remove")
-    public ResponseEntity<Resources> removeResource(@PathVariable String gameId,@PathVariable String playerId,@RequestParam ResourceType resourceType,@RequestParam int amount) {
+    public ResponseEntity<Resources> removeResource(@PathVariable String gameId,@PathVariable String playerId,@RequestBody ResourceType resourceType,@RequestBody int amount) {
     Resources resources = resourceService.removeResource(gameId, playerId, resourceType, amount);
         if (resources == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

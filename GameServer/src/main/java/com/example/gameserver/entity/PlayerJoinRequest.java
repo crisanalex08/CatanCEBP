@@ -1,4 +1,4 @@
-package com.example.gameserver.aggregates;
+package com.example.gameserver.entity;
 
 import lombok.Data;
 
