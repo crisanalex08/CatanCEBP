@@ -1,7 +1,8 @@
-package com.example.gameserver.controllers;
+package com.example.gameserver.api.controllers;
 
-import com.example.gameserver.aggregates.GameCreateRequest;
-import com.example.gameserver.aggregates.PlayerJoinRequest;
+import com.example.gameserver.entity.Game;
+import com.example.gameserver.entity.GameCreateRequest;
+import com.example.gameserver.entity.PlayerJoinRequest;
 import com.example.gameserver.exceptions.GameFullException;
 import com.example.gameserver.exceptions.GameNotFoundException;
 import com.example.gameserver.exceptions.InvalidGameStateException;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.gameserver.aggregates.Game;
 
 @RestController
 @RequestMapping("/api/games")

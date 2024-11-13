@@ -2,7 +2,7 @@ package com.example.gameserver.services;
 
 import org.springframework.stereotype.Service;
 
-import com.example.gameserver.aggregates.Resources;
+import com.example.gameserver.entity.Resources;
 import com.example.gameserver.enums.ResourceType;
 
 @Service

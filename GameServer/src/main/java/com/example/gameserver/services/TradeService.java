@@ -2,16 +2,15 @@ package com.example.gameserver.services;
 
 import org.springframework.stereotype.Service;
 
-
-import com.example.gameserver.aggregates.Trade;
-import com.example.gameserver.aggregates.TradeCreateRequest;
+import com.example.gameserver.api.dto.TradeCreateRequestDTO;
+import com.example.gameserver.entity.Trade;
 
 
 @Service
 public class TradeService {
 
 
-    public Trade createTrade(String gameId, String playerId, TradeCreateRequest request) {
+    public Trade createTrade(String gameId, String playerId, TradeCreateRequestDTO request) {
         return null;
     }
 

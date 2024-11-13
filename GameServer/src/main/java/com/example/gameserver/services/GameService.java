@@ -1,9 +1,10 @@
 package com.example.gameserver.services;
 
-import com.example.gameserver.aggregates.Game;
-import com.example.gameserver.aggregates.GameCreateRequest;
-import com.example.gameserver.aggregates.PlayerJoinRequest;
 import org.springframework.stereotype.Service;
+
+import com.example.gameserver.entity.Game;
+import com.example.gameserver.entity.GameCreateRequest;
+import com.example.gameserver.entity.PlayerJoinRequest;
 
 @Service
 public class GameService {

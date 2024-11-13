@@ -1,4 +1,4 @@
-package com.example.gameserver.controllers;
+package com.example.gameserver.api.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.gameserver.aggregates.Trade;
-import com.example.gameserver.aggregates.TradeCreateRequest;
+import com.example.gameserver.api.dto.TradeCreateRequestDTO;
+import com.example.gameserver.entity.Trade;
 import com.example.gameserver.services.TradeService;
 
 import io.swagger.models.Response;
@@ -32,7 +32,7 @@ public class TradeController {
     }
 
     @PostMapping("/{playerId}/create-trade")
-    public ResponseEntity<Response> createTrade(@RequestBody TradeCreateRequest request, @PathVariable String gameId, @PathVariable String playerId) {
+    public ResponseEntity<Response> createTrade(@RequestBody TradeCreateRequestDTO request, @PathVariable String gameId, @PathVariable String playerId) {
 
         Trade trade = tradeService.createTrade(gameId, playerId, request);
         if (trade == null) {

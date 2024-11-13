@@ -1,4 +1,4 @@
-package com.example.gameserver.controllers;
+package com.example.gameserver.api.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.gameserver.aggregates.Resources;
+import com.example.gameserver.entity.Resources;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.services.ResourceService;
 
