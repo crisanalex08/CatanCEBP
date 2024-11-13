@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.gameserver.aggregates.Resources;
 import com.example.gameserver.aggregates.Trade;
+import com.example.gameserver.aggregates.TradeCreateRequest;
 import com.example.gameserver.services.TradeService;
 
 import io.swagger.models.Response;
@@ -32,9 +32,9 @@ public class TradeController {
     }
 
     @PostMapping("/{playerId}/create-trade")
-    public ResponseEntity<Response> createTrade(@PathVariable String gameId, @PathVariable String playerId, @RequestBody Resources offer, @RequestBody Resources request) {
+    public ResponseEntity<Response> createTrade(@RequestBody TradeCreateRequest request, @PathVariable String gameId, @PathVariable String playerId) {
 
-        Trade trade = tradeService.createTrade(gameId, playerId, offer, request);
+        Trade trade = tradeService.createTrade(gameId, playerId, request);
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

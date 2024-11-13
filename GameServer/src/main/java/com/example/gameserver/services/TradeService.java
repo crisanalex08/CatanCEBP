@@ -2,15 +2,16 @@ package com.example.gameserver.services;
 
 import org.springframework.stereotype.Service;
 
-import com.example.gameserver.aggregates.Resources;
+
 import com.example.gameserver.aggregates.Trade;
+import com.example.gameserver.aggregates.TradeCreateRequest;
 
 
 @Service
 public class TradeService {
 
 
-    public Trade createTrade(String gameId, String playerId, Resources offer, Resources request) {
+    public Trade createTrade(String gameId, String playerId, TradeCreateRequest request) {
         return null;
     }
 
