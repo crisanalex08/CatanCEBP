@@ -6,10 +6,7 @@ import lombok.Data;
 
 
 @Data
-
-
 public class TradeCreateRequestDTO {
-    
     private String gameId;
     private String playerId;
     private Resources offer;

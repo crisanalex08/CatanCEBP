@@ -1,8 +1,7 @@
-package com.example.gameserver.controllers;
+package com.example.gameserver.api.controllers;
 
-import com.example.gameserver.aggregates.Building;
-import com.example.gameserver.aggregates.BuildingCreateRequest;
-import com.example.gameserver.aggregates.Resources;
+import com.example.gameserver.api.dto.BuildingCreateRequest;
+import com.example.gameserver.entity.Building;
 import com.example.gameserver.enums.BuildingType;
 import com.example.gameserver.services.BuildingService;
 import io.swagger.v3.oas.annotations.tags.Tag;

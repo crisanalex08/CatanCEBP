@@ -1,6 +1,6 @@
 package com.example.gameserver.services;
-import com.example.gameserver.aggregates.Building;
-import com.example.gameserver.aggregates.BuildingCreateRequest;
+import com.example.gameserver.api.dto.BuildingCreateRequest;
+import com.example.gameserver.entity.Building;
 import com.example.gameserver.enums.BuildingType;
 import org.springframework.stereotype.Service;
 

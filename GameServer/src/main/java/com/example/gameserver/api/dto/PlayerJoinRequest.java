@@ -1,4 +1,4 @@
-package com.example.gameserver.entity;
+package com.example.gameserver.api.dto;
 
 import lombok.Data;
 

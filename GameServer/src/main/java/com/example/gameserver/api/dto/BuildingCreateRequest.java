@@ -1,4 +1,4 @@
-package com.example.gameserver.aggregates;
+package com.example.gameserver.api.dto;
 
 import com.example.gameserver.enums.BuildingType;
 import lombok.Data;
@@ -6,6 +6,4 @@ import lombok.Data;
 @Data
 public class BuildingCreateRequest {
     private BuildingType type;
-    private int x;
-    private int y;
 }
