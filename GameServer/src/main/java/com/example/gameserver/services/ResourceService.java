@@ -24,6 +24,10 @@ public class ResourceService {
         return null;
     }
 
+    public Resources distributeResources(String gameId, String playerId) {
+        return null;
+    }
+
     
     
 }

@@ -8,6 +8,7 @@ import com.example.gameserver.exceptions.GameNotFoundException;
 import com.example.gameserver.exceptions.InvalidGameStateException;
 import com.example.gameserver.services.GameService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,14 @@ public class GameController {
     }
 
  
+    @Operation(summary = "Create a new game")
     @PostMapping("/create")
     public ResponseEntity<Game> createGame(@RequestBody GameCreateRequest request) {
         Game newGame = gameService.createGame(request);
         return new ResponseEntity<>(newGame, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Get game details")
     @GetMapping("/{gameId}")
     public ResponseEntity<Game> getGameDetails(@PathVariable String gameId) {
         Game game = gameService.getGameById(gameId);
@@ -43,6 +46,7 @@ public class GameController {
         return new ResponseEntity<>(game, HttpStatus.OK);
     }
 
+    @Operation(summary = "Join a game")
     @PostMapping("/{gameId}/join")
     public ResponseEntity<Game> joinGame(
             @PathVariable String gameId,
@@ -57,6 +61,7 @@ public class GameController {
         }
     }
 
+    @Operation(summary = "Start a game")
     @PostMapping("/{gameId}/start")
     public ResponseEntity<Game> startGame(@PathVariable String gameId) {
         try {
