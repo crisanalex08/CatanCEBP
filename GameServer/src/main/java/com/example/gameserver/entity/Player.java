@@ -1,12 +1,13 @@
 package com.example.gameserver.entity;
 
 import com.example.gameserver.enums.PlayerStatus;
+
+import jakarta.persistence.Id;
 import lombok.Data;
-import nonapi.io.github.classgraph.json.Id;
 
 @Data
 class Player {
-    @Id
+    @Id    
     private String id;
     
     private String name;

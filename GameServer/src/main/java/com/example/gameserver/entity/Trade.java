@@ -4,14 +4,16 @@ import java.sql.Date;
 
 import com.example.gameserver.enums.TradeStatus;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.Data;
-import nonapi.io.github.classgraph.json.Id;
+
 
 @Data
+@Entity
 public class Trade {
     @Id
     private String id;
-    
     private Player seller;
     private Resources offering;
     private Resources requesting;

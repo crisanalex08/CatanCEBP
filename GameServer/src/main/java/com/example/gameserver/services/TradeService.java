@@ -1,5 +1,7 @@
 package com.example.gameserver.services;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.example.gameserver.api.dto.TradeCreateRequestDTO;
@@ -17,7 +19,7 @@ public class TradeService {
     public Trade getTrade(String gameId, String tradeId) {
         return null;
     }
-    public Trade getTrades(String gameId) {
+    public List<Trade> getTrades(String gameId) {
         return null;
     }
 
