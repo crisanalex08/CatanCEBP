@@ -1,5 +1,4 @@
 package Classes;
-
 import Enums.ResourceType;
 import Interfaces.IBuilding;
 
