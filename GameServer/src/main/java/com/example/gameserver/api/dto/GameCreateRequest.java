@@ -6,6 +6,6 @@ import lombok.Data;
 
 @Data
 public class GameCreateRequest {
-    private String hostName;
+    private Long hostId;
     private GameSettings settings;
 }

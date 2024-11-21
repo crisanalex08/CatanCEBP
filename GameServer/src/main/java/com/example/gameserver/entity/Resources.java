@@ -18,7 +18,7 @@ import jakarta.validation.constraints.Min;
 
 
 @Data
-@Entity
+
 public class Resources {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
