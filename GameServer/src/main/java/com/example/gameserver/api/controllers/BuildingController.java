@@ -66,7 +66,7 @@ public class BuildingController {
     //No inter-service communication required
     @GetMapping("/{playerId}/{buildingId}/info")
     public ResponseEntity<Building> getBuildingInfo(@PathVariable String gameId, @PathVariable String playerId, @PathVariable String buildingId) {
-        Building building = buildingService.BuildingInfo(gameId, playerId, buildingId);
+        Building building = buildingService.buildingInfo(playerId, gameId, buildingId);
         if (building == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
