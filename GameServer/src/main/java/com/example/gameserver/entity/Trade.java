@@ -10,7 +10,7 @@ import lombok.Data;
 
 
 @Data
-@Entity
+
 public class Trade {
     @Id
     private String id;

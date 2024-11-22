@@ -17,6 +17,7 @@ import com.example.gameserver.api.dto.TradeCreateRequestDTO;
 import com.example.gameserver.entity.Trade;
 import com.example.gameserver.services.TradeService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -32,6 +33,7 @@ public class TradeController {
         this.tradeService = tradeService;
     }
 
+    @Operation (summary = "Create a trade")
     @PostMapping("/{playerId}/create-trade")
     public ResponseEntity<Trade> createTrade(@RequestBody TradeCreateRequestDTO request, @PathVariable String gameId, @PathVariable String playerId) {
 
@@ -42,6 +44,8 @@ public class TradeController {
         return new ResponseEntity<>(trade, HttpStatus.CREATED);
         
     }
+
+    @Operation (summary = "Get all trades")
     @GetMapping()
     public ResponseEntity<List<Trade>> getTrades(@PathVariable String gameId) {
         List<Trade> trades = tradeService.getTrades(gameId);
@@ -52,6 +56,7 @@ public class TradeController {
     }
 
 
+    @Operation (summary = "Get a trade")
     @GetMapping("/{tradeId}")
     public ResponseEntity<Trade> getTrade(@PathVariable String gameId, @PathVariable String tradeId) {
         Trade trade = tradeService.getTrade(gameId, tradeId);
@@ -61,7 +66,7 @@ public class TradeController {
         return new ResponseEntity<>(trade, HttpStatus.OK);
     }
 
-
+    @Operation (summary = "Accept a trade")
     @PutMapping("/{playerId}/accept-trade/{tradeId}")
     public ResponseEntity<Trade> acceptTrade(@PathVariable String gameId,@PathVariable String tradeId, @PathVariable String playerId) {
         Trade trade = tradeService.acceptTrade(gameId, playerId, tradeId);
@@ -71,6 +76,8 @@ public class TradeController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+    @Operation (summary = "Decline a trade")
     @DeleteMapping("/{playerId}/decline-trade/{tradeId}")   
     public ResponseEntity<Trade> declineTrade(@PathVariable String gameId,@PathVariable String tradeId, @PathVariable String playerId) {
         Trade trade = tradeService.declineTrade(gameId, playerId, tradeId);
