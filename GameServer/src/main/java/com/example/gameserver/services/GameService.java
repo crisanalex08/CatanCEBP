@@ -82,6 +82,8 @@ public class GameService {
 
         game.setStatus(GameStatus.IN_PROGRESS); 
         gameRepository.save(game);
+
+        
         
         return game;
     }
@@ -118,4 +120,12 @@ public class GameService {
         gameRepository.save(game);
         return game;
     }
+
+    // List all games
+    public Iterable<Game> listGames() {
+        //Find all available games 
+        return gameRepository.findByStatus(GameStatus.WAITING);
+
+    }
+
 }
