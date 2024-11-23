@@ -1,5 +1,57 @@
-# CatanCEBP
-This is where our CEBP project will live
+# **CatanCEBP – Reguli de Joc**
+
+## **Jucători**
+- **Maxim:** 4 jucători.
+---
+
+## **Setup Inițial**
+### **Settlement**
+- Fiecare jucător începe cu un **Settlement**.
+- Fiecare Settlement produce **2 tipuri diferite de resurse** (Random) din:  
+  - **Wood**, **Clay**, **Wheat**, fiecare în cantitate de **1**.
+- Fiecare resursă este asociată unui număr de la **1 la 6** (corespunzător zarurilor).  
+  - **Exemple:**  
+    - **Settlement Player 1**: Wood - Nr. 3, Clay - Nr. 1.  
+    - **Settlement Player 2**: Clay - Nr. 4, Wheat - Nr. 3.
+
+---
+
+## **Construcții**
+
+### **1. Town**
+- Poate fi construit prin upgrade-ul unui Settlement.
+- **Cost:**  
+  - **2 Wood, 2 Clay, 2 Wheat.**
+- Produce **2 tipuri diferite de resurse noi** (Random) din:  
+  - **Stone**, **Sheep**, **Metal**, fiecare în cantitate de **1**.
+- Fiecare resursă este asociată unui număr de la **1 la 6**.  
+  - **Exemple:**  
+    - **Town Player 1**: Metal - Nr. 3, Stone - Nr. 1.  
+    - **Town Player 2**: Stone - Nr. 4, Sheep - Nr. 3.
+
+### **2. Castle**
+- Poate fi construit prin upgrade-ul unui Town.
+- **Cost:**  
+  - **3 Metal, 3 Stone, 3 Wood, 3 Sheep.**
+- Construirea Castelului = **Victoria în joc**.
+
+---
+
+## **Reguli Generale**
+1. **Maxim 3 Construcții per Jucător**
+   - Fiecare jucător poate avea cel mult **3 construcții** pe hartă.
+   - Ordinea construcțiilor: **Settlement → Town → Castle**.
+
+2. **Trade**
+   - Negocieri libere între jucători.
+   - Schimburi cu negustorii: **3-(4?) resurse de același tip pentru 1 resursă la alegere.**
+
+---
+
+## **Scopul Jocului**
+Construiește un **Castle** pentru a câștiga. Planifică atent resursele, fă schimburi și optimizează zarurile pentru a atinge victoria!
+
+
 # Game API Specification
 
 ## Authentication Endpoints
@@ -13,11 +65,10 @@ GET  /api/auth/profile
 ## Game Session Management
 ```
 POST /api/games/create              # Create a new game session
-<!-- GET  /api/games/list                # List available games -->
+GET  /api/games/list                # List available games
 GET  /api/games/{gameId}            # Get game details
 POST /api/games/{gameId}/join       # Join an existing game
 POST /api/games/{gameId}/start      # Start the game (for host)
-<!-- GET  /api/games/{gameId}/state      # Get current game state -->
 ```
 
 ## Resource Management
@@ -46,7 +97,7 @@ GET  /api/games/{gameId}/market/my-offers            # List player's active offe
 DELETE /api/games/{gameId}/market/offers/{offerId}   # Cancel trade offer
 ```
 
-## Player Interaction
+## Game mechanics 
 ```
 GET  /api/games/{gameId}/players                     # List players in game
 POST /api/games/{gameId}/players/trade              # Direct trade with player
