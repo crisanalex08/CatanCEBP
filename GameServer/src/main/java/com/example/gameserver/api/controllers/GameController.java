@@ -32,45 +32,48 @@ public class GameController {
     @Operation(summary = "Create a new game")
     @PostMapping("/create")
     public ResponseEntity<Game> createGame(@RequestBody GameCreateRequest request) {
+        
         Game newGame = gameService.createGame(request);
         return new ResponseEntity<>(newGame, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Get game details")
     @GetMapping("/{gameId}")
-    public ResponseEntity<Game> getGameDetails(@PathVariable String gameId) {
-        Game game = gameService.getGameById(gameId);
-        if (game == null) {
+    public ResponseEntity<Game> getGameDetails(@PathVariable Long gameId) {
+        try {
+            Game game = gameService.getGameById(gameId);
+            return new ResponseEntity<>(game, HttpStatus.OK);
+        } catch (GameNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(game, HttpStatus.OK);
+       
     }
 
     @Operation(summary = "Join a game")
     @PostMapping("/{gameId}/join")
-    public ResponseEntity<Game> joinGame(
-            @PathVariable String gameId,
+    public ResponseEntity<?> joinGame(
+            @PathVariable Long gameId,
             @RequestBody PlayerJoinRequest request) {
         try {
             Game game = gameService.joinGame(gameId, request);
             return new ResponseEntity<>(game, HttpStatus.OK);
         } catch (GameNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         } catch (GameFullException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
 
     @Operation(summary = "Start a game")
     @PostMapping("/{gameId}/start")
-    public ResponseEntity<Game> startGame(@PathVariable String gameId) {
+    public ResponseEntity<?> startGame(@PathVariable Long gameId) {
         try {
             Game game = gameService.startGame(gameId);
             return new ResponseEntity<>(game, HttpStatus.OK);
         } catch (GameNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (InvalidGameStateException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
 }

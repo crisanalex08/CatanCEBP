@@ -1,7 +1,9 @@
 package com.example.gameserver.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
+import lombok.NoArgsConstructor;
 
 import com.example.gameserver.enums.GameStatus;
 import jakarta.persistence.Column;
@@ -18,6 +20,9 @@ import java.util.Set;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Game {
     
     @Id
