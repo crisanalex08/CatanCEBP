@@ -38,7 +38,7 @@ public class GameController {
 
     @Operation(summary = "Get game details")
     @GetMapping("/{gameId}")
-    public ResponseEntity<Game> getGameDetails(@PathVariable String gameId) {
+    public ResponseEntity<Game> getGameDetails(@PathVariable Long gameId) {
         Game game = gameService.getGameById(gameId);
         if (game == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -49,7 +49,7 @@ public class GameController {
     @Operation(summary = "Join a game")
     @PostMapping("/{gameId}/join")
     public ResponseEntity<Game> joinGame(
-            @PathVariable String gameId,
+            @PathVariable Long gameId,
             @RequestBody PlayerJoinRequest request) {
         try {
             Game game = gameService.joinGame(gameId, request);
@@ -63,7 +63,7 @@ public class GameController {
 
     @Operation(summary = "Start a game")
     @PostMapping("/{gameId}/start")
-    public ResponseEntity<Game> startGame(@PathVariable String gameId) {
+    public ResponseEntity<Game> startGame(@PathVariable Long gameId) {
         try {
             Game game = gameService.startGame(gameId);
             return new ResponseEntity<>(game, HttpStatus.OK);

@@ -56,7 +56,7 @@ public class GameService {
         return game;
     }
 
-    public Game startGame(String gameId) {
+    public Game startGame(Long gameId) {
         Game game = getGameById(gameId);
         if (game == null) {
             throw new GameNotFoundException(gameId);
@@ -69,12 +69,12 @@ public class GameService {
         return game;
     }
 
-    public Game getGameById(String gameId) {
+    public Game getGameById(Long gameId) {
         return gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
     }
 
     @Transactional
-    public Game joinGame(String gameId, PlayerJoinRequest request) {
+    public Game joinGame(Long gameId, PlayerJoinRequest request) {
         Game game = getGameById(gameId);
         Player player = new Player();
         player.setId(request.getPlayerId());
