@@ -16,6 +16,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Version;
+import lombok.Getter;
+
 import java.util.Set;
 
 @Data
@@ -32,6 +34,7 @@ public class Game {
     private Long hostId;
 
  
+    @Getter
     @ElementCollection
     private Set<Player> players;
     
@@ -41,5 +44,8 @@ public class Game {
     @Embedded
     private GameSettings settings;
 
-   
+    public Player getPlayerById(Long playerId) {
+        return players.stream().filter(player -> player.getId().equals(playerId)).findFirst().orElse(null);
+    }
+
 }

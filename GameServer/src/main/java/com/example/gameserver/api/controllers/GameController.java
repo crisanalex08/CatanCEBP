@@ -32,7 +32,6 @@ public class GameController {
     @Operation(summary = "Create a new game")
     @PostMapping("/create")
     public ResponseEntity<Game> createGame(@RequestBody GameCreateRequest request) {
-        
         Game newGame = gameService.createGame(request);
         return new ResponseEntity<>(newGame, HttpStatus.CREATED);
     }

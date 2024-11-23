@@ -12,6 +12,7 @@ import com.example.gameserver.services.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.util.List;
 
 
 @RestController
@@ -29,7 +30,7 @@ public class ResourceController {
     
     @Operation(summary = "Initialize player resources")
     @PostMapping("/{playerId}/initialize")
-    public ResponseEntity<Resources> initializePlayerResources(@PathVariable String gameId,@PathVariable String playerId) {
+    public ResponseEntity<Resources> initializePlayerResources(@PathVariable Long gameId,@PathVariable Long playerId) {
         Resources resources = resourceService.initializePlayerResources(gameId, playerId);
         if (resources == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -39,7 +40,7 @@ public class ResourceController {
 
     @Operation(summary = "Get player resources")
     @GetMapping("/{playerId}")
-    public ResponseEntity<Resources> getPlayerResources(@PathVariable String gameId,@PathVariable String playerId) {
+    public ResponseEntity<Resources> getPlayerResources(@PathVariable Long gameId,@PathVariable Long playerId) {
         Resources resources = resourceService.getPlayerResources(gameId, playerId);
         if (resources == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -49,8 +50,8 @@ public class ResourceController {
 
     @Operation(summary = "Distribute resources from dice roll")
     @PostMapping("/{playerId}/distribute")
-    public ResponseEntity<Resources> distributeResources(@PathVariable String gameId,@PathVariable String playerId) {
-        Resources resources = resourceService.distributeResources(gameId, playerId);
+    public ResponseEntity<List<Resources>> distributeResources(@PathVariable Long gameId, @PathVariable Long playerId) {
+        List<Resources> resources = resourceService.distributeResources(gameId, playerId);
         if (resources == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

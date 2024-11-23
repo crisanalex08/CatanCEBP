@@ -79,6 +79,9 @@ public class GameService {
         if (game.getStatus() != GameStatus.WAITING) {
             throw new InvalidGameStateException("Game already started");
         }
+
+        game.setStatus(GameStatus.IN_PROGRESS); 
+        gameRepository.save(game);
         
         return game;
     }
