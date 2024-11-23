@@ -25,7 +25,7 @@ public class BuildingService {
     }
 
     //construct
-    public Building constructBuilding(String playerId, String gameId, BuildingCreateRequest request) {
+    public Building constructBuilding(Long playerId, Long gameId, BuildingCreateRequest request) {
         if(playerId == null || gameId == null || request == null) {
             return null;
         }
@@ -40,7 +40,7 @@ public class BuildingService {
         return building;
     }
 
-    public List<Building> getBuildings(String playerId, String gameId) {
+    public List<Building> getBuildings(Long playerId, Long gameId) {
         if(playerId == null || gameId == null) {
             return null;
         }
@@ -55,36 +55,40 @@ public class BuildingService {
       return playerBuildings;
     }
 
-    public List<BuildingType> getAvailableBuildingTypes(String playerId, String gameId) {
+    public List<BuildingType> getAvailableBuildingTypes(Long playerId, Long gameId) {
         // TO IMPLEMENT WHEN player and resources are implemented
         return null;
     }
 
-    public void upgradeBuilding(String playerId, String gameId, String buildingId) {
+    public BuildingType upgradeBuilding(Long playerId, Long gameId, Long buildingId) {
         if(playerId == null || gameId == null || buildingId == null) {
             logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
-            return;
+            return null;
         }
+
         //May need to check if player has enough resources to upgrade
+
         Optional<Building> buildingToUpgrade = buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId) && building.getId().equals(buildingId)).findFirst();
         if(buildingToUpgrade.isEmpty()) {
             logger.error("Building not found with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
-            return;
+            return null;
         }
         switch (buildingToUpgrade.get().getType()) {
             case SETTLEMENT:
                 buildingToUpgrade.get().setType(BuildingType.TOWN);
-                break;
+                buildingRepository.save(buildingToUpgrade.get());
+                return BuildingType.TOWN;
             case TOWN:
                 buildingToUpgrade.get().setType(BuildingType.CASTLE);
-                break;
+                buildingRepository.save(buildingToUpgrade.get());
+                return BuildingType.CASTLE;
             default:
-                break;
+                logger.error("Building is already at max level");
+                return null;
         }
-        buildingRepository.save(buildingToUpgrade.get());
     }
 
-    public Building buildingInfo(String playerId, String gameId, String buildingId) {
+    public Building buildingInfo(Long playerId, Long gameId, Long buildingId) {
         if(playerId == null || gameId == null || buildingId == null) {
             logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
             return null;

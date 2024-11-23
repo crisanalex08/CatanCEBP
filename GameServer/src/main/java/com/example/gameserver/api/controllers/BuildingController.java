@@ -26,7 +26,7 @@ public class BuildingController {
 
     // No inter-service communication required
     @GetMapping("/{playerId}/buildings")
-    public ResponseEntity<List<Building>> getPlayerBuildings(@PathVariable String gameId, @PathVariable String playerId) {
+    public ResponseEntity<List<Building>> getPlayerBuildings(@PathVariable Long gameId, @PathVariable Long playerId) {
         List<Building> playerBuildings  = buildingService.getBuildings(playerId, gameId);
         if (playerBuildings == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -36,7 +36,7 @@ public class BuildingController {
 
     // This needs to communicate with ResourceService to get player resources
     @PostMapping("/{playerId}/construct")
-    public ResponseEntity<Building> constructBuilding(@PathVariable String gameId, @PathVariable String playerId, @RequestBody BuildingCreateRequest buildingCreateRequest) {
+    public ResponseEntity<Building> constructBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @RequestBody BuildingCreateRequest buildingCreateRequest) {
         Building newBuilding = buildingService.constructBuilding(playerId, gameId, buildingCreateRequest);
         if (newBuilding == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -46,16 +46,20 @@ public class BuildingController {
 
     // This may need to communicate with ResourceService to get player resources
     @PostMapping("/{playerId}/{buildingId}/upgrade")
-    public ResponseEntity<Building> upgradeBuilding(@PathVariable String gameId, @PathVariable String playerId, @PathVariable String buildingId) {
-        buildingService.upgradeBuilding(playerId, gameId, buildingId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<BuildingType> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
+        BuildingType upgradedType =  buildingService.upgradeBuilding(playerId, gameId, buildingId);
+        if (upgradedType == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+        return new ResponseEntity<>(upgradedType, HttpStatus.OK);
     }
 
 
     // This will need to communicate with ResourceService to get player resources
     // in order to determine which buildings can be constructed
     @GetMapping("/{playerId}/available")
-    public ResponseEntity<List<BuildingType>> getAvailableBuildingTypes(@PathVariable String gameId, @PathVariable String playerId) {
+    public ResponseEntity<List<BuildingType>> getAvailableBuildingTypes(@PathVariable Long gameId, @PathVariable Long playerId) {
         List<BuildingType> availableBuildingTypes = buildingService.getAvailableBuildingTypes(gameId, playerId);
         if (availableBuildingTypes == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -65,7 +69,7 @@ public class BuildingController {
 
     //No inter-service communication required
     @GetMapping("/{playerId}/{buildingId}/info")
-    public ResponseEntity<Building> getBuildingInfo(@PathVariable String gameId, @PathVariable String playerId, @PathVariable String buildingId) {
+    public ResponseEntity<Building> getBuildingInfo(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
         Building building = buildingService.buildingInfo(playerId, gameId, buildingId);
         if (building == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

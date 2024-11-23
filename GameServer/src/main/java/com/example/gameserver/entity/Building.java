@@ -18,26 +18,22 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "buildings")
 public class Building {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     @Enumerated(EnumType.STRING)
     private BuildingType type;
-    private String playerId;
-    private String gameId;
-//    IMO status does not make sense for a building. It's overkill
-//    @Enumerated(EnumType.STRING)
-//    private BuildingStatus status;
+    private Long playerId;
+    private Long gameId;
     @ElementCollection
     private List<ProductionData> production = new ArrayList<>();
 
     public Building() {
     }
 
-    public Building(String gameId, String playerId, BuildingType type) {
+    public Building(Long gameId, Long playerId, BuildingType type) {
         this.gameId = gameId;
         this.playerId = playerId;
         this.type = type;

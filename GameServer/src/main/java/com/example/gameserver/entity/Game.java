@@ -1,7 +1,9 @@
 package com.example.gameserver.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
+import lombok.NoArgsConstructor;
 
 import com.example.gameserver.enums.GameStatus;
 import jakarta.persistence.Column;
@@ -14,10 +16,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Version;
+import lombok.Getter;
+
 import java.util.Set;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Game {
     
     @Id
@@ -27,6 +34,7 @@ public class Game {
     private Long hostId;
 
  
+    @Getter
     @ElementCollection
     private Set<Player> players;
     
@@ -36,5 +44,8 @@ public class Game {
     @Embedded
     private GameSettings settings;
 
-   
+    public Player getPlayerById(Long playerId) {
+        return players.stream().filter(player -> player.getId().equals(playerId)).findFirst().orElse(null);
+    }
+
 }
