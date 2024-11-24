@@ -24,7 +24,7 @@ public class Resources {
     private Long gameId;
     private Long playerId;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Map<ResourceType, @Min(0) Integer> quantities = new ConcurrentHashMap<>();
 
     private LocalDateTime createdAt;

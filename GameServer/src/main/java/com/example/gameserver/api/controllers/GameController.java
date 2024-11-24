@@ -11,6 +11,8 @@ import com.example.gameserver.services.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.util.concurrent.Future;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,12 +40,14 @@ public class GameController {
 
     @Operation(summary = "Get game details")
     @GetMapping("/{gameId}")
-    public ResponseEntity<Game> getGameDetails(@PathVariable Long gameId) {
+    public ResponseEntity<?> getGameDetails(@PathVariable Long gameId) {
         try {
-            Game game = gameService.getGameById(gameId);
+            Future<Game> futureGame = gameService.getGameById(gameId);
+            Game game = futureGame.get();
             return new ResponseEntity<>(game, HttpStatus.OK);
-        } catch (GameNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
        
     }
@@ -83,7 +87,9 @@ public class GameController {
     @GetMapping("/list")
     public ResponseEntity<?> listGames() {
        try {
-           return new ResponseEntity<>(gameService.listGames(), HttpStatus.OK);
+              Future<Iterable<Game>> futureGames = gameService.listGames();
+              Iterable<Game> games = futureGames.get();
+              return new ResponseEntity<>(games, HttpStatus.OK);
        } catch (Exception e) {
            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }

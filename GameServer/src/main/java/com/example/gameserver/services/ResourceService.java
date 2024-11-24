@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 @Service
 public class ResourceService {
@@ -58,7 +60,7 @@ public class ResourceService {
         return resources;
     }
     @Async
-    public Resources getPlayerResources(Long gameId, Long playerId) {
+    public Future<Resources> getPlayerResources(Long gameId, Long playerId) {
         if (gameId == null || playerId == null) {
             return null;
         }
@@ -79,7 +81,7 @@ public class ResourceService {
             return null;
         }
 
-        return resources.get();
+        return CompletableFuture.completedFuture(resources.get());
     }
 
     @Transactional

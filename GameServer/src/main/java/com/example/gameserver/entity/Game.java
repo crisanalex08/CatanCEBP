@@ -6,12 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import com.example.gameserver.enums.GameStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,9 +36,8 @@ public class Game {
 
     private Long hostId;
 
- 
     @Getter
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<Player> players;
     
     @Enumerated(EnumType.STRING)
