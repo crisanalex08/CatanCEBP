@@ -68,6 +68,9 @@ public class GameController {
     public ResponseEntity<?> startGame(@PathVariable Long gameId) {
         try {
             Game game = gameService.startGame(gameId);
+            
+
+
             return new ResponseEntity<>(game, HttpStatus.OK);
         } catch (GameNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -75,6 +78,18 @@ public class GameController {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
+
+    @Operation(summary = "List all games")
+    @GetMapping("/list")
+    public ResponseEntity<?> listGames() {
+       try {
+           return new ResponseEntity<>(gameService.listGames(), HttpStatus.OK);
+       } catch (Exception e) {
+           return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+       }
+
+    }
+
 }
 
 
