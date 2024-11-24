@@ -4,13 +4,19 @@ import com.example.gameserver.entity.Building;
 import com.example.gameserver.enums.BuildingType;
 import com.example.gameserver.repository.BuildingRepository;
 import com.example.gameserver.repository.GameRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 @Service
 public class BuildingService {
@@ -25,6 +31,7 @@ public class BuildingService {
     }
 
     //construct
+    @Transactional
     public Building constructBuilding(Long playerId, Long gameId, BuildingCreateRequest request) {
         if(playerId == null || gameId == null || request == null) {
             return null;
@@ -39,8 +46,8 @@ public class BuildingService {
         buildingRepository.save(building);
         return building;
     }
-
-    public List<Building> getBuildings(Long playerId, Long gameId) {
+    @Async
+    public Future<List<Building>> getBuildings(Long playerId, Long gameId) {
         if(playerId == null || gameId == null) {
             return null;
         }
@@ -52,14 +59,14 @@ public class BuildingService {
             return null;
         }
 
-      return playerBuildings;
+      return CompletableFuture.completedFuture(playerBuildings);
     }
-
+    
     public List<BuildingType> getAvailableBuildingTypes(Long playerId, Long gameId) {
         // TO IMPLEMENT WHEN player and resources are implemented
         return null;
     }
-
+    @Transactional
     public BuildingType upgradeBuilding(Long playerId, Long gameId, Long buildingId) {
         if(playerId == null || gameId == null || buildingId == null) {
             logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
@@ -87,8 +94,8 @@ public class BuildingService {
                 return null;
         }
     }
-
-    public Building buildingInfo(Long playerId, Long gameId, Long buildingId) {
+    @Async
+    public Future<Building> getBuildingInfo(Long playerId, Long gameId, Long buildingId) {
         if(playerId == null || gameId == null || buildingId == null) {
             logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
             return null;
@@ -99,6 +106,6 @@ public class BuildingService {
             logger.error("Building not found with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
             return null;
         }
-        return building.orElse(null);
+        return CompletableFuture.completedFuture(building.orElse(null));
     }
 }

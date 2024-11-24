@@ -27,7 +27,7 @@ public class Building {
     private BuildingType type;
     private Long playerId;
     private Long gameId;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<ProductionData> production = new ArrayList<>();
 
     public Building() {

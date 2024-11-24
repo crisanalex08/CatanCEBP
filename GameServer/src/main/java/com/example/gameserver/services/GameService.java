@@ -18,7 +18,10 @@ import com.example.gameserver.repository.GameRepository;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+
 import jakarta.transaction.Transactional;
 
 import org.aspectj.lang.annotation.Aspect;
@@ -75,21 +78,24 @@ public class GameService {
         if(gameId == null) {
             throw new IllegalArgumentException("Game id cannot be null");
         }
-        Game game = getGameById(gameId);
-        if (game == null) {
+        Future<Game> futureGame = getGameById(gameId);
+        try{
+            Game game = futureGame.get();
+            if (game.getStatus() != GameStatus.WAITING) {
+                throw new InvalidGameStateException("Game already started");
+            }
+    
+            game.setStatus(GameStatus.IN_PROGRESS); 
+            gameRepository.save(game);
+    
+            
+            
+            return game;
+        } catch (Exception e) {
             throw new GameNotFoundException(gameId);
         }
 
-        if (game.getStatus() != GameStatus.WAITING) {
-            throw new InvalidGameStateException("Game already started");
-        }
-
-        game.setStatus(GameStatus.IN_PROGRESS); 
-        gameRepository.save(game);
-
         
-        
-        return game;
     }
     // Join the game with the given gameId and request details a different player than the host
    
@@ -105,35 +111,43 @@ public class GameService {
             throw new IllegalArgumentException("Game id cannot be null");
         }
 
-        Game game = getGameById(gameId);
-        Player player = new Player();
-        if(game.getHostId().equals(request.getPlayerId())) {
-            throw new HostAlreadyJoinedException(gameId);
+        Future<Game> futureGame = getGameById(gameId);
+        try{
+            Game game = futureGame.get();
+            Player player = new Player();
+            if(game.getHostId().equals(request.getPlayerId())) {
+                throw new HostAlreadyJoinedException(gameId);
+            }
+            player.setId(request.getPlayerId());
+            player.setName(request.getPlayerName());
+            player.setStatus(PlayerStatus.ACTIVE);
+    
+            game.getPlayers().add(player);
+            gameRepository.save(game);
+            return game;
+        } catch (Exception e) {
+            throw new GameNotFoundException(gameId);
         }
-        player.setId(request.getPlayerId());
-        player.setName(request.getPlayerName());
-        player.setStatus(PlayerStatus.ACTIVE);
-
-        game.getPlayers().add(player);
-        gameRepository.save(game);
-        return game;
+       
+      
     }
     // Get the game with the given gameId
     @Async
-    public Game getGameById(Long gameId) {
+    public Future<Game> getGameById(Long gameId) {
         if(gameId == null) {
             throw new IllegalArgumentException("Game id cannot be null");
         }
-        return gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+        return CompletableFuture.completedFuture(gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId)));
+       
     }
     
 
     // List all games
     @Async
-    public Iterable<Game> listGames() {
-        //Find all available games 
-        return gameRepository.findByStatus(GameStatus.WAITING);
 
+    public Future<Iterable<Game>> listGames() {
+        //Find all available games 
+        return CompletableFuture.completedFuture(gameRepository.findAll());
     }
 
 }

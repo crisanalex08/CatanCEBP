@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 @RestController
 @RequestMapping("/api/games/{gameId}/Buildings")
@@ -27,11 +28,18 @@ public class BuildingController {
     // No inter-service communication required
     @GetMapping("/{playerId}/buildings")
     public ResponseEntity<List<Building>> getPlayerBuildings(@PathVariable Long gameId, @PathVariable Long playerId) {
-        List<Building> playerBuildings  = buildingService.getBuildings(playerId, gameId);
-        if (playerBuildings == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        
+
+        Future<List<Building>> futurePlayerBuildings = buildingService.getBuildings(playerId, gameId);
+        try{
+            List<Building> playerBuildings = futurePlayerBuildings.get();
+            if (playerBuildings == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(playerBuildings, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(playerBuildings, HttpStatus.CREATED);
     }
 
     // This needs to communicate with ResourceService to get player resources
@@ -70,11 +78,16 @@ public class BuildingController {
     //No inter-service communication required
     @GetMapping("/{playerId}/{buildingId}/info")
     public ResponseEntity<Building> getBuildingInfo(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
-        Building building = buildingService.buildingInfo(playerId, gameId, buildingId);
-        if (building == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Future<Building> futureBuilding = buildingService.getBuildingInfo(playerId, gameId, buildingId);
+        try{
+            Building building = futureBuilding.get();
+
+            return new ResponseEntity<>(building, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(building, HttpStatus.OK);
+      
+      
     }
 
 }

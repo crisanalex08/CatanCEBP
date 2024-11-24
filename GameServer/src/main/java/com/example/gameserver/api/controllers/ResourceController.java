@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 
 @RestController
@@ -41,11 +42,17 @@ public class ResourceController {
     @Operation(summary = "Get player resources")
     @GetMapping("/{playerId}")
     public ResponseEntity<Resources> getPlayerResources(@PathVariable Long gameId,@PathVariable Long playerId) {
-        Resources resources = resourceService.getPlayerResources(gameId, playerId);
-        if (resources == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Future<Resources> futureResources = resourceService.getPlayerResources(gameId, playerId);
+        try{
+            Resources resources = futureResources.get();
+            if (resources == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(resources, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(resources, HttpStatus.OK);
+       
     }
 
     @Operation(summary = "Distribute resources from dice roll")
