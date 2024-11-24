@@ -1,0 +1,18 @@
+// Game-Service
+CreateGame : Transactional
+StartGame :  Transactional
+getGameById : Async
+Join Game : Transactional
+List games : Async
+//Building-Service
+constructBuilding : Transactional
+getBuildings : Async
+getAvailableBuildings : Async
+upgradeBuilding : Transactional
+buildingInfo : Async
+//Resource-Service
+initResources : Transactional
+getResources : Async
+addResources : Transactional
+removeResources : Transactional
+distributionResources : Async ?

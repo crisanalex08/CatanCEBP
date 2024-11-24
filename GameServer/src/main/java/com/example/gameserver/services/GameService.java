@@ -1,6 +1,7 @@
 package com.example.gameserver.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.gameserver.api.dto.GameCreateRequest;
@@ -19,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import jakarta.transaction.Transactional;
+
+import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +70,7 @@ public class GameService {
         return game;
     }
     // Host is starting the game with the given gameId
+    @Transactional
     public Game startGame(Long gameId) {
         if(gameId == null) {
             throw new IllegalArgumentException("Game id cannot be null");
@@ -87,14 +91,8 @@ public class GameService {
         
         return game;
     }
-    // Get the game with the given gameId
-    public Game getGameById(Long gameId) {
-        if(gameId == null) {
-            throw new IllegalArgumentException("Game id cannot be null");
-        }
-        return gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
-    }
     // Join the game with the given gameId and request details a different player than the host
+   
     @Transactional
     public Game joinGame(Long gameId, PlayerJoinRequest request) {
         if(request.getPlayerId() == null) {
@@ -120,8 +118,18 @@ public class GameService {
         gameRepository.save(game);
         return game;
     }
+    // Get the game with the given gameId
+    @Async
+    public Game getGameById(Long gameId) {
+        if(gameId == null) {
+            throw new IllegalArgumentException("Game id cannot be null");
+        }
+        return gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+    }
+    
 
     // List all games
+    @Async
     public Iterable<Game> listGames() {
         //Find all available games 
         return gameRepository.findByStatus(GameStatus.WAITING);

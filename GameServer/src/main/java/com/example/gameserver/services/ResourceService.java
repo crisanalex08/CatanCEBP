@@ -8,6 +8,7 @@ import com.example.gameserver.repository.ResourceRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.gameserver.entity.Resources;
@@ -31,6 +32,7 @@ public class ResourceService {
         this.buildingRepository = buildingRepository;
     }
 
+    @Transactional
     public Resources initializePlayerResources(Long gameId, Long playerId) {
         if (gameId == null || playerId == null) {
             return null;
@@ -55,7 +57,7 @@ public class ResourceService {
         resourceRepository.save(resources);
         return resources;
     }
-
+    @Async
     public Resources getPlayerResources(Long gameId, Long playerId) {
         if (gameId == null || playerId == null) {
             return null;
