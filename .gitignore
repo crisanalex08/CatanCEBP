@@ -23,4 +23,8 @@
 hs_err_pid*
 replay_pid*
 
-
+*.angular
+.angular
+.vs
+.nx
+node_modules
