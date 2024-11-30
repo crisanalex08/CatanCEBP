@@ -1,7 +1,6 @@
 package com.example.gameserver.services;
-
+import com.example.gameserver.api.dto.User.PlayerDetailsDTO;
 import com.example.gameserver.entity.Game;
-import com.example.gameserver.entity.Player;
 import com.example.gameserver.repository.BuildingRepository;
 import com.example.gameserver.repository.GameRepository;
 import com.example.gameserver.repository.ResourceRepository;
@@ -28,7 +27,9 @@ public class ResourceService {
     private final BuildingRepository buildingRepository;
     private final ResourceRepository resourceRepository;
 
-    public ResourceService(GameRepository gameRepository, ResourceRepository resourceRepository, BuildingRepository buildingRepository) {
+
+
+    public ResourceService(GameRepository gameRepository, BuildingRepository buildingRepository, ResourceRepository resourceRepository) {
         this.gameRepository = gameRepository;
         this.resourceRepository = resourceRepository;
         this.buildingRepository = buildingRepository;
@@ -46,7 +47,7 @@ public class ResourceService {
             return null;
         }
 
-        Player player = game.get().getPlayerById(playerId);
+        PlayerDetailsDTO player = game.get().getPlayerById(playerId);
         if (player == null) {
             logger.error("Player not found, ID: " + playerId);
             return null;
@@ -69,7 +70,7 @@ public class ResourceService {
             logger.error("Game not found, ID: " + gameId);
             return null;
         }
-        Player player = game.get().getPlayerById(playerId);
+        PlayerDetailsDTO player = game.get().getPlayerById(playerId);
         if (player == null) {
             logger.error("Player not found, ID: " + playerId);
             return null;
@@ -94,7 +95,7 @@ public class ResourceService {
             logger.error("Game not found, ID: " + gameId);
             return null;
         }
-        Player player = game.get().getPlayerById(playerId);
+        PlayerDetailsDTO player = game.get().getPlayerById(playerId);
         if (player == null) {
             logger.error("Player not found, ID: " + playerId);
             return null;
@@ -122,7 +123,7 @@ public class ResourceService {
             logger.error("Game not found, ID: " + gameId);
             return null;
         }
-        Player player = game.get().getPlayerById(playerId);
+        PlayerDetailsDTO player = game.get().getPlayerById(playerId);
         if (player == null) {
             logger.error("Player not found, ID: " + playerId);
             return null;
@@ -151,7 +152,7 @@ public class ResourceService {
             logger.error("Game not found, ID: " + gameId);
             return null;
         }
-        Player player = game.get().getPlayerById(playerId);
+        PlayerDetailsDTO player = game.get().getPlayerById(playerId);
         if (player == null) {
             logger.error("Player not found, ID: " + playerId);
             return null;
