@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import com.example.gameserver.api.dto.User.PlayerDetailsDTO;
 import com.example.gameserver.enums.GameStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -18,10 +18,16 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Version;
 import lombok.Getter;
 
 import java.util.Set;
+
+import javax.persistence.JoinColumns;
+
 
 @Data
 @Entity
@@ -36,18 +42,33 @@ public class Game {
 
     private Long hostId;
 
-    @Getter
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<Player> players;
-    
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "game_players", // Name of the join table
+        joinColumns = @JoinColumn(name = "game_id"), // Foreign key in the join table referencing the Game
+        inverseJoinColumns = @JoinColumn(name = "user_id") // Foreign key in the join table referencing the User
+    )
+    private Set<User> players;
     @Enumerated(EnumType.STRING)
     private GameStatus status;
+
+   
 
     @Embedded
     private GameSettings settings;
 
-    public Player getPlayerById(Long playerId) {
-        return players.stream().filter(player -> player.getId().equals(playerId)).findFirst().orElse(null);
+    public PlayerDetailsDTO getPlayerById(Long playerId) {
+
+        User user = players.stream().filter(player -> player.getId().equals(playerId)).findFirst().orElse(null);
+        if (user == null) {
+            return null;
+        }
+        PlayerDetailsDTO player =  new PlayerDetailsDTO(){{
+            setId(user.getId());
+            setName(user.getName());
+        }};
+
+        return player;
     }
 
 }

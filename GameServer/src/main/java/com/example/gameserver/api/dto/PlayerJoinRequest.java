@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class PlayerJoinRequest {
     private Long playerId;  
-    private String playerName;
 }

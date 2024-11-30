@@ -56,7 +56,7 @@ public class GameController {
     @PostMapping("/{gameId}/join")
     public ResponseEntity<?> joinGame(
             @PathVariable Long gameId,
-            @RequestBody PlayerJoinRequest request) {
+            @RequestBody  PlayerJoinRequest request) {
         try {
             Game game = gameService.joinGame(gameId, request);
             return new ResponseEntity<>(game, HttpStatus.OK);
