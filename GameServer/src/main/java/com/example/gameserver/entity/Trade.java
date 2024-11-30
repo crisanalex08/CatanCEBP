@@ -10,11 +10,10 @@ import lombok.Data;
 
 
 @Data
-
 public class Trade {
     @Id
     private String id;
-    private Player seller;
+    private User offeringUser;
     private Resources offering;
     private Resources requesting;
     private TradeStatus status;
