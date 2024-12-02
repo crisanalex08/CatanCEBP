@@ -1,0 +1,134 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+}
+.button-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 50px;
+}
+.game-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  margin-top: 20px;
+  width: 20vw;
+}
+
+.game-title-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: rgb(255, 217, 0);
+  font-size: 30px;
+  margin-top: 50px;
+}
+
+.blured-backgound{
+  background-image: url('../../../assets/images/home_background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(5px);
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  z-index: -1;
+}
+
+.error-message{
+  color: red;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.success-message{
+  color: green;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.game-status-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+}
+
+.dialog-container{
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+#main-input{
+  background-color: rgba(169, 169, 169, 0.2);
+  color: rgb(245, 245, 245);
+  /* Black text color */
+  border: none;
+  margin-top: 10%;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  /* Stylized font */
+  letter-spacing: 2px;
+  border-radius: 40px;
+  /* Rounded corners */
+  text-align: center;
+  width: 70%;
+}
+::placeholder {
+  color: rgb(172, 172, 172);
+  /* Black text color */
+  font-size: 1.5rem;
+  /* Stylized font */
+  letter-spacing: 2px;
+  /* Spacing between letters */
+  text-align: center;
+  font-family: monospace;
+}
+
+button {
+  color: rgb(70, 70, 70);
+  /* Black text color */
+  border: none;
+  margin-top: 10%;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  /* Stylized font */
+  letter-spacing: 2px;
+  border-radius: 40px;
+  /* Rounded corners */
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+  /* Pointer cursor */
+}
+
+button:hover {
+  background-color: #ada200;
+}
+
+button:active {
+  background-color: #e1f100;
+}
+
+/* click smooth animation */
+button {
+  transition: transform 0.2s;
+}
+button:active {
+  transform: translateY(2px);
+}

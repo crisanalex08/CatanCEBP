@@ -39,15 +39,10 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
+    private String name;
     private Long hostId;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "game_players", // Name of the join table
-        joinColumns = @JoinColumn(name = "game_id"), // Foreign key in the join table referencing the Game
-        inverseJoinColumns = @JoinColumn(name = "user_id") // Foreign key in the join table referencing the User
-    )
     private Set<User> players;
     @Enumerated(EnumType.STRING)
     private GameStatus status;
