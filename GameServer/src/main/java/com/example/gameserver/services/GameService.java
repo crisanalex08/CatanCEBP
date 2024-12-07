@@ -55,7 +55,7 @@ public class GameService {
             throw new IllegalArgumentException("Max Players Settings must be higher than 1");
         }
 
-        var player = usersRepository.getUserByUsername(request.getHostname());
+        var player = usersRepository.getUserByName(request.getHostname());
         if (player == null) {
             //Create a new user
             player = new User();
@@ -130,9 +130,10 @@ public class GameService {
         if(request.getPlayerName() == null) {
             throw new IllegalArgumentException("Player name cannot be null");
         }
+        
 
-        User player = usersRepository.getUserByUsername(request.getPlayerName());
-
+        User player = usersRepository.getUserByName(request.getPlayerName());
+        
 
         if(player == null) {
             player = new User();
