@@ -16,7 +16,7 @@ public class UserService {
 
          if(user == null) {
               user = new User();
-              user.setUsername(username);
+              user.setName(username);
               usersRepository.save(user);
          }
             return user;

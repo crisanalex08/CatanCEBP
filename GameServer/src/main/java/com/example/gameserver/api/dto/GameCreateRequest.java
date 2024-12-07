@@ -8,5 +8,5 @@ import lombok.Data;
 public class GameCreateRequest {
     private String name;
     private String hostname;
-    private GameSettings settings;
+    private int maxPlayers;
 }

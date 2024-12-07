@@ -2,6 +2,7 @@ package com.example.gameserver.api.dto.User;
 
 import java.util.HashSet;
 
+import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.User;
 
 import lombok.Data;
@@ -15,9 +16,8 @@ public class UserCreateDTO {
     public User toEntity() {
         User user = new User();
         user.setName(this.name);
-        user.setUsername(this.username);
-        user.setPassword(this.password);
-        user.setGames(new HashSet<>());
+        user.setName(name);
+     
         
         return user;
     }
