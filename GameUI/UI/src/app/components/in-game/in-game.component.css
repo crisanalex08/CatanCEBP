@@ -1,0 +1,7 @@
+.game-players-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  width: 60px;
+  min-width: 60px;
+}

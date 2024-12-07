@@ -17,12 +17,14 @@ import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { InGameComponent } from './components/in-game/in-game.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     GameListComponent,
+    InGameComponent
   ],
   imports: [
     BrowserModule,

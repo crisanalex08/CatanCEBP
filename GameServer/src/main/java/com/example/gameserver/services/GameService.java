@@ -55,7 +55,7 @@ public class GameService {
             throw new IllegalArgumentException("Max Players Settings must be higher than 1");
         }
 
-        var player = usersRepository.getUserByUsername(request.getHostname());
+        var player = usersRepository.getUserByname(request.getHostname());
         if (player == null) {
             //Create a new user
             player = new User();
@@ -131,7 +131,7 @@ public class GameService {
             throw new IllegalArgumentException("Player name cannot be null");
         }
 
-        User player = usersRepository.getUserByUsername(request.getPlayerName());
+        User player = usersRepository.getUserByname(request.getPlayerName());
 
 
         if(player == null) {
@@ -143,6 +143,9 @@ public class GameService {
         Future<Game> futureGame = getGameById(gameId);
         try{
             Game game = futureGame.get();
+            if(player.getGameId() != null && player.getGameId().equals(gameId)) {
+                return game;
+            }
             if (game.getStatus() != GameStatus.WAITING) {
                 throw new InvalidGameStateException("Game already started");
             }
@@ -152,7 +155,7 @@ public class GameService {
             if(game.getPlayers().size() >= game.getSettings().getMaxPlayers()) {
                 throw new InvalidGameStateException("Game is full");
             }
-            if(player.getGameId() != null) {
+            if(player.getGameId() != null && !player.getGameId().equals(gameId)) {
                 throw new InvalidGameStateException("Player already in a game");
             }
             game.getPlayers().add(player);

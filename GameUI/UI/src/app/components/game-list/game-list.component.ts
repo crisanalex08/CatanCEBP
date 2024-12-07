@@ -18,6 +18,10 @@ export class GameListComponent {
     private gameService: GameService,
   ) {}
 
+  isJoinButtonDisabled(){
+    return this.playerName === '';
+  }
+
   joinGame(game: Game) {
     this.gameService.joinGame(game.id, this.playerName).subscribe({
       next: response => {

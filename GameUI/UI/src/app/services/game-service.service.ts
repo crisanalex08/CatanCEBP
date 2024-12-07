@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Game, GameCreateDetails } from '../models/game-model';
 import { UserService } from './user-service.service';
 import { User } from '../models/user.model';
+import { BehaviorSubject, tap } from 'rxjs';
+import { tick } from '@angular/core/testing';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +18,12 @@ export class GameService {
 
   url = 'http://localhost:8080';
   user: User | undefined;
+
+  games = new BehaviorSubject<Game[]>([]);
+  games$ = this.games.asObservable();
+  currentGame = new BehaviorSubject<Game>({} as Game);
+  currentGame$ = this.currentGame.asObservable();
+
   checkGameId(gameId: string) {
     var request_url = this.url + '/api/games/' + gameId;
     console.log('Requesting game data:', request_url);
@@ -25,7 +33,12 @@ export class GameService {
   list() {
     var request_url = this.url + '/api/games/list';
     console.log('Requesting game list:', request_url);
-    return this.http.get<Game[]>(request_url);
+    return this.http.get<Game[]>(request_url).pipe(
+      tap((res: Game[]) => {
+        const games = this.games.value;
+        this.games.next([...games, ...res]);
+      })
+    );
   }
 
   create(gameDetails: GameCreateDetails) {
@@ -33,36 +46,29 @@ export class GameService {
     var request_body = {
       name: gameDetails.gameName,
       hostName: gameDetails.hostname,
-      settings: {
-        maxPlayers: gameDetails.maxPlayers,
-      currentPlayersCount: 1
-      }
+      maxPlayers: gameDetails.maxPlayers,
     }
     console.log('Creating game with data:', request_body);
-    return this.http.post<Game>(request_url, request_body);
+    return this.http.post<Game>(request_url, request_body).pipe(
+      tap((res: Game) => {
+        const games = this.games.value;
+        games.push(res);
+        this.games.next([...games, res]);
+        this.currentGame.next(res);
+      })
+    );
   }
 
   joinGame(gameId: number, username: string) {
-    this.userService.checkUsername(username).subscribe({
-      next: response => {
-        this.user = response as User;
-        if (!this.user) {
-          console.log("User not found");
-          return;
-        }
-        console.log("uSer:", this.user);
-      },
-      error: error => {
-        console.error(error);
-        return;
-      }
-    });
-
     var request_url = this.url + '/api/games/' + gameId + '/join';
     console.log('Joining game:', request_url);
     var request_body = {
-      playerId: this.user.id
+      playerName: username
     }
-    return this.http.post(request_url, request_body);
+    return this.http.post(request_url, request_body).pipe(
+      tap((response: any) => {
+        this.currentGame.next(response as Game);
+      })
+    );
   }
 }
