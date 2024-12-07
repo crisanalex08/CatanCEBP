@@ -69,7 +69,7 @@ public class Resources {
         return quantities.getOrDefault(type, 0) >= amount;
     }
 
-    public boolean hasEnoughResources(BuildingType type) {
+    public boolean hasEnoughResourcesToBuild(BuildingType type) {
         return switch (type) {
             case SETTLEMENT ->
                     hasEnoughResources(ResourceType.WOOD, 1) && hasEnoughResources(ResourceType.CLAY, 1) && hasEnoughResources(ResourceType.WHEAT, 1);
