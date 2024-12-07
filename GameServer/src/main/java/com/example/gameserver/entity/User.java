@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -29,8 +30,7 @@ public class User {
     @Column(unique = true)
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "players")
-    private Set<Game> games;
+    private Long gameId;
 
     public PlayerDetailsDTO toGetPlayerDTO() {
         PlayerDetailsDTO dto = new PlayerDetailsDTO();
