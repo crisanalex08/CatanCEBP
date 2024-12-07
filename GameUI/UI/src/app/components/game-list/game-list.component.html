@@ -1,0 +1,18 @@
+<p-table [value]="games" [tableStyle]="{ 'min-width': '50rem' }">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Game Id</th>
+            <th>Status</th>
+            <th>Number of Players</th>
+            <th>Action</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-game>
+        <tr>
+            <td>{{ game.id }}</td>
+            <td>{{ game.status }}</td>
+            <td>{{ game.settings.currentPlayersCount }} / {{ game.settings.maxPlayers }} </td>
+            <td><button pButton  (click)="joinGame(game)">Join</button></td>
+        </tr>
+    </ng-template>
+</p-table>

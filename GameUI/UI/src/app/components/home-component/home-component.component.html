@@ -1,0 +1,36 @@
+<div class="home-container">
+  <div class="blured-background"></div>
+  <div class="game-title-container">
+    <h1>Feudal Realms</h1>
+  </div>
+  <div class="game-form">
+    <input type="text" pInputText placeholder="name" id="main-input"
+      [(ngModel)]="playerName" maxlength="10">
+    <button pButton type="button" label="Create game"
+      [disabled]="isButtonDisabled()"
+      (click)="showDialog($event)"></button>
+    <div class="button-container">
+      <game-list [games]="games" [playerName]="playerName"></game-list>
+    </div>
+    <p-dialog header="Create a new game" [(visible)]="display" [modal]=true>
+      <div class="dialog-container">
+        <label for="playerName">Host Name</label>
+        <input type="text" pInputText id="playerName"
+          [(ngModel)]="playerName" maxlength="10">
+
+        <label for="gameName" style="margin-top: 10px;">Game Name</label>
+        <input type="text" pInputText id="gameName"
+          [(ngModel)]="gameName" maxlength="10">
+
+        <label for="mxPlayers" style="margin-top: 10px;">Number of
+          players</label>
+        <p-inputNumber type="number"
+          [(ngModel)]="selectedNumberOfPlayers"
+          id="stacked"
+          min="2" max="4" step="1" showButtons="true" />
+        <button pButton type="button" label="Create game" (click)="createGame()"
+          [disabled]="isCreateButtonDisabled()"></button>
+      </div>
+    </p-dialog>
+  </div>
+</div>

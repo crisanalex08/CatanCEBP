@@ -46,25 +46,37 @@ public class GameService {
     @Transactional
     public Game createGame(GameCreateRequest request) {
 
-        if(request.getHostId() == null) {
+        if(request.getName() == null) {
             throw new IllegalArgumentException("Host id cannot be null");
         }
         if(request.getSettings() == null) {
             throw new IllegalArgumentException("Settings cannot be null");
         }
-        if(usersRepository.findById(request.getHostId().toString()).isEmpty()) {
-            throw new IllegalArgumentException("Host does not exist");
+
+        var player = usersRepository.getUserByUsername(request.getHostname());
+        if (player == null) {
+            //Create a new user
+            player = new User();
+            player.setUsername(request.getHostname());
+            usersRepository.save(player);
         }
 
+        if(player.getGames() !=null){
+            player.getGames().forEach(game -> {
+                if(game.getStatus() == GameStatus.WAITING){
+                    throw new InvalidGameStateException("Player already in a game");
+                }
+            });
+        }
 
         Game game = new Game();
-        game.setHostId(request.getHostId());
+        game.setHostId(player.getId());
+        game.setName(request.getName());
         game.setStatus(GameStatus.WAITING);
         game.setSettings(request.getSettings());
 
          
-        User host = usersRepository.findById(request.getHostId().toString()).get();
-
+        User host = usersRepository.findById(player.getId().toString()).get();
         game.setPlayers(new HashSet<>(){{
             add(host);
         }});
@@ -89,15 +101,11 @@ public class GameService {
     
             game.setStatus(GameStatus.IN_PROGRESS); 
             gameRepository.save(game);
-    
-            
             
             return game;
         } catch (Exception e) {
             throw new GameNotFoundException(gameId);
         }
-
-        
     }
     // Join the game with the given gameId and request details a different player than the host
    
@@ -127,18 +135,13 @@ public class GameService {
                     throw new IllegalArgumentException("Player already joined");
                 }
             });
-
             game.getPlayers().add(player);
-
-        
             gameRepository.save(game);
 
             return game;
         } catch (Exception e) {
             throw new GameNotFoundException(gameId);
         }
-       
-      
     }
     // Get the game with the given gameId
     @Async
