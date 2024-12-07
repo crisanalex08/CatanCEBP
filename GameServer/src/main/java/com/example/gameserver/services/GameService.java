@@ -127,13 +127,17 @@ public class GameService {
         if(gameId == null) {
             throw new IllegalArgumentException("Game id cannot be null");
         }
-        if(request.getPlayerId() == null) {
-            throw new IllegalArgumentException("Player id cannot be null");
+        if(request.getPlayerName() == null) {
+            throw new IllegalArgumentException("Player name cannot be null");
         }
-        User player = usersRepository.findById(request.getPlayerId().toString()).orElse(null);
+
+        User player = usersRepository.getUserByUsername(request.getPlayerName());
+
 
         if(player == null) {
-            throw new IllegalArgumentException("Player does not exist");
+            player = new User();
+            player.setUsername(request.getPlayerName());
+            usersRepository.save(player);
         }
 
         Future<Game> futureGame = getGameById(gameId);
@@ -142,8 +146,8 @@ public class GameService {
             if (game.getStatus() != GameStatus.WAITING) {
                 throw new InvalidGameStateException("Game already started");
             }
-            if(game.getHostId().equals(request.getPlayerId())) {
-                throw new HostAlreadyJoinedException(request.getPlayerId());
+            if(game.getHostId().equals(player.getId())) {
+                throw new HostAlreadyJoinedException(player.getId());
             }
             if(game.getPlayers().size() >= game.getSettings().getMaxPlayers()) {
                 throw new InvalidGameStateException("Game is full");
