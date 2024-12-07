@@ -46,7 +46,6 @@ public class Game {
     private Set<User> players;
     @Enumerated(EnumType.STRING)
     private GameStatus status;
-
    
 
     @Embedded

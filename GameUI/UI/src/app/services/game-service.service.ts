@@ -1,16 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Game } from '../models/game-model';
+import { Game, GameCreateDetails } from '../models/game-model';
+import { UserService } from './user-service.service';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private userService: UserService
+  ) { }
 
   url = 'http://localhost:8080';
-
+  user: User | undefined;
   checkGameId(gameId: string) {
     var request_url = this.url + '/api/games/' + gameId;
     console.log('Requesting game data:', request_url);
@@ -23,16 +28,41 @@ export class GameService {
     return this.http.get<Game[]>(request_url);
   }
 
-  create(hostName: string, gameName: string, numberOfPlayers: number) {
+  create(gameDetails: GameCreateDetails) {
     var request_url = this.url + '/api/games/create';
     var request_body = {
-      name: gameName,
-      hostName: hostName,
+      name: gameDetails.gameName,
+      hostName: gameDetails.hostname,
       settings: {
-      numberOfPlayers: numberOfPlayers
+        maxPlayers: gameDetails.maxPlayers,
+      currentPlayersCount: 1
       }
     }
     console.log('Creating game with data:', request_body);
     return this.http.post<Game>(request_url, request_body);
+  }
+
+  joinGame(gameId: number, username: string) {
+    this.userService.checkUsername(username).subscribe({
+      next: response => {
+        this.user = response as User;
+        if (!this.user) {
+          console.log("User not found");
+          return;
+        }
+        console.log("uSer:", this.user);
+      },
+      error: error => {
+        console.error(error);
+        return;
+      }
+    });
+
+    var request_url = this.url + '/api/games/' + gameId + '/join';
+    console.log('Joining game:', request_url);
+    var request_body = {
+      playerId: this.user.id
+    }
+    return this.http.post(request_url, request_body);
   }
 }

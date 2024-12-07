@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Game } from 'src/app/models/game-model';
+import { Game, GameCreateDetails } from 'src/app/models/game-model';
 import { GameService } from 'src/app/services/game-service.service';
 
 
@@ -39,10 +39,29 @@ export class HomeComponent implements OnInit {
 
   createGame() {
     this.display = false;
-    this.gameService.create(this.playerName, this.gameName, this.selectedNumberOfPlayers).subscribe((game: Game) => {
+
+    let gameDetails = {
+      hostname: this.playerName,
+      gameName: this.gameName,
+      maxPlayers: this.selectedNumberOfPlayers
+    } as GameCreateDetails;
+
+    this.gameService.create(gameDetails).subscribe((game: Game) => {
       console.log('Game created:', game);
-      this.games.push(game);
-      // this.router.navigate(['/game', game.id]);
+      this.gameService.joinGame(game.id, this.playerName).subscribe({
+      next: (response: any) => {
+        if (response && response.ok) {
+        this.games.push(game);
+        this.router.navigate([`/game/${game.id}`]);
+        console.log(response);
+        } else {
+        console.error('Failed to join game:', response);
+        }
+      },
+      error: error => {
+        console.error(error);
+      }
+      });
     });
   }
 

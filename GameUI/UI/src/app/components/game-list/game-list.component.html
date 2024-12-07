@@ -11,7 +11,7 @@
         <tr>
             <td>{{ game.id }}</td>
             <td>{{ game.status }}</td>
-            <td>{{ game.players.length }}</td>
+            <td>{{ game.settings.currentPlayersCount }} / {{ game.settings.maxPlayers }} </td>
             <td><button pButton  (click)="joinGame(game)">Join</button></td>
         </tr>
     </ng-template>

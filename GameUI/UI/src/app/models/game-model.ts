@@ -1,5 +1,6 @@
 export interface GameSettings {
     maxPlayers: number;
+    currentPlayersCount: number;
 }
 
 export interface Game {
@@ -8,4 +9,10 @@ export interface Game {
     players: any[];
     status: string;
     settings: GameSettings;
+}
+
+export interface GameCreateDetails{
+    hostname: string;
+    gameName: string;
+    maxPlayers: number;
 }
