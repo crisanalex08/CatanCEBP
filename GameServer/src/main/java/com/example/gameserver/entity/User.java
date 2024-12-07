@@ -25,9 +25,6 @@ public class User {
     public Long id;
 
     @Column(unique = true)
-    private String username;
-    private String password;
-    @Column(unique = true)
     private String name;
 
     private Long gameId;

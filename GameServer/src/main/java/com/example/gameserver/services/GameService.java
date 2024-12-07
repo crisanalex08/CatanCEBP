@@ -59,7 +59,7 @@ public class GameService {
         if (player == null) {
             //Create a new user
             player = new User();
-            player.setUsername(request.getHostname());
+            player.setName(request.getHostname());
        
             usersRepository.save(player);
         }
@@ -136,7 +136,7 @@ public class GameService {
 
         if(player == null) {
             player = new User();
-            player.setUsername(request.getPlayerName());
+            player.setName(request.getPlayerName());
             usersRepository.save(player);
         }
 
