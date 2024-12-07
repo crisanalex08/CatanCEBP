@@ -5,6 +5,7 @@ export interface GameSettings {
 
 export interface Game {
     id: number;
+    name: string;
     hostId: number;
     players: any[];
     status: string;

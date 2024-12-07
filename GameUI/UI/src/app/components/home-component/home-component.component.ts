@@ -53,7 +53,17 @@ export class HomeComponent implements OnInit {
         if (response && response.ok) {
         this.games.push(game);
         this.router.navigate([`/game/${game.id}`]);
+        
+        this.gameService.joinGame(game.id, this.playerName).subscribe({
+        next: (response: any) => {
+        if (response) {
+          console.log('Joined game:', response);
+          this.router.navigate([`/game/${game.id}`]);
+        }
+        }
+        });
         console.log(response);
+
         } else {
         console.error('Failed to join game:', response);
         }

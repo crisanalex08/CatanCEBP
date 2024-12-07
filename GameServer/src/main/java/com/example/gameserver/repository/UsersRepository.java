@@ -7,5 +7,5 @@ import com.example.gameserver.entity.User;
 
 @Repository
 public interface UsersRepository extends JpaRepository<User, String> {
-    User getUserByUsername(String username);
+    User getUserByname(String username);
 }
