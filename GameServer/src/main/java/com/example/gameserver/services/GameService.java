@@ -1,6 +1,7 @@
 package com.example.gameserver.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import com.example.gameserver.exceptions.HostAlreadyJoinedException;
 import com.example.gameserver.exceptions.InvalidGameStateException;
 import com.example.gameserver.repository.GameRepository;
 import com.example.gameserver.repository.UsersRepository;
+
 
 import java.util.HashSet;
 import java.util.Set;
@@ -44,6 +46,7 @@ public class GameService {
         this.usersRepository = usersRepository;
     }
 
+  
     // Create a new game with the given hostId and settings
     @Transactional
     public Game createGame(GameCreateRequest request) {
@@ -91,11 +94,11 @@ public class GameService {
             add(host);
         }});
 
-
-        logger.info("Game created with id: {}", game.getId());
         gameRepository.save(game);
         host.setGameId(game.getId());
         usersRepository.save(host);
+        System.out.println("+Game created with id: " + game.getId());
+
         return game;
     }
     // Host is starting the game with the given gameId

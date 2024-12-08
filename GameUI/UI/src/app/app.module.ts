@@ -17,6 +17,7 @@ import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { WebSocketService } from './services/websocket.service';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
     DropdownModule,
     InputNumberModule
   ],
-  providers: [GameService],
+  providers: [GameService, WebSocketService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

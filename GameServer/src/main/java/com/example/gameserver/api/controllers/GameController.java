@@ -7,6 +7,7 @@ import com.example.gameserver.exceptions.GameFullException;
 import com.example.gameserver.exceptions.GameNotFoundException;
 import com.example.gameserver.exceptions.InvalidGameStateException;
 import com.example.gameserver.services.GameService;
+import com.example.gameserver.websocket.GamesWebSocketHandler;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +17,7 @@ import java.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
@@ -27,8 +29,12 @@ public class GameController {
     private final GameService gameService;
 
     @Autowired
-    public GameController(GameService gameService) {
+    private final GamesWebSocketHandler gamesWebSocketHandler;
+    @Autowired
+    public GameController(GameService gameService, GamesWebSocketHandler gamesWebSocketHandler) {
         this.gameService = gameService;
+        this.gamesWebSocketHandler = gamesWebSocketHandler;
+
     }
 
  
@@ -36,6 +42,8 @@ public class GameController {
     @PostMapping("/create")
     public ResponseEntity<Game> createGame(@RequestBody GameCreateRequest request) {
         Game newGame = gameService.createGame(request);
+        gamesWebSocketHandler.broadcastGameList();
+        
         return new ResponseEntity<>(newGame, HttpStatus.CREATED);
     }
 
