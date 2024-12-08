@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Game, GameCreateDetails } from 'src/app/models/game-model';
 import { GameService } from 'src/app/services/game-service.service';
+import { UserService } from 'src/app/services/user-service.service';
 
 
 @Component({
@@ -21,57 +22,34 @@ export class HomeComponent implements OnInit {
   display: boolean = false;
 
   currentGame: Game | undefined;
-  games: Game[] = [];
-  games$: Observable<Game[]>;
 
   constructor(private router: Router,
-    private gameService: GameService
+    private gameService: GameService,
+    private userService: UserService
   ) {
-    this.games$ = this.gameService.list();
   }
 
   ngOnInit() {
-    this.games$.subscribe(games => {
-      console.log('Games:', games);
-      this.games = games;
-    });
+    this.gameService.list().subscribe();
   }
 
   createGame() {
     this.display = false;
-
+  
     let gameDetails = {
       hostname: this.playerName,
       gameName: this.gameName,
       maxPlayers: this.selectedNumberOfPlayers
     } as GameCreateDetails;
-
-    this.gameService.create(gameDetails).subscribe((game: Game) => {
-      console.log('Game created:', game);
-      this.gameService.joinGame(game.id, this.playerName).subscribe({
-      next: (response: any) => {
-        if (response && response.ok) {
-        this.games.push(game);
+    this.gameService.create(gameDetails).subscribe({
+      next: game => {
+        this.userService.playerName.next(this.playerName);
+        this.gameService.currentGame.next(game);
         this.router.navigate([`/game/${game.id}`]);
-        
-        this.gameService.joinGame(game.id, this.playerName).subscribe({
-        next: (response: any) => {
-        if (response) {
-          console.log('Joined game:', response);
-          this.router.navigate([`/game/${game.id}`]);
-        }
-        }
-        });
-        console.log(response);
-
-        } else {
-        console.error('Failed to join game:', response);
-        }
       },
       error: error => {
         console.error(error);
       }
-      });
     });
   }
 

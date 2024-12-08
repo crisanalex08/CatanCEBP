@@ -10,7 +10,7 @@
       [disabled]="isButtonDisabled()"
       (click)="showDialog($event)"></button>
     <div class="button-container">
-      <game-list [games]="games" [playerName]="playerName"></game-list>
+      <game-list [playerName]="playerName"></game-list>
     </div>
     <p-dialog header="Create a new game" [(visible)]="display" [modal]=true>
       <div class="dialog-container">

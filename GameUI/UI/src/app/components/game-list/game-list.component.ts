@@ -10,13 +10,19 @@ import { User } from 'src/app/models/user.model';
   styleUrls: ['./game-list.component.css']
 })
 export class GameListComponent {
-  @Input() games: Game[] = [];
   @Input() playerName: string = '';
   user: User | undefined;
+  games: Game[] = [];
   constructor(
     private router: Router,
     private gameService: GameService,
   ) {}
+
+  ngOnInit() {
+    this.gameService.games$.subscribe(games => {
+      this.games = games;
+    });
+  }
 
   isJoinButtonDisabled(){
     return this.playerName === '';
