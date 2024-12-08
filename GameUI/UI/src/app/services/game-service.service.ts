@@ -58,11 +58,11 @@ export class GameService {
     );
   }
 
-  joinGame(gameId: number, username: string) {
+  joinGame(gameId: number,name: string) {
     var request_url = this.url + '/api/games/' + gameId + '/join';
     console.log('Joining game:', request_url);
     var request_body = {
-      playerName: username
+      playerName: name
     }
     return this.http.post(request_url, request_body).pipe(
       tap((response: any) => {

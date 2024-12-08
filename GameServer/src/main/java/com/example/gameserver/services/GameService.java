@@ -159,7 +159,7 @@ public class GameService {
                 throw new InvalidGameStateException("Player already in a game");
             }
             game.getPlayers().add(player);
-            game.getSettings().setCurrentPlayersCount(game.getSettings().getCurrentPlayersCount() + 1);
+            game.getSettings().setCurrentPlayersCount(game.getPlayers().size());
             gameRepository.save(game);
             
             player.setGameId(game.getId());
@@ -201,6 +201,7 @@ public class GameService {
             }
 
             game.getPlayers().remove(player);
+            
             player.setGameId(null);
 
             if(game.getPlayers().isEmpty()) {
