@@ -35,8 +35,7 @@ export class GameService {
     console.log('Requesting game list:', request_url);
     return this.http.get<Game[]>(request_url).pipe(
       tap((res: Game[]) => {
-        const games = this.games.value;
-        this.games.next([...games, ...res]);
+        this.games.next([...res]);
       })
     );
   }
@@ -45,7 +44,7 @@ export class GameService {
     var request_url = this.url + '/api/games/create';
     var request_body = {
       name: gameDetails.gameName,
-      hostName: gameDetails.hostname,
+      hostname: gameDetails.hostname,
       maxPlayers: gameDetails.maxPlayers,
     }
     console.log('Creating game with data:', request_body);
@@ -53,7 +52,7 @@ export class GameService {
       tap((res: Game) => {
         const games = this.games.value;
         games.push(res);
-        this.games.next([...games, res]);
+        this.games.next([...games]);
         this.currentGame.next(res);
       })
     );
@@ -68,6 +67,19 @@ export class GameService {
     return this.http.post(request_url, request_body).pipe(
       tap((response: any) => {
         this.currentGame.next(response as Game);
+      })
+    );
+  }
+
+  leaveGame(gameId: number, username: string) {
+    var request_url = this.url + '/api/games/' + gameId + '/leave';
+    console.log('Leaving game:', request_url);
+    var request_body = {
+      playerName: username
+    }
+    return this.http.put(request_url, request_body).pipe(
+      tap((response: any) => {
+        this.currentGame.next({} as Game);
       })
     );
   }

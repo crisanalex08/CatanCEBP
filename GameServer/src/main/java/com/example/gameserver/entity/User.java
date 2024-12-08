@@ -16,6 +16,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Data
 @Entity
 @Table(name = "Users")
@@ -25,10 +28,12 @@ public class User {
     public Long id;
 
     @Column(unique = true)
+    @NotNull
+    @NotEmpty
     private String name;
-
     private Long gameId;
 
+    @NotNull
     public PlayerDetailsDTO toGetPlayerDTO() {
         PlayerDetailsDTO dto = new PlayerDetailsDTO();
         dto.setId(this.id);

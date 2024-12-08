@@ -60,20 +60,20 @@ public class GameService {
             //Create a new user
             player = new User();
             player.setName(request.getHostname());
-       
+
             usersRepository.save(player);
         }
 
-        // if(player.getGames() !=null){
-        //     player.getGames().forEach(game -> {
-        //         if(game.getStatus() == GameStatus.WAITING){
-        //             throw new InvalidGameStateException("Player already in a game");
-        //         }
-        //     });
-        // }
+//         if(player.getGames() !=null){
+//             player.getGames().forEach(game -> {
+//                 if(game.getStatus() == GameStatus.WAITING){
+//                     throw new InvalidGameStateException("Player already in a game");
+//                 }
+//             });
+//         }
         if(player.getGameId() !=null){
             throw new InvalidGameStateException("Player already in a game");
-    
+
         }
         Game game = new Game();
         game.setHostId(player.getId());
@@ -171,6 +171,48 @@ public class GameService {
             throw new RuntimeException(e);
         }
         
+    }
+
+    @Transactional
+    public void leaveGame(Long gameId, PlayerJoinRequest request) {
+
+        if(gameId == null) {
+            throw new IllegalArgumentException("Game id cannot be null");
+        }
+        if(request.getPlayerName() == null) {
+            throw new IllegalArgumentException("Player name cannot be null");
+        }
+
+        User player = usersRepository.getUserByname(request.getPlayerName());
+
+        if(player == null) {
+            throw new IllegalArgumentException("Player cannot be found");
+        }
+
+        Future<Game> futureGame = getGameById(gameId);
+        try{
+            Game game = futureGame.get();
+            if(game == null) {
+                throw new GameNotFoundException(gameId);
+            }
+
+            if(game.getStatus() == GameStatus.FINISHED){
+                return;
+            }
+
+            game.getPlayers().remove(player);
+            player.setGameId(null);
+
+            if(game.getPlayers().isEmpty()) {
+                gameRepository.delete(game);
+                return;
+            }
+            gameRepository.save(game);
+            usersRepository.save(player);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     // Get the game with the given gameId
     @Async

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Route } from '@angular/router';
+import { ActivatedRoute, Route, Router } from '@angular/router';
 import { GameService } from 'src/app/services/game-service.service';
 import { Game } from 'src/app/models/game-model';
 import { UserService } from 'src/app/services/user-service.service';
@@ -17,7 +17,8 @@ export class InGameComponent {
   constructor(
     private route: ActivatedRoute,
     private gameService : GameService,
-    private userService: UserService
+    private userService: UserService,
+    private router: Router
   ) { }
   ngOnInit() {
     const gameId = this.route.snapshot.paramMap.get('gameId');
@@ -29,8 +30,11 @@ export class InGameComponent {
       }
     });
 
-    this.playerName = localStorage.getItem('username') ?? '';
-
+    if(this.playerName === '')
+      this.playerName = localStorage.getItem('username') ?? '';
+    else
+      localStorage.setItem('username', this.playerName);
+    
     this.gameService.joinGame(this.gameId, this.playerName).subscribe({
       next: response => {
         this.game = response as Game;
@@ -40,4 +44,17 @@ export class InGameComponent {
       }
     });
   }
+
+  leaveGame() {
+    this.gameService.leaveGame(this.gameId, this.playerName).subscribe({
+      next: response => {
+        this.router.navigate(['/home']);
+        console.log(response);
+      },
+      error: error => {
+        console.error(error);
+      }
+    });
+  }
+
 }

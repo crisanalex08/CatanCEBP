@@ -67,6 +67,20 @@ public class GameController {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
+    @Operation(summary = "Leave a game")
+    @PutMapping("/{gameId}/leave")
+    public ResponseEntity<?> leaveGame(
+            @PathVariable Long gameId,
+            @RequestBody  PlayerJoinRequest request) {
+        try {
+            gameService.leaveGame(gameId, request);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (GameNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
+        } catch (GameFullException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @Operation(summary = "Start a game")
     @PostMapping("/{gameId}/start")
