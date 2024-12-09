@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/games/{gameId}/trades/")
+@RequestMapping("/api/games/trades/")
 @Tag(name = "Trade Controller", description = "Operations to manage trades")
 public class TradeController {
 
@@ -34,10 +34,10 @@ public class TradeController {
     }
 
     @Operation (summary = "Create a trade")
-    @PostMapping("/{playerId}/create-trade")
-    public ResponseEntity<Trade> createTrade(@RequestBody TradeCreateRequestDTO request, @PathVariable String gameId, @PathVariable String playerId) {
+    @PostMapping("/create-trade")
+    public ResponseEntity<Trade> createTrade(@RequestBody TradeCreateRequestDTO request) {
 
-        Trade trade = tradeService.createTrade(gameId, playerId, request);
+        Trade trade = tradeService.createTrade(request);
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
