@@ -12,7 +12,7 @@ public class UserService {
     }
 
     public User retrieveOrCreateUser(String username) {
-       var user = usersRepository.getUserByname(username);
+       var user = usersRepository.getUserByName(username);
 
          if(user == null) {
               user = new User();
@@ -23,6 +23,6 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
-        return usersRepository.getUserByname(username);
+        return usersRepository.getUserByName(username);
     }
 }
