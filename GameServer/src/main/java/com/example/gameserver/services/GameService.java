@@ -50,57 +50,53 @@ public class GameService {
     // Create a new game with the given hostId and settings
     @Transactional
     public Game createGame(GameCreateRequest request) {
-
         if(request.getName() == null) {
-            throw new IllegalArgumentException("Host id cannot be null");
+            throw new IllegalArgumentException("Game name cannot be null");
         }
-        if(request.getMaxPlayers() == 0) {
-            throw new IllegalArgumentException("Max Players Settings must be higher than 1");
+        if(request.getMaxPlayers() < 2) {
+            throw new IllegalArgumentException("Max Players Settings must be at least 2");
         }
-
-        var player = usersRepository.getUserByName(request.getHostname());
+        if(request.getHostName() == null) {
+            throw new IllegalArgumentException("Host name cannot be null");
+        }
+    
+        // Get or create the player
+        User player = usersRepository.getUserByName(request.getHostName());
         if (player == null) {
-            //Create a new user
             player = new User();
-            player.setName(request.getHostname());
-
-            usersRepository.save(player);
+            player.setName(request.getHostName());
+            player = usersRepository.save(player);  // Save and get the persisted entity
         }
-
-//         if(player.getGames() !=null){
-//             player.getGames().forEach(game -> {
-//                 if(game.getStatus() == GameStatus.WAITING){
-//                     throw new InvalidGameStateException("Player already in a game");
-//                 }
-//             });
-//         }
-        if(player.getGameId() !=null){
+    
+        if(player.getGameId() != null) {
             throw new InvalidGameStateException("Player already in a game");
-
         }
+    
+        // Create the game
         Game game = new Game();
         game.setHostId(player.getId());
         game.setName(request.getName());
         game.setStatus(GameStatus.WAITING);
+        
         GameSettings settings = new GameSettings();
         settings.setMaxPlayers(request.getMaxPlayers());
         settings.setCurrentPlayersCount(1);
-        game.setSettings (settings);
-         
-        User host = usersRepository.findById(player.getId().toString()).get();
-
+        game.setSettings(settings);
+    
         
-        game.setPlayers(new HashSet<>(){{
-            add(host);
-        }});
-
-        gameRepository.save(game);
-        host.setGameId(game.getId());
-        usersRepository.save(host);
-        System.out.println("+Game created with id: " + game.getId());
-
+        Set<User> players = new HashSet<>();
+        players.add(player);
+        game.setPlayers(players);
+    
+        game = gameRepository.save(game);
+        
+        // Update player's game association
+        player.setGameId(game.getId());
+        usersRepository.save(player);
+    
         return game;
     }
+
     // Host is starting the game with the given gameId
     @Transactional
     public Game startGame(Long gameId) {
@@ -187,7 +183,7 @@ public class GameService {
             throw new IllegalArgumentException("Player name cannot be null");
         }
 
-        User player = usersRepository.getUserByname(request.getPlayerName());
+        User player = usersRepository.getUserByName(request.getPlayerName());
 
         if(player == null) {
             throw new IllegalArgumentException("Player cannot be found");
@@ -205,6 +201,7 @@ public class GameService {
             }
 
             game.getPlayers().remove(player);
+            game.getSettings().setCurrentPlayersCount(game.getPlayers().size());
             
             player.setGameId(null);
 

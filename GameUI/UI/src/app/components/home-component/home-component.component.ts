@@ -36,7 +36,9 @@ export class HomeComponent implements OnInit {
     
     this.webSocketService.connect(this.wsUrl).subscribe({
       next: (message: any) => {
-        console.log('Message:', message);
+         if (message.data === 'Game List Updated') {
+          this.gameService.list().subscribe();
+        }
         
       },
       error: error => {

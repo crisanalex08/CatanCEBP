@@ -44,7 +44,7 @@ export class GameService {
     var request_url = this.url + '/api/games/create';
     var request_body = {
       name: gameDetails.gameName,
-      hostname: gameDetails.hostname,
+      hostName: gameDetails.hostname,
       maxPlayers: gameDetails.maxPlayers,
     }
     console.log('Creating game with data:', request_body);
