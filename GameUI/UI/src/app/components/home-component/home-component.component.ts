@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Game, GameCreateDetails } from 'src/app/models/game-model';
 import { GameService } from 'src/app/services/game-service.service';
 import { UserService } from 'src/app/services/user-service.service';
+import { WebSocketService } from 'src/app/services/websocket.service';
 
 
 @Component({
@@ -25,13 +26,31 @@ export class HomeComponent implements OnInit {
 
   constructor(private router: Router,
     private gameService: GameService,
-    private userService: UserService
+    private userService: UserService,
+    private webSocketService: WebSocketService
   ) {
   }
-
+  private wsUrl = 'ws://localhost:8080/ws';
   ngOnInit() {
     this.gameService.list().subscribe();
+    
+    this.webSocketService.connect(this.wsUrl).subscribe({
+      next: (message: any) => {
+         if (message.data === 'Game List Updated') {
+          this.gameService.list().subscribe();
+        }
+        
+      },
+      error: error => {
+        console.error('Error:', error);
+      },
+      complete: () => {
+        console.log('Connection closed');
+      }
+    });
   }
+
+  
 
   createGame() {
     this.display = false;

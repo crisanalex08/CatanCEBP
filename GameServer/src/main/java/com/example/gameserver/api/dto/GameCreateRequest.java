@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 public class GameCreateRequest {
     private String name;
-    private String hostname;
+    private String hostName;
     private int maxPlayers;
 }

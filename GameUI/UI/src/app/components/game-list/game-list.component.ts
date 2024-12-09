@@ -16,6 +16,7 @@ export class GameListComponent {
   constructor(
     private router: Router,
     private gameService: GameService,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
@@ -29,18 +30,21 @@ export class GameListComponent {
   }
 
   joinGame(game: Game) {
-    this.gameService.joinGame(game.id, this.playerName).subscribe({
-      next: response => {
-        console.log(response);
+    this.userService.checkUsername(this.playerName).subscribe({
+      next: () => {
+        this.gameService.joinGame(game.id, this.playerName).subscribe({
+          next: response => {
+            console.log(response);
+            this.router.navigate([`/game/${game.id}`]);
+          },
+          error: error => {
+            console.error(error);
+          }
+        });
       },
       error: error => {
-        console.error(error);
+        console.error('Error setting username:', error);
       }
     });
-
-    this.router.navigate([`/game/${game.id}`]);
-    console.log(`Joining game: ${game.id}`);
-
-    const playerId = '';
   }
 }

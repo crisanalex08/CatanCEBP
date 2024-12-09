@@ -44,7 +44,7 @@ export class GameService {
     var request_url = this.url + '/api/games/create';
     var request_body = {
       name: gameDetails.gameName,
-      hostname: gameDetails.hostname,
+      hostName: gameDetails.hostname,
       maxPlayers: gameDetails.maxPlayers,
     }
     console.log('Creating game with data:', request_body);
@@ -58,11 +58,11 @@ export class GameService {
     );
   }
 
-  joinGame(gameId: number, username: string) {
+  joinGame(gameId: number,name: string) {
     var request_url = this.url + '/api/games/' + gameId + '/join';
     console.log('Joining game:', request_url);
     var request_body = {
-      playerName: username
+      playerName: name
     }
     return this.http.post(request_url, request_body).pipe(
       tap((response: any) => {
