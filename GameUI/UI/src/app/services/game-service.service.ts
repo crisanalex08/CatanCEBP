@@ -83,4 +83,10 @@ export class GameService {
       })
     );
   }
+  
+  getGameInfo(gameId: number) {
+    var request_url = this.url + '/api/games/' + gameId;
+    console.log('Requesting game info:', request_url);
+    return this.http.get(request_url);
+  }
 }

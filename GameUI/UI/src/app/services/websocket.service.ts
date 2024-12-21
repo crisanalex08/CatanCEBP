@@ -19,7 +19,7 @@ export class WebSocketService {
 
   private create(url: string): Subject<MessageEvent> {
     const ws = new WebSocket(url);
-
+    console.log('Creating WebSocket connection:', ws);
     const observable = new Observable<MessageEvent>(observer => {
       ws.onmessage = (event) => {
         console.log('WebSocket message received:', event);
