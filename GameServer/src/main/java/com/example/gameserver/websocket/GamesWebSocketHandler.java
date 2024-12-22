@@ -27,9 +27,6 @@ public class GamesWebSocketHandler extends TextWebSocketHandler {
         } else {
             sessions.add(session);
         }
-           
-        
-        
     }
     public void addToLobby(String lobbyId, WebSocketSession session) {
         if(lobbySessions.containsKey(lobbyId)) {

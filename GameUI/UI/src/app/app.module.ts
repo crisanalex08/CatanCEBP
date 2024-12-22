@@ -8,6 +8,7 @@ import { HomeComponent } from './components/home-component/home-component.compon
 import { GameService } from './services/game-service.service';
 import { HttpClientModule } from '@angular/common/http';
 import { GameListComponent } from './components/game-list/game-list.component';
+import { InGameComponent } from './components/in-game/in-game.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -17,8 +18,10 @@ import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { InGameComponent } from './components/in-game/in-game.component';
+import { CardModule } from 'primeng/card';
+
 import { WebSocketService } from './services/websocket.service';
+
 
 @NgModule({
   declarations: [
@@ -39,7 +42,8 @@ import { WebSocketService } from './services/websocket.service';
     ButtonModule,
     DialogModule,
     DropdownModule,
-    InputNumberModule
+    InputNumberModule,
+    CardModule
   ],
   providers: [GameService, WebSocketService],
   bootstrap: [AppComponent]

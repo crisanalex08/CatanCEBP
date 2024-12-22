@@ -1,9 +1,17 @@
 <div class="game-container">
+    <div class="game-header">
+        <h1>{{ game.name }}</h1>
+    </div>
+    <div class="mesage-container">
+        <span *ngIf="game.settings.currentPlayersCount == game.settings.maxPlayers">{{ waitingForHostMessage }}</span>
+        <span *ngIf="game.settings.currentPlayersCount < game.settings.maxPlayers">{{ waitingForPlayersMessage }}</span>
+    </div>
     <div class="game-players-container">
-        <p-table [value]="game.players">
+        <p-table [value]="game.players" class="player-list-table">
             <ng-template pTemplate="header">
                 <tr>
-                    <th>Players</th>
+                    <th>Players: {{ game.settings.currentPlayersCount }}/{{
+                        game.settings.maxPlayers}}</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-player>
@@ -18,9 +26,12 @@
     </div>
     <div class="game-chat-container">
         <div class="input">
-
         </div>
-    </div>   
+    </div>
     <div class="game-actions-container">
-        <button pButton type="button" label="Leave Game" (click)="leaveGame()"></button>     
-</div>
+        <button pButton type="button" label="Leave Game"
+            (click)="leaveGame()"></button>
+        <button pButton type="button" label="Start Game"
+            (click)="startGame()"></button>
+
+    </div>

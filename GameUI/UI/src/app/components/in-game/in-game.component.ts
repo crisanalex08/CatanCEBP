@@ -5,6 +5,7 @@ import { GameService } from 'src/app/services/game-service.service';
 import { Game } from 'src/app/models/game-model';
 import { UserService } from 'src/app/services/user-service.service';
 import { WebSocketService } from 'src/app/services/websocket.service';
+import { AppModule } from 'src/app/app.module';
 @Component({
   selector: 'app-in-game',
   templateUrl: './in-game.component.html',
@@ -16,26 +17,29 @@ export class InGameComponent {
   game: Game = {} as Game;
   constructor(
     private route: ActivatedRoute,
-    private gameService : GameService,
+    private gameService: GameService,
     private userService: UserService,
     private router: Router,
     private WebSocketService: WebSocketService
   ) { }
   private wsUrl = 'ws://localhost:8080/lobby';
+
+  public waitingForPlayersMessage = 'Waiting for players...';
+  public waitingForHostMessage = 'Waiting for host to start the game...';
+
   ngOnInit() {
-    
     const gameId = this.route.snapshot.paramMap.get('gameId');
-    console.log('Game ID:', gameId);
     this.gameId = Number(gameId);
     console.log('Game ID:', this.gameId);
     this.WebSocketService.connect(this.wsUrl + '/' + gameId).subscribe({
-      
       next: (message: any) => {
+        console.log('Connected');
         console.log('Message received:', message);
-        if(message.data === 'Player Joined' || message.data === 'Player Left') {
-         this.gameService.getGameInfo(this.gameId).subscribe({
+        if (message.data === 'Player Joined' || message.data === 'Player Left') {
+          this.gameService.getGameInfo(this.gameId).subscribe({
             next: response => {
               this.game = response as Game;
+              this.gameService.currentGame.next(this.game);
               console.log('Game:', this.game);
             }
           });
@@ -48,19 +52,26 @@ export class InGameComponent {
         console.log('Connection closed');
       }
     });
-      
-      
+
+
+
+    this.gameService.currentGame$.subscribe({
+      next: game => {
+        this.game = game;
+      }
+    })
+
     this.userService.playerName$.subscribe({
       next: playerName => {
         this.playerName = playerName;
       }
     });
 
-    if(this.playerName === '')
+    if (this.playerName === '')
       this.playerName = localStorage.getItem('username') ?? '';
     else
       localStorage.setItem('username', this.playerName);
-    
+
     this.gameService.joinGame(this.gameId, this.playerName).subscribe({
       next: response => {
         this.game = response as Game;
@@ -75,12 +86,15 @@ export class InGameComponent {
     this.gameService.leaveGame(this.gameId, this.playerName).subscribe({
       next: response => {
         this.router.navigate(['/home']);
-        console.log(response);
       },
       error: error => {
         console.error(error);
       }
     });
+  }
+
+  startGame() {
+    
   }
 
 }
