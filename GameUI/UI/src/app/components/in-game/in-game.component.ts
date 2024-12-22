@@ -14,12 +14,14 @@ export class InGameComponent {
   @Input() playerName: string = '';
   gameId: number = -1;
   game: Game = {} as Game;
+  IsGameStarted: boolean = true;
   constructor(
     private route: ActivatedRoute,
     private gameService : GameService,
     private userService: UserService,
     private router: Router,
     private WebSocketService: WebSocketService
+
   ) { }
   private wsUrl = 'ws://localhost:8080/lobby';
   ngOnInit() {
@@ -82,5 +84,9 @@ export class InGameComponent {
       }
     });
   }
+  startGame() {
+    this.IsGameStarted = true;
+  }
+
 
 }

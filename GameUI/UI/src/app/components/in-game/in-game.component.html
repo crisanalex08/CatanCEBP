@@ -1,4 +1,5 @@
-<div class="game-container">
+<div *ngIf="!IsGameStarted" class="game-container">
+
     <div class="game-players-container">
         <p-table [value]="game.players">
             <ng-template pTemplate="header">
@@ -22,5 +23,15 @@
         </div>
     </div>   
     <div class="game-actions-container">
-        <button pButton type="button" label="Leave Game" (click)="leaveGame()"></button>     
+        <button pButton type="button" label="Leave Game" (click)="leaveGame()"></button>
+    </div>
+
+    <div>
+        <button pButton type="button" label="Start Game" (click)="startGame()"></button>
+    </div> 
+  
+
+</div>
+<div class="game-board">
+    <app-game-ui *ngIf="IsGameStarted" ></app-game-ui>
 </div>
