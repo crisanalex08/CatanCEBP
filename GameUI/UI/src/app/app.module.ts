@@ -21,14 +21,15 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CardModule } from 'primeng/card';
 
 import { WebSocketService } from './services/websocket.service';
-
+import { GameUIComponent } from "./components/game-ui/game-ui.component";
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     GameListComponent,
-    InGameComponent
+    InGameComponent,
+   
   ],
   imports: [
     BrowserModule,
@@ -36,15 +37,15 @@ import { WebSocketService } from './services/websocket.service';
     FormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
-
     TableModule,
     InputTextModule,
     ButtonModule,
     DialogModule,
     DropdownModule,
     InputNumberModule,
+    GameUIComponent,
     CardModule
-  ],
+],
   providers: [GameService, WebSocketService],
   bootstrap: [AppComponent]
 })

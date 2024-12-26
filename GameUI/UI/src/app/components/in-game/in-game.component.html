@@ -1,4 +1,4 @@
-<div class="game-container">
+<div *ngIf="!IsGameStarted" class="game-container">
     <div class="game-header">
         <h1>{{ game.name }}</h1>
     </div>
@@ -33,5 +33,9 @@
             (click)="leaveGame()"></button>
         <button pButton type="button" label="Start Game"
             (click)="startGame()"></button>
-
     </div>
+  
+</div>
+<div class="game-board">
+    <app-game-ui *ngIf="IsGameStarted" ></app-game-ui>
+</div>
