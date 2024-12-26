@@ -1,92 +1,83 @@
 <div class="game-container">
-    <div class="game-players-container">
-        <header class="player-frames">
-            <div class="frame"><button class="player-button">PLAYER 1</button></div>
-            <div class="frame"><button class="player-button">PLAYER 1</button></div>
-            <div class="frame"><button class="player-button">PLAYER 1</button></div>
-            <div class="frame"><button class="player-button">PLAYER 1</button></div>
-          </header>
+  <p-toolbar>
+    <div *ngFor="let player of game.players"
+      class="player-name-active">
+      {{player.name}}
     </div>
-    <main class="content">
-        <div class="aside-left">
-            <aside class="sidebar">
-                <h2>Actions</h2>
-                <div class="actions">
-                  <button class="action-button">Roll Dice</button>
-                  <button class="action-button">Build Settlement</button>
-                  <button class="action-button">Upgrade Construction</button>
+  </p-toolbar>
 
-                  <button class="action-button">Trade with Merchant</button>
-                  <button class="action-button">Trade with Player</button>
+  <p-card header="Actions" class="actions-card"
+    [style]="{ width: '15rem', 
+  overflow: 'hidden',
+  'position': 'fixed',
+  'left': '0',
+  'bottom': '0',}">
+    <div class="actions-container">
+      <p-button class="action-button" severity="secondary" label="Roll Dice"
+        severity="secondary"></p-button>
+      <p-button class="action-button" severity="secondary"
+        label="Build Settlement"></p-button>
+      <p-button class="action-button" severity="secondary"
+        label="Upgrade Construction"></p-button>
+      <p-button class="action-button" severity="secondary"
+        label="Trade with Merchant"></p-button>
+      <p-button class="action-button" severity="secondary"
+        label="Trade with Player"></p-button>
+    </div>
+  </p-card>
 
-                </div>  
-              </aside>
+  <p-card header="Resources" class="actions-card"
+    [style]="{ width: '10rem', 
+  overflow: 'hidden',
+  'position': 'fixed',
+  'right': '0',
+  'top': '90px',}">
+    <div class="resources-container">
+      <p-chip label="Wood - {{1}}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png" />
+      <p-chip label="Stone - {{1}}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/stone.png" />
+      <p-chip label="Wheat - {{1}}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wheat.png" />
+      <p-chip label="Sheep {{1}}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/sheep.png" />
+      <p-chip label="Gold {{1}}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/gold.png" />
+    </div>
+    <!-- To be UPDATED -->
+  </p-card>
 
-        </div>
-        <div class="aside-right">
-        <aside class="sidebar">
-          <h2>Resources</h2>
-          <div class="resources">
-            <div class="resource">
-              <span class="brick"></span>
-              <span class="count">0</span>
-            </div>
-            <div class="resource">
-              <span class="wood"></span>
-              <span class="count">0</span>
-            </div>
-            <div class="resource">
-              <span class="grain"></span>
-              <span class="count">0</span>
-            </div>
-            <div class="resource">
-              <span class="sheep"></span>
-              <span class="count">0</span>
-            </div>
-            <div class="resource">
-              <span class="ore"></span>
-              <span class="count">0</span>
-            </div>
-          </div>
-        </aside>
-
-        <aside class="sidebar">
-          <h2>Building Costs</h2>
-          <div class="building-costs">
-            <div class="cost-item">
-              <span>Road</span>
-              <div class="resources"><span class="brick"></span><span class="wood"></span></div>
-            </div>
-            <div class="cost-item">
-              <span>Settlement</span>
-              <div class="resources">
-                <span class="brick"></span><span class="wood"></span><span class="grain"></span><span class="sheep"></span>
-              </div>
-              <span class="vp">+1 VP</span>
-            </div>
-            <div class="cost-item">
-              <span>City</span>
-              <div class="resources">
-                <span class="ore"></span><span class="ore"></span><span class="ore"></span>
-                <span class="grain"></span><span class="grain"></span>
-              </div>
-              <span class="vp">+2 VP</span>
-            </div>
-            <div class="cost-item">
-              <span>Development Card</span>
-              <div class="resources">
-                <span class="ore"></span><span class="grain"></span><span class="sheep"></span>
-              </div>
-            </div>
-          </div>
-        </aside>
-        </div>
-      </main> 
-      <footer class="footer">
-        <button class="leave-button">Leave</button>
-        <h2>&#169; 2024 Urzisoft</h2>
-        <button class="help-button">Help</button>
-      </footer>
-     
-       
+  <p-card header="Building Cost" class="cost-card"
+    [style]="{ width: '20rem', 
+  overflow: 'hidden',
+  'position': 'fixed',
+  'right': '0',
+  'bottom': '0',}">
+    <div class="resources-container">
+      <p style="font-size: 1.5rem;" >Town</p>
+      <div class="resource-cost">
+        <p-chip label="2"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png" />
+        <i class="pi pi-plus" style="font-size: 2rem"></i>
+        <p-chip label="2"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/clay.png" />
+        <i class="pi pi-plus" style="font-size: 2rem"></i>
+        <p-chip label="2"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wheat.png" />
+      </div>
+    </div>
+    <div class="resources-container">
+      <p style="font-size: 1.5rem;" >Castle</p>
+      <div class="resource-cost">
+        <p-chip label="3"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/gold.png" />
+        <i class="pi pi-plus" style="font-size: 2rem"></i>
+        <p-chip label="3"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/stone.png" />
+        <i class="pi pi-plus" style="font-size: 2rem"></i>
+        <p-chip label="3"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/sheep.png" />
+      </div>
+    </div>
+  </p-card>
 </div>

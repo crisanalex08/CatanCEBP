@@ -97,10 +97,4 @@ export class InGameComponent {
   startGame() {
     this.IsGameStarted = true;
   }
-
-
-  startGame() {
-    
-  }
-
 }

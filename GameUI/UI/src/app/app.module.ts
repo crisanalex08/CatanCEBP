@@ -19,6 +19,8 @@ import {DialogModule} from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CardModule } from 'primeng/card';
+import { ToolbarModule } from 'primeng/toolbar';
+import { ChipModule } from 'primeng/chip';
 
 import { WebSocketService } from './services/websocket.service';
 import { GameUIComponent } from "./components/game-ui/game-ui.component";
@@ -29,7 +31,7 @@ import { GameUIComponent } from "./components/game-ui/game-ui.component";
     HomeComponent,
     GameListComponent,
     InGameComponent,
-   
+    GameUIComponent
   ],
   imports: [
     BrowserModule,
@@ -43,8 +45,9 @@ import { GameUIComponent } from "./components/game-ui/game-ui.component";
     DialogModule,
     DropdownModule,
     InputNumberModule,
-    GameUIComponent,
-    CardModule
+    CardModule,
+    ToolbarModule,
+    ChipModule
 ],
   providers: [GameService, WebSocketService],
   bootstrap: [AppComponent]
