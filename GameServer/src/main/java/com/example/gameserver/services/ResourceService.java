@@ -11,12 +11,16 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.gameserver.entity.Resources;
+import com.example.gameserver.entity.User;
 import com.example.gameserver.enums.ResourceType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -36,8 +40,8 @@ public class ResourceService {
     }
 
     @Transactional
-    public Resources initializePlayerResources(Long gameId, Long playerId) {
-        if (gameId == null || playerId == null) {
+    public String initializePlayerResources(Long gameId) {
+        if (gameId == null) {
             return null;
         }
 
@@ -47,18 +51,19 @@ public class ResourceService {
             return null;
         }
 
-        PlayerDetailsDTO player = game.get().getPlayerById(playerId);
-        if (player == null) {
-            logger.error("Player not found, ID: " + playerId);
+        Set<User> players = game.get().getPlayers();
+        if(players.isEmpty()) {
+            logger.error("No players found for game, ID: " + gameId);
             return null;
         }
-        if(resourceRepository.findByGameIdAndPlayerId(gameId, playerId).isPresent()) {
-            throw new IllegalArgumentException("Resources already initialized for player: " + playerId);
-        }
-        Resources resources = new Resources(gameId, playerId);
 
-        resourceRepository.save(resources);
-        return resources;
+        
+        for (User player : players) {
+            Resources resources = new Resources(gameId, player.getId());
+            resourceRepository.save(resources);
+        }
+
+        return "Resources initialized for all players"; 
     }
     @Async
     public Future<Resources> getPlayerResources(Long gameId, Long playerId) {
@@ -86,8 +91,8 @@ public class ResourceService {
     }
 
     @Transactional
-    public Resources addResource(Long gameId, Long playerId, ResourceType resourceType, int amount) {
-        if (gameId == null || playerId == null || resourceType == null || amount <= 0) {
+    public Resources addResource(Long gameId, Long playerId, Map<ResourceType,Integer> resourcesQuantities) {
+        if (gameId == null || playerId == null || resourcesQuantities == null) {
             return null;
         }
         Optional<Game> game = gameRepository.findById(gameId);
@@ -101,16 +106,21 @@ public class ResourceService {
             return null;
         }
 
-        Optional<Resources> resources = resourceRepository.findByGameIdAndPlayerId(gameId, playerId);
-        if (resources.isEmpty()) {
+        Optional<Resources> playerResources = resourceRepository.findByGameIdAndPlayerId(gameId, playerId);
+
+        if (playerResources.isEmpty()) {
             logger.error("Resources not found, Game ID: " + gameId + ", Player ID: " + playerId);
             return null;
         }
 
-        Resources playerResources = resources.get();
-        playerResources.add(resourceType, amount);
-        resourceRepository.save(playerResources);
-        return playerResources;
+        for (Map.Entry<ResourceType, Integer> entry : resourcesQuantities.entrySet()) {
+            playerResources.get().add(entry.getKey(), entry.getValue());
+        }
+        resourceRepository.save(playerResources.get());
+
+        return playerResources.get();
+
+        
     }
 
     @Transactional
@@ -159,11 +169,13 @@ public class ResourceService {
         }
 
         List<Resources> modifiedResources = new ArrayList<>();
-        addResource(gameId, playerId, ResourceType.WOOD, 1);
-        addResource(gameId, playerId, ResourceType.CLAY, 1);
+        Map<ResourceType, Integer> resources = new HashMap<>();
+        resources.put(ResourceType.WOOD, 1);
+        resources.put(ResourceType.CLAY, 1);
+        resources.put(ResourceType.WHEAT, 1);
+        modifiedResources.add(addResource(gameId, playerId, resources));
         removeResource(gameId, playerId, ResourceType.CLAY, 1);
-        modifiedResources.add(addResource(gameId, playerId, ResourceType.WHEAT, 1));
-
+        modifiedResources.add(addResource(gameId, playerId, resources));
         return modifiedResources;
     }
 

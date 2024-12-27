@@ -48,5 +48,17 @@ public class GamePlayController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @Operation(summary = "Roll the dice and distribute resources")
+    @PostMapping("/{gameId}/roll/{playerId}")
+    public ResponseEntity<?> rollDiceAndDistributeResources(@PathVariable Long gameId, @PathVariable Long playerId) {
+        try {
+            String result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("Error rolling dice", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
     
 }

@@ -2,6 +2,7 @@ package com.example.gameserver.services;
 import com.example.gameserver.api.dto.BuildingCreateRequest;
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Resources;
+import com.example.gameserver.entity.User;
 import com.example.gameserver.enums.BuildingType;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.exceptions.*;
@@ -9,6 +10,8 @@ import com.example.gameserver.repository.BuildingRepository;
 import com.example.gameserver.repository.GameRepository;
 
 import com.example.gameserver.repository.ResourceRepository;
+import com.example.gameserver.repository.UsersRepository;
+
 import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -28,12 +32,37 @@ public class BuildingService {
     private final BuildingRepository buildingRepository;
     private final GameRepository gameRepository;
     private final ResourceRepository resourceRepository;
+    private final UsersRepository userRepository;
 
     @Autowired
-    public BuildingService(BuildingRepository buildingRepository, GameRepository gameRepository, ResourceRepository resourceRepository) {
+    public BuildingService(BuildingRepository buildingRepository, GameRepository gameRepository, ResourceRepository resourceRepository, UsersRepository userRepository) {
         this.buildingRepository = buildingRepository;
         this.gameRepository = gameRepository;
         this.resourceRepository = resourceRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public List<Building> initializePlayerBuildings (Long gameId) {
+        if(gameId == null) {
+            throw new NullValueException("gameId: "+ gameId + "| is null");
+        }
+
+        if(gameRepository.findById(gameId).isEmpty()) {
+            throw new GameNotFoundException(gameId);
+        }
+
+        Set<User> players = userRepository.findAllByGameId(gameId);
+        if(players.isEmpty()) {
+            throw new NoPlayerFoundException("GameId: " + gameId);
+        }
+
+        for(User player : players) {
+            Building building = new Building(gameId, player.getId(), BuildingType.SETTLEMENT);
+            buildingRepository.save(building);
+        }
+
+        return buildingRepository.findAll().stream().filter(building -> building.getGameId().equals(gameId)).toList();
     }
 
     //construct
@@ -43,6 +72,7 @@ public class BuildingService {
             throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + ", or request: " + request + "| is null");
         }
         // TO DO: Implement logic to check that player exists
+    
 
         if(gameRepository.findById(gameId).isEmpty()) {
             throw new GameNotFoundException(gameId);

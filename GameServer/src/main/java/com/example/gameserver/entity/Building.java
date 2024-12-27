@@ -1,8 +1,13 @@
 package com.example.gameserver.entity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -28,11 +33,11 @@ public class Building {
     private BuildingType type;
     private Long playerId;
     private Long gameId;
+   
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<ProductionData> production = new ArrayList<>();
-    @Min(1)
-    @Max(6)
-    private int diceValue;
+    private List<ProductionData> production;
+    
+    
 
     public Building() {
     }
@@ -41,29 +46,71 @@ public class Building {
         this.gameId = gameId;
         this.playerId = playerId;
         this.type = type;
-        this.diceValue = (int) (Math.random() * 6 + 1);
+        this.production = new ArrayList<>();
+        initializeProductionData();
+        
+
     }
+
+    public void initializeProductionData()
+    {
+        List<ResourceType> possibleResources = new ArrayList<>();
+        if (this.type == BuildingType.SETTLEMENT) {
+            
+            possibleResources = Arrays.asList(
+                ResourceType.WOOD, 
+                ResourceType.CLAY, 
+                ResourceType.STONE
+            );
+        }
+        else if (this.type == BuildingType.TOWN) {
+
+            possibleResources = Arrays.asList(
+                ResourceType.WHEAT, 
+                ResourceType.SHEEP, 
+                ResourceType.GOLD
+            );
+        }
+
+        if(possibleResources.size() < 2) {
+            throw new IllegalStateException("Not enough resources for building type: " + type);
+        }
+
+
+            Collections.shuffle(possibleResources);
+            List<ResourceType> resources = possibleResources.subList(0, 2);
+            
+            Random random = new Random();
+            Set<Integer> diceValues = new HashSet<>();
+
+            for(ResourceType resource : resources) {
+                ProductionData data = new ProductionData();
+                data.setResourceType(resource);
+                data.setProductionRate(1);
+                int diceValue;
+                do {
+                    diceValue = random.nextInt(6) + 1;
+                } while (diceValues.contains(diceValue));
+
+                diceValues.add(diceValue);
+                data.setDiceValue(diceValue);
+                this.production.add(data);
+            }
+        
+    }
+    
 
     public Map<ResourceType, @Min(0) Integer> produce() {
         Map<ResourceType, @Min(0) Integer> resources = new ConcurrentHashMap<>();
 
-        switch (type) {
-            case SETTLEMENT:
-                resources.put(ResourceType.WOOD, 1);
-                resources.put(ResourceType.CLAY, 1);
-                resources.put(ResourceType.WHEAT, 1);
-                break;
-            case TOWN:
-                resources.put(ResourceType.STONE, 1);
-                resources.put(ResourceType.SHEEP, 1);
-                resources.put(ResourceType.GOLD, 1);
-                break;
-            default:
-                break;
+        for (ProductionData data : production) {
+            resources.put(data.getResourceType(), data.getProductionRate());
         }
 
         return resources;
     }
+
+      
 
 
 }
