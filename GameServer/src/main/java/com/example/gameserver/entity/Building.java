@@ -13,6 +13,7 @@ import com.example.gameserver.models.ProductionData;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 
@@ -29,6 +30,9 @@ public class Building {
     private Long gameId;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<ProductionData> production = new ArrayList<>();
+    @Min(1)
+    @Max(6)
+    private int diceValue;
 
     public Building() {
     }
@@ -37,6 +41,7 @@ public class Building {
         this.gameId = gameId;
         this.playerId = playerId;
         this.type = type;
+        this.diceValue = (int) (Math.random() * 6 + 1);
     }
 
     public Map<ResourceType, @Min(0) Integer> produce() {
