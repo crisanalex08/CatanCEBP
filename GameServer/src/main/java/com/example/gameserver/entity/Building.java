@@ -72,9 +72,7 @@ public class Building {
             );
         }
 
-        if(possibleResources.size() < 2) {
-            throw new IllegalStateException("Not enough resources for building type: " + type);
-        }
+       
 
 
             Collections.shuffle(possibleResources);
@@ -91,7 +89,7 @@ public class Building {
                 do {
                     diceValue = random.nextInt(6) + 1;
                 } while (diceValues.contains(diceValue));
-
+                
                 diceValues.add(diceValue);
                 data.setDiceValue(diceValue);
                 this.production.add(data);
