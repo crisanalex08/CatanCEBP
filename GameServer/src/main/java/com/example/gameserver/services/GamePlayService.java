@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.gameserver.entity.Building;
@@ -114,10 +116,8 @@ public class GamePlayService {
         return "Resources distributed successfully for players when dice value is: " + diceValue + " rolled by player: " + PlayerId;
 }
 
-    
-
-    
-
-
+    @Async
+    public CompletableFuture<Building> constructBuilding(Long playerId, Long gameId){
+        return CompletableFuture.completedFuture(buildingService.constructBuilding(playerId, gameId));
+    }
 }
-    

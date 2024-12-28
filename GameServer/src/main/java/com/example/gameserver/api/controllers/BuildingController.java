@@ -45,7 +45,7 @@ public class BuildingController {
     // This needs to communicate with ResourceService to get player resources
     @PostMapping("/{playerId}/construct")
     public ResponseEntity<Building> constructBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @RequestBody BuildingCreateRequest buildingCreateRequest) {
-        Building newBuilding = buildingService.constructBuilding(playerId, gameId, buildingCreateRequest);
+        Building newBuilding = buildingService.constructBuilding(playerId, gameId);
         if (newBuilding == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
