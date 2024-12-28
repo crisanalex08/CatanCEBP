@@ -1,5 +1,7 @@
 package com.example.gameserver.api.controllers;
 
+import java.util.concurrent.Future;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -58,6 +60,18 @@ public class GamePlayController {
         } catch (Exception e) {
             log.error("Error rolling dice", e);
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @Operation(summary = "Upgrade building")
+    @PostMapping("/{gameId}/upgrade/{playerId}/{buildingId}")
+    public ResponseEntity<?> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
+        try {
+            Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
+            return ResponseEntity.ok(result.get());
+        } catch (Exception e) {
+            log.error("Error upgrading building", e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
     

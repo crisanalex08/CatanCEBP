@@ -51,8 +51,8 @@ public class BuildingService {
         if(gameRepository.findById(gameId).isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
-
-        Set<User> players = userRepository.findAllByGameId(gameId);
+        //Changed to get all players in the game
+        Set<User> players = gameRepository.findById(gameId).get().getPlayers();
         if(players.isEmpty()) {
             throw new NoPlayerFoundException("GameId: " + gameId);
         }
@@ -151,23 +151,23 @@ public class BuildingService {
         }
 
         switch (buildingToUpgrade.get().getType()) {
-            case SETTLEMENT:
-                buildingToUpgrade.get().setType(BuildingType.TOWN);
-
+            case SETTLEMENT: //Current building type is settlement
                 playerResources.subtract(ResourceType.WOOD, 2);
                 playerResources.subtract(ResourceType.CLAY, 2);
                 playerResources.subtract(ResourceType.WHEAT, 2);
 
+                buildingToUpgrade.get().setType(BuildingType.TOWN);
+
                 resourceRepository.save(playerResources);
                 buildingRepository.save(buildingToUpgrade.get());
                 return BuildingType.TOWN;
-            case TOWN:
-                buildingToUpgrade.get().setType(BuildingType.CASTLE);
-
+            case TOWN:  //Current building type is town
                 playerResources.subtract(ResourceType.WOOD, 3);
                 playerResources.subtract(ResourceType.STONE, 3);
                 playerResources.subtract(ResourceType.SHEEP, 3);
                 playerResources.subtract(ResourceType.GOLD, 3);
+
+                buildingToUpgrade.get().setType(BuildingType.CASTLE);
 
                 resourceRepository.save(playerResources);
                 buildingRepository.save(buildingToUpgrade.get());
@@ -184,7 +184,7 @@ public class BuildingService {
             throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + ", or buildingId: " + buildingId + "| is null");
         }
 
-        Optional<Building> building = buildingRepository.findAll().stream().filter(b -> b.getPlayerId().equals(playerId) && b.getGameId().equals(gameId) && b.getId().equals(buildingId)).findFirst();
+        Optional<Building> building = buildingRepository.findById(buildingId);
         if(building.isEmpty()) {
             logger.error("Building not found with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
             throw new NoBuildingFoundException("GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);

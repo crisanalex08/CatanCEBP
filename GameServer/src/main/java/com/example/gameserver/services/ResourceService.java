@@ -28,7 +28,6 @@ import java.util.concurrent.Future;
 public class ResourceService {
     private static final Logger logger = LoggerFactory.getLogger(ResourceService.class);
     private final GameRepository gameRepository;
-    private final BuildingRepository buildingRepository;
     private final ResourceRepository resourceRepository;
 
 
@@ -36,7 +35,6 @@ public class ResourceService {
     public ResourceService(GameRepository gameRepository, BuildingRepository buildingRepository, ResourceRepository resourceRepository) {
         this.gameRepository = gameRepository;
         this.resourceRepository = resourceRepository;
-        this.buildingRepository = buildingRepository;
     }
 
     @Transactional
@@ -151,32 +149,6 @@ public class ResourceService {
         return playerResources;
     }
 
-    public List<Resources> distributeResources(Long gameId, Long playerId) {
-        if(gameId == null || playerId == null) {
-            return null;
-        }
-//        int diceRoll = new Random().nextInt(6) + 1;
-
-        Optional<Game> game = gameRepository.findById(gameId);
-        if (game.isEmpty()) {
-            logger.error("Game not found, ID: " + gameId);
-            return null;
-        }
-        PlayerDetailsDTO player = game.get().getPlayerById(playerId);
-        if (player == null) {
-            logger.error("Player not found, ID: " + playerId);
-            return null;
-        }
-
-        List<Resources> modifiedResources = new ArrayList<>();
-        Map<ResourceType, Integer> resources = new HashMap<>();
-        resources.put(ResourceType.WOOD, 1);
-        resources.put(ResourceType.CLAY, 1);
-        resources.put(ResourceType.WHEAT, 1);
-        modifiedResources.add(addResource(gameId, playerId, resources));
-        removeResource(gameId, playerId, ResourceType.CLAY, 1);
-        modifiedResources.add(addResource(gameId, playerId, resources));
-        return modifiedResources;
-    }
+   
 
 }
