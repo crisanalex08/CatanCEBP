@@ -19,6 +19,7 @@ import com.example.gameserver.repository.UsersRepository;
 
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -189,32 +190,26 @@ public class GameService {
             throw new IllegalArgumentException("Player cannot be found");
         }
 
-        Future<Game> futureGame = getGameById(gameId);
-        try{
-            Game game = futureGame.get();
-            if(game == null) {
-                throw new GameNotFoundException(gameId);
-            }
-
-            if(game.getStatus() == GameStatus.FINISHED){
-                return;
-            }
-
-            game.getPlayers().remove(player);
-            game.getSettings().setCurrentPlayersCount(game.getPlayers().size());
-            
-            player.setGameId(null);
-
-            if(game.getPlayers().isEmpty()) {
-                gameRepository.delete(game);
-                return;
-            }
-            gameRepository.save(game);
-            usersRepository.save(player);
+        Game game = gameRepository.findGameById(gameId);
+        if(game == null) {
+            throw new GameNotFoundException(gameId);
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+
+        if(game.getStatus() == GameStatus.FINISHED){
+            return;
         }
+
+        game.getPlayers().remove(player);
+        game.getSettings().setCurrentPlayersCount(game.getPlayers().size());
+
+        player.setGameId(null);
+        if(game.getPlayers().isEmpty()) {
+            gameRepository.delete(game);
+            return;
+        }
+        gameRepository.save(game);
+        usersRepository.save(player);
+
     }
     // Get the game with the given gameId
     @Async
