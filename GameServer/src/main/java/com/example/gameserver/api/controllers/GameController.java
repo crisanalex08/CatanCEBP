@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.TextMessage;
 
 @CrossOrigin
 @RestController
@@ -44,6 +45,7 @@ public class GameController {
         Game newGame = gameService.createGame(request);
         gamesWebSocketHandler.broadcastGameList();
         
+        
         return new ResponseEntity<>(newGame, HttpStatus.CREATED);
     }
 
@@ -68,6 +70,8 @@ public class GameController {
             @RequestBody  PlayerJoinRequest request) {
         try {
             Game game = gameService.joinGame(gameId, request);
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Player Joined"));
+            gamesWebSocketHandler.broadcastGameList();
             return new ResponseEntity<>(game, HttpStatus.OK);
         } catch (GameNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
@@ -82,6 +86,8 @@ public class GameController {
             @RequestBody  PlayerJoinRequest request) {
         try {
             gameService.leaveGame(gameId, request);
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Player Left"));
+            gamesWebSocketHandler.broadcastGameList();
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (GameNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);

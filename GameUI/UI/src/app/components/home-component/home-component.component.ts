@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit {
     private webSocketService: WebSocketService
   ) {
   }
-  private wsUrl = 'ws://localhost:8080/ws';
+  private wsUrl = 'ws://localhost:8080/games';
   ngOnInit() {
     this.gameService.list().subscribe();
     
@@ -38,6 +38,7 @@ export class HomeComponent implements OnInit {
       next: (message: any) => {
          if (message.data === 'Game List Updated') {
           this.gameService.list().subscribe();
+          
         }
         
       },
