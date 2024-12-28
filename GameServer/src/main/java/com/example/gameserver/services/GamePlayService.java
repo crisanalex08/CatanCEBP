@@ -117,6 +117,11 @@ public class GamePlayService {
         return "Resources distributed successfully for players when dice value is: " + diceValue + " rolled by player: " + PlayerId;
 }
 
+    @Async
+    public CompletableFuture<Building> constructBuilding(Long playerId, Long gameId){
+        return CompletableFuture.completedFuture(buildingService.constructBuilding(playerId, gameId));
+    }
+
     
     @Async
     public CompletableFuture<String> upgradeBuilding(Long gameId, Long playerId, Long buildingId) {
@@ -143,7 +148,4 @@ public class GamePlayService {
         }
     }
     
-
-
 }
-    

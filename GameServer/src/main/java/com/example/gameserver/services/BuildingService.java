@@ -1,6 +1,7 @@
 package com.example.gameserver.services;
 import com.example.gameserver.api.dto.BuildingCreateRequest;
 import com.example.gameserver.entity.Building;
+import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.Resources;
 import com.example.gameserver.entity.User;
 import com.example.gameserver.enums.BuildingType;
@@ -32,14 +33,12 @@ public class BuildingService {
     private final BuildingRepository buildingRepository;
     private final GameRepository gameRepository;
     private final ResourceRepository resourceRepository;
-    private final UsersRepository userRepository;
 
     @Autowired
-    public BuildingService(BuildingRepository buildingRepository, GameRepository gameRepository, ResourceRepository resourceRepository, UsersRepository userRepository) {
+    public BuildingService(BuildingRepository buildingRepository, GameRepository gameRepository, ResourceRepository resourceRepository) {
         this.buildingRepository = buildingRepository;
         this.gameRepository = gameRepository;
         this.resourceRepository = resourceRepository;
-        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -52,6 +51,7 @@ public class BuildingService {
             throw new GameNotFoundException(gameId);
         }
         //Changed to get all players in the game
+
         Set<User> players = gameRepository.findById(gameId).get().getPlayers();
         if(players.isEmpty()) {
             throw new NoPlayerFoundException("GameId: " + gameId);
@@ -65,26 +65,41 @@ public class BuildingService {
         return buildingRepository.findAll().stream().filter(building -> building.getGameId().equals(gameId)).toList();
     }
 
+    //helper method
+    protected long getPlayerBuildingCount(Long playerId, Long gameId) {
+        return buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId)).count();
+    }
+
     //construct
     @Transactional
-    public Building constructBuilding(Long playerId, Long gameId, BuildingCreateRequest request) {
-        if(playerId == null || gameId == null || request == null) {
-            throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + ", or request: " + request + "| is null");
+    public Building constructBuilding(Long playerId, Long gameId) {
+        if(playerId == null || gameId == null) {
+            logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId);
+            throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + " is null");
         }
-        // TO DO: Implement logic to check that player exists
-    
 
-        if(gameRepository.findById(gameId).isEmpty()) {
+        Optional<Game> game = gameRepository.findById(gameId);
+
+        if(game.isEmpty()) {
+            logger.error("Game not found with the given Id: " + gameId);
             throw new GameNotFoundException(gameId);
         }
 
-        long playerBuildingCount = buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId)).count();
-        if(playerBuildingCount >= 3) {
+        if(game.get().getPlayerById(playerId) == null) {
+            logger.error("Player not found with the given Id: " + playerId);
+            throw new NoPlayerFoundException("When constructing building, PlayerId: " + playerId + " not found in game with GameId: " + gameId);
+        }
+
+        long playerBuildingCount = getPlayerBuildingCount(playerId, gameId);
+
+        if(playerBuildingCount>= 3) {
             throw new PlayerHasTheMaximumAmountOfBuildings();
         }
+
         if(playerBuildingCount > 0) {
             Resources playerResources = resourceRepository.findByGameIdAndPlayerId(gameId, playerId).orElseThrow(() -> new NoResourceFoundException("GameId: " + gameId + " PlayerId: " + playerId));
             if(!playerResources.hasEnoughResourcesToBuild(BuildingType.SETTLEMENT)) {
+                logger.error("Player does not have enough resources to build a settlement" + " GameId: " + gameId + " PlayerId: " + playerId);
                 throw new NotEnoughResourcesException();
             }
 
