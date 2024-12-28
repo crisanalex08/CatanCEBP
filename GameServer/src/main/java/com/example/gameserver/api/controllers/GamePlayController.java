@@ -1,5 +1,7 @@
 package com.example.gameserver.api.controllers;
 
+import java.util.concurrent.Future;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +66,7 @@ public class GamePlayController {
         }
     }
 
+
     @Operation(summary = "Construct a building")
     @PostMapping("/{gameId}/construct/{playerId}")
     public ResponseEntity<?> constructBuilding(@PathVariable Long gameId, @PathVariable Long playerId) {
@@ -77,4 +80,17 @@ public class GamePlayController {
         }
 
     }
+
+    @Operation(summary = "Upgrade building")
+    @PostMapping("/{gameId}/upgrade/{playerId}/{buildingId}")
+    public ResponseEntity<?> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
+        try {
+            Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
+            return ResponseEntity.ok(result.get());
+        } catch (Exception e) {
+            log.error("Error upgrading building", e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+    
 }

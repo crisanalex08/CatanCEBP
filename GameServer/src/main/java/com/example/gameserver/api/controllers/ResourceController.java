@@ -55,19 +55,5 @@ public class ResourceController {
        
     }
 
-    @Operation(summary = "Distribute resources from dice roll")
-    @PostMapping("/{playerId}/distribute")
-    public ResponseEntity<List<Resources>> distributeResources(@PathVariable Long gameId, @PathVariable Long playerId) {
-        List<Resources> resources = resourceService.distributeResources(gameId, playerId);
-        if (resources == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(resources, HttpStatus.OK);
-    }
-
-
-
-    
-    
-
+   
 }

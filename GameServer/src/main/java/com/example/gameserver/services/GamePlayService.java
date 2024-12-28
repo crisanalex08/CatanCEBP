@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.User;
+import com.example.gameserver.enums.BuildingType;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.models.ProductionData;
 
@@ -120,4 +121,31 @@ public class GamePlayService {
     public CompletableFuture<Building> constructBuilding(Long playerId, Long gameId){
         return CompletableFuture.completedFuture(buildingService.constructBuilding(playerId, gameId));
     }
+
+    
+    @Async
+    public CompletableFuture<String> upgradeBuilding(Long gameId, Long playerId, Long buildingId) {
+        try {
+            Building building = buildingService.getBuildingInfo(playerId, gameId, buildingId).get();
+            
+            if (building == null) {
+                throw new IllegalArgumentException("Building not found with ID: " + buildingId);
+            }
+
+            if (building.getPlayerId().longValue() != playerId) {
+                throw new IllegalArgumentException("Building does not belong to player: " + playerId);
+            }
+
+            if (building.getType() == BuildingType.CASTLE) {
+                throw new IllegalArgumentException("Building is already at max level");
+            }
+
+            buildingService.upgradeBuilding(playerId, gameId, buildingId);
+            return CompletableFuture.completedFuture("Building upgraded successfully");
+        } catch (Exception e) {
+            log.error("Error while upgrading building: {}", e.getMessage());
+            return CompletableFuture.completedFuture(e.getMessage());
+        }
+    }
+    
 }
