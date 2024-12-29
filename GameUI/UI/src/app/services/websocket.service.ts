@@ -10,10 +10,8 @@ export class WebSocketService {
   constructor() { }
 
   public connect(url: string): Subject<MessageEvent> {
-    if (!this.subject) {
-      this.subject = this.create(url);
-      console.log('Successfully connected: ' + url);
-    }
+    this.subject = this.create(url);
+    console.log('Successfully connected: ' + url);
     return this.subject;
   }
 
