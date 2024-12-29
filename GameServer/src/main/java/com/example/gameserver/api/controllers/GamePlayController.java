@@ -3,7 +3,6 @@ package com.example.gameserver.api.controllers;
 import java.util.concurrent.Future;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +14,7 @@ import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
 import com.example.gameserver.services.BuildingService;
 import com.example.gameserver.services.GamePlayService;
-import com.example.gameserver.services.GameService;
+
 import com.example.gameserver.services.ResourceService;
 
 import io.swagger.v3.oas.annotations.Operation;

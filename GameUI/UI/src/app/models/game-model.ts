@@ -17,3 +17,22 @@ export interface GameCreateDetails{
     gameName: string;
     maxPlayers: number;
 }
+
+
+export interface PlayerResources {
+    id: number;
+    gameId: number;
+    playerId: number;
+    quantities: {
+        WHEAT: number;
+        GOLD: number;
+        WOOD: number;
+        STONE: number;
+        CLAY: number;
+        SHEEP: number;
+    };
+    createdAt: string;
+    updatedAt: string;
+    }
+
+
