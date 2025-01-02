@@ -40,16 +40,36 @@ export class InGameComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const gameId = this.route.snapshot.paramMap.get('gameId');
     this.gameId = Number(gameId);
-    
-    this.setupWebSocketConnection();
 
+    this.gameService.getGameInfo(this.gameId).subscribe({
+      next: (game) => {
+        this.game = game as Game;
+        this.gameService.currentGame.next(this.game);
+        
+        // Then set up the subscription for future updates
+        this.gameService.currentGame$.subscribe({
+          next: game => {
+            this.game = game;
+          }
+        });
+        
+        // Continue with the rest of your initialization
+        this.setupWebSocketConnection();
+        this.IsGameStarted = this.game.status === 'IN_PROGRESS' ? true : false;
+        this.IsHost = this.game.players?.find(player => player.name === this.playerName)?.host ?? false;
+      },
+      error: (error) => {
+        console.error('Error fetching game:', error);
+      }
+    });
+  
     this.gameService.currentGame$.subscribe({
       next: game => {
         this.game = game;
       }
     })
 
-    this.IsGameStarted = this.game.status === 'IN_PROGRESS' ? true : false;
+  
     this.userService.playerName$.subscribe({
       next: playerName => {
         this.playerName = playerName;
@@ -61,7 +81,7 @@ export class InGameComponent implements OnInit, OnDestroy {
     else
       localStorage.setItem('username', this.playerName);
 
-    this.IsHost = this.game.players?.find(player => player.name === this.playerName)?.host ?? false;
+   
 
     this.gameService.joinGame(this.gameId, this.playerName).subscribe({
       next: response => {
