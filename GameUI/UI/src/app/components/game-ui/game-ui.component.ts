@@ -13,6 +13,7 @@ import { WebSocketService } from 'src/app/services/websocket.service';
 export class GameUIComponent {
     game: Game = {} as Game;
     gameId: number = -1;
+    playerName: string = '';
     currentPlayerResources: PlayerResources['quantities'] = {
         WOOD: 0,
         CLAY: 0,
@@ -37,6 +38,7 @@ export class GameUIComponent {
             if (!this.game.id) {
                 return;
             }
+            this.playerName = localStorage.getItem('username') ?? '';
             const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
             if (!playerId) {
                 return;

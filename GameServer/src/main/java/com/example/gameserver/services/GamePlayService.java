@@ -15,6 +15,7 @@ import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.User;
 import com.example.gameserver.enums.BuildingType;
 import com.example.gameserver.enums.ResourceType;
+import com.example.gameserver.models.DiceRollResponse;
 import com.example.gameserver.models.ProductionData;
 import com.example.gameserver.repository.BuildingRepository;
 
@@ -62,13 +63,13 @@ public class GamePlayService {
     }
     //Roll the dice and produce resources for all buildings
     @Transactional
-    public String rollDiceAndDistributeResources(Long gameId, Long PlayerId)
+    public DiceRollResponse rollDiceAndDistributeResources(Long gameId, Long playerId)
     {
          // Roll the dice to get the dice value between 1 to 6 (inclusive)
          int diceValue = (int) (Math.random() * 6 + 1);
          // int diceValue = 1; // for testing
 
-        if(gameId == null || PlayerId == null)
+        if(gameId == null || playerId == null)
         {
             throw new IllegalArgumentException("GameId and PlayerId cannot be null");
         }
@@ -115,13 +116,14 @@ public class GamePlayService {
                 }
             }
             
+            return new DiceRollResponse(diceValue, gameId, playerId, "Resources distributed successfully", true, null);
         }
         catch(Exception e)
         {
             log.error("Error while distributing resources: {}", e.getMessage());
-            return "Error while distributing resources";
+            return new DiceRollResponse(diceValue, gameId, playerId, "Failed to distribute resources", false, e.getMessage());
         }
-        return "Resources distributed successfully for players when dice value is: " + diceValue + " rolled by player: " + PlayerId;
+       
 }
 
     @Async

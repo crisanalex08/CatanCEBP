@@ -5,6 +5,23 @@
       {{player.name}}
     </div>
   </p-toolbar>
+  <p-card header="Game Chat"
+    [style]="{ width: '20rem', 
+  overflow: 'hidden',
+  'position': 'fixed',
+  'left': '0',
+  'zIndex': '100', 
+  'top': '90px',}">
+  
+    <app-game-chat [gameId]="game.id" [playerName]="playerName"></app-game-chat>
+ 
+  </p-card>
+  
+
+  
+
+    
+    
 
   <p-card header="Actions" class="actions-card"
     [style]="{ width: '15rem', 
@@ -12,6 +29,7 @@
   'position': 'fixed',
   'left': '0',
   'bottom': '0',}">
+   
     <div class="actions-container">
       <p-button class="action-button" severity="secondary" label="Roll Dice"
         (click)="rollDice()"></p-button>
@@ -96,4 +114,6 @@
       </div>
     </div>
   </p-card>
+
+ 
 </div>

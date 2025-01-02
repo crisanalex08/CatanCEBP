@@ -6,6 +6,12 @@
   justify-content: space-between; /* Equal spacing between buttons */
   width: 100%; /* Stretch the button container to full width */
 }
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  background-color: aliceblue ;
+  height: 300px;
+}
 
 .player-name-active{
   background-color: var(--primary-color);

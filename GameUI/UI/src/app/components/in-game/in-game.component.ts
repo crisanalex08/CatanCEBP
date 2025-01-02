@@ -108,7 +108,7 @@ export class InGameComponent implements OnInit, OnDestroy {
           this.updateGameInfo();
         }
         
-        if (message.data === 'AvailableBuildings') {
+        if (message.data === 'Resources Updated') {
           this.updateGameInfo();
         }
       },

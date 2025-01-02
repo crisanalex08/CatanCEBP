@@ -1,0 +1,16 @@
+<div class="chat-container">
+  <div class="messages-container">
+    <div *ngFor="let message of messages" 
+         [ngClass]="{'system-message': message.isSystem, 'player-message': !message.isSystem}">
+      <small class="timestamp">{{message.timestamp | date:'shortTime'}}</small>
+      <strong>{{message.sender}}: </strong>
+      <span>{{message.content}}</span>
+    </div>
+  </div>
+  <div class="input-container">
+    <input type="text" pInputText [(ngModel)]="newMessage" 
+           (keyup.enter)="sendMessage()" placeholder="Type a message...">
+    <button pButton type="button" icon="pi pi-send" 
+            (click)="sendMessage()"></button>
+  </div>
+</div>

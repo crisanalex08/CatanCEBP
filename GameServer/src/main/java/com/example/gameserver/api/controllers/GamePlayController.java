@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
+import com.example.gameserver.models.DiceRollResponse;
 import com.example.gameserver.services.BuildingService;
 import com.example.gameserver.services.GamePlayService;
 
@@ -23,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.TextMessage;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @CrossOrigin
@@ -63,9 +65,10 @@ public class GamePlayController {
     @PostMapping("/{gameId}/roll/{playerId}")
     public ResponseEntity<?> rollDiceAndDistributeResources(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
-            String result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
-           
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+            DiceRollResponse result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
+            if(result.isSuccess()) {
+                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
+            }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error rolling dice", e);
@@ -79,7 +82,7 @@ public class GamePlayController {
     public ResponseEntity<?> constructBuilding(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
             CompletableFuture<Building> building = gamePlayService.constructBuilding(playerId, gameId);
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
             return ResponseEntity.ok(building.get());
         } catch (Exception e) {
             log.error("Error constructing building", e);
@@ -94,7 +97,7 @@ public class GamePlayController {
     public ResponseEntity<?> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
         try {
             Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
             return ResponseEntity.ok(result.get());
         } catch (Exception e) {
             log.error("Error upgrading building", e);

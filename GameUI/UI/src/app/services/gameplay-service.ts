@@ -46,8 +46,9 @@ export class GamePlayService{
     rollDice(gameId: number, playerId: number) {
       const request_url = `${this.url}/api/gameplay/${gameId}/roll/${playerId}`;
       return this.http.post(request_url, {}).pipe(
-        tap(() => {
+      tap(() => {
           console.log('Dice rolled');
+
         })
       );
     }
