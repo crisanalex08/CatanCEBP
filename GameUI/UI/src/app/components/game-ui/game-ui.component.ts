@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Game, PlayerResources } from 'src/app/models/game-model';
 import { GameService } from 'src/app/services/game-service.service';
 import { GamePlayService } from 'src/app/services/gameplay-service';
+import { WebSocketService } from 'src/app/services/websocket.service';
 
 @Component({
   selector: 'app-game-ui',
@@ -10,6 +12,7 @@ import { GamePlayService } from 'src/app/services/gameplay-service';
 })
 export class GameUIComponent {
     game: Game = {} as Game;
+    gameId: number = -1;
     currentPlayerResources: PlayerResources['quantities'] = {
         WOOD: 0,
         CLAY: 0,
@@ -20,10 +23,16 @@ export class GameUIComponent {
     };
 
     
-    constructor(private gameService: GameService, private gamePlayService: GamePlayService) {}
+    constructor(
+        private route: ActivatedRoute,
+        private gameService: GameService, 
+        private gamePlayService: GamePlayService,
+        private WebSocketService: WebSocketService
 
+    ) {}
+    private wsUrl = 'ws://localhost:8080/lobby';
     ngOnInit() {
-        this.gameService.currentGame$.subscribe(game => {
+         this.gameService.currentGame$.subscribe(game => {
             this.game = game;
             if (!this.game.id) {
                 return;
@@ -38,5 +47,16 @@ export class GameUIComponent {
                 }
             });
         });
+      
+
+       
+    }
+
+    rollDice() {
+        const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
+        if (!playerId) {
+            return;
+        }
+        this.gamePlayService.rollDice(this.game.id, playerId).subscribe();
     }
 }

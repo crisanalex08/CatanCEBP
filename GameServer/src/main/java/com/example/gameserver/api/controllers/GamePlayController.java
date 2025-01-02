@@ -51,11 +51,11 @@ public class GamePlayController {
     public ResponseEntity<?> startGame(@PathVariable Long gameId) {
         try {
             Game result = gamePlayService.initializeGame(gameId);
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Game Started"));
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error starting game", e);
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -64,6 +64,7 @@ public class GamePlayController {
     public ResponseEntity<?> rollDiceAndDistributeResources(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
             String result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
+           
             gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
             return ResponseEntity.ok(result);
         } catch (Exception e) {

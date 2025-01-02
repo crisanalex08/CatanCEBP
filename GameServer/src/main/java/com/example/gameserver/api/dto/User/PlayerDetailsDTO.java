@@ -7,6 +7,7 @@ public class PlayerDetailsDTO {
 
     private Long id;
     private String name;
+    private boolean isHost;
 
     
 }

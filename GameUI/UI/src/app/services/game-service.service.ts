@@ -86,4 +86,5 @@ export class GameService {
     console.log('Requesting game info:', request_url);
     return this.http.get(request_url);
   }
+  
 }

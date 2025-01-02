@@ -16,6 +16,7 @@ import com.example.gameserver.entity.User;
 import com.example.gameserver.enums.BuildingType;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.models.ProductionData;
+import com.example.gameserver.repository.BuildingRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -27,17 +28,22 @@ public class GamePlayService {
     private final ResourceService resourceService;
     private final BuildingService buildingService;
     private final TradeService tradeService;
+    private final BuildingRepository buildingRepository;
 
     @Autowired
     public GamePlayService(
             GameService gameService,
             ResourceService resourceService,
             BuildingService buildingService,
-            TradeService tradeService) {
+            TradeService tradeService,
+            BuildingRepository buildingRepository
+
+            ) {
         this.gameService = gameService;
         this.resourceService = resourceService;
         this.buildingService = buildingService;
         this.tradeService = tradeService;
+        this.buildingRepository = buildingRepository;
     }
 
     @Transactional
@@ -86,7 +92,8 @@ public class GamePlayService {
             //Iterate through all the players and their buildings to distribute resources
             for (User player : players) 
             {
-                List<Building> buildings = buildingService.getBuildings(player.getId(), gameId).get();
+                // List<Building> buildings = buildingService.getBuildings(gameId, player.getId()).get();  
+                List<Building> buildings = buildingRepository.findByGameIdAndPlayerId(gameId, player.getId());
                 System.out.println("Buildings: " + buildings);
                 if(buildings == null || buildings.isEmpty())
                 {

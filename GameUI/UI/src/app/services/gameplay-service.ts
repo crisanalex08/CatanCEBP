@@ -22,6 +22,16 @@ export class GamePlayService{
     private playerResources = new BehaviorSubject<any>(null);
     playerResources$ = this.playerResources.asObservable();
   
+    //Add method for starting game & initializing resources for players
+    startGame(gameId: number) {
+      const request_url = `${this.url}/api/gameplay/${gameId}/start`;
+      return this.http.post(request_url, {}).pipe(
+        tap(() => {
+          console.log('Game started');
+        })
+      );
+    }
+
     // Add method to fetch resources
     getPlayerResources(gameId: number, playerId: number) {
       const request_url = `${this.url}/api/games/${gameId}/resources/${playerId}`;
@@ -32,4 +42,14 @@ export class GamePlayService{
         })
       );
     }
+    //Add method for rolling dice
+    rollDice(gameId: number, playerId: number) {
+      const request_url = `${this.url}/api/gameplay/${gameId}/roll/${playerId}`;
+      return this.http.post(request_url, {}).pipe(
+        tap(() => {
+          console.log('Dice rolled');
+        })
+      );
+    }
+    
   }
