@@ -32,11 +32,11 @@ public class ResourceController {
     @Operation(summary = "Initialize player resources")
     @PostMapping("/{playerId}/initialize")
     public ResponseEntity<Resources> initializePlayerResources(@PathVariable Long gameId,@PathVariable Long playerId) {
-        Resources resources = resourceService.initializePlayerResources(gameId, playerId);
-        if (resources == null) {
+        String result = resourceService.initializePlayerResources(gameId);
+        if (result == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(resources, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(summary = "Get player resources")
@@ -55,19 +55,5 @@ public class ResourceController {
        
     }
 
-    @Operation(summary = "Distribute resources from dice roll")
-    @PostMapping("/{playerId}/distribute")
-    public ResponseEntity<List<Resources>> distributeResources(@PathVariable Long gameId, @PathVariable Long playerId) {
-        List<Resources> resources = resourceService.distributeResources(gameId, playerId);
-        if (resources == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(resources, HttpStatus.OK);
-    }
-
-
-
-    
-    
-
+   
 }

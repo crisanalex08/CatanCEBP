@@ -1,14 +1,17 @@
 package com.example.gameserver.services;
-import com.example.gameserver.api.dto.BuildingCreateRequest;
 import com.example.gameserver.entity.Building;
+import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.Resources;
+import com.example.gameserver.entity.User;
 import com.example.gameserver.enums.BuildingType;
+import com.example.gameserver.enums.GameStatus;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.exceptions.*;
 import com.example.gameserver.repository.BuildingRepository;
 import com.example.gameserver.repository.GameRepository;
 
 import com.example.gameserver.repository.ResourceRepository;
+
 import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -17,8 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -36,32 +41,56 @@ public class BuildingService {
         this.resourceRepository = resourceRepository;
     }
 
-    //construct
     @Transactional
-    public Building constructBuilding(Long playerId, Long gameId, BuildingCreateRequest request) {
-        if(playerId == null || gameId == null || request == null) {
-            throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + ", or request: " + request + "| is null");
+    public List<Building> initializePlayerBuildings (Long gameId) {
+        if(gameId == null) {
+            throw new NullValueException("gameId: "+ gameId + "| is null");
         }
-        // TO DO: Implement logic to check that player exists
 
         if(gameRepository.findById(gameId).isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
 
-        long playerBuildingCount = buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId)).count();
-        if(playerBuildingCount >= 3) {
+        Set<User> players = gameRepository.findById(gameId).get().getPlayers();
+        if(players.isEmpty()) {
+            throw new NoPlayerFoundException("GameId: " + gameId);
+        }
+
+        for(User player : players) {
+            Building building = new Building(gameId, player.getId(), BuildingType.SETTLEMENT);
+            buildingRepository.save(building);
+        }
+
+        return buildingRepository.findAll().stream().filter(building -> building.getGameId().equals(gameId)).toList();
+    }
+
+    //construct
+    @Transactional
+    public Building constructBuilding(Long gameId, Long playerId) {
+        if(playerId == null || gameId == null) {
+            logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId);
+            throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + " is null");
+        }
+
+        validateGameAndPlayer(gameId, playerId);
+
+        long playerBuildingCount = getPlayerBuildingCount(playerId, gameId);
+
+        if(playerBuildingCount>= 3) {
             throw new PlayerHasTheMaximumAmountOfBuildings();
         }
+
         if(playerBuildingCount > 0) {
             Resources playerResources = resourceRepository.findByGameIdAndPlayerId(gameId, playerId).orElseThrow(() -> new NoResourceFoundException("GameId: " + gameId + " PlayerId: " + playerId));
-            if(!playerResources.hasEnoughResourcesToBuild(BuildingType.SETTLEMENT)) {
+            if(playerResources.hasEnoughResourcesToBuild(BuildingType.SETTLEMENT)) {
+                playerResources.subtract(ResourceType.WOOD, 1);
+                playerResources.subtract(ResourceType.CLAY, 1);
+                playerResources.subtract(ResourceType.WHEAT, 1);
+                resourceRepository.save(playerResources);
+            }else{
+                logger.error("Player does not have enough resources to build a settlement" + " GameId: " + gameId + " PlayerId: " + playerId);
                 throw new NotEnoughResourcesException();
             }
-
-            playerResources.subtract(ResourceType.WOOD, 1);
-            playerResources.subtract(ResourceType.CLAY, 1);
-            playerResources.subtract(ResourceType.WHEAT, 1);
-            resourceRepository.save(playerResources);
         }
 
         Building building = new Building(gameId, playerId, BuildingType.SETTLEMENT);
@@ -69,13 +98,49 @@ public class BuildingService {
         return building;
     }
 
-    @Async
-    public Future<List<Building>> getBuildings(Long playerId, Long gameId) {
+    //clears the buildings when the game is finished
+    @Transactional
+    public void clearBuildings(Long gameId) {
+        if(gameId == null) {
+            throw new NullValueException("gameId: "+ gameId + "| is null");
+        }
+
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+
+        if(game.getStatus() != GameStatus.FINISHED) {
+            throw new GameNotFinishedException(gameId);
+        }
+
+        buildingRepository.deleteAll(buildingRepository.findAll().stream().filter(building -> building.getGameId().equals(gameId)).toList());
+        buildingRepository.flush();
+    }
+
+
+    //used to avoid calling async methods from transactional methods
+    @Transactional
+    public List<Building> getBuildingsTransactional(Long gameId, Long playerId) {
         if(playerId == null || gameId == null) {
             throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + "| is null");
         }
 
-        // TO DO: Implement logic to check that player exists
+        if(gameRepository.findById(gameId).isEmpty()) {
+            throw new GameNotFoundException(gameId);
+        }
+
+        if(gameRepository.findById(gameId).get().getPlayerById(playerId) == null) {
+            throw new NoPlayerFoundException("PlayerId: " + playerId + " not found in game with GameId: " + gameId);
+        }
+
+        return  buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId)).toList();
+    }
+
+    @Async
+    public Future<List<Building>> getBuildings(Long gameId, Long playerId) {
+        if(playerId == null || gameId == null) {
+            throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + "| is null");
+        }
+
+        validateGameAndPlayer(gameId, playerId);
 
         List<Building> playerBuildings = buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId)).toList();
         if(playerBuildings.isEmpty()) {
@@ -85,34 +150,52 @@ public class BuildingService {
       return CompletableFuture.completedFuture(playerBuildings);
     }
 
-// TO BE IMPLEMENTED
-    public List<BuildingType> getAvailableBuildingTypes(Long playerId, Long gameId) {
+    @Async
+    public Future<List<BuildingType>> getAvailableBuildingTypes(Long gameId, Long playerId) {
         if(playerId == null || gameId == null) {
             logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId);
             throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + "| is null");
         }
 
-//        Resources playerResources =  resourceRepository.findByGameIdAndPlayerId(gameId, playerId).orElseThrow(() -> new NoResourceFoundException("GameId: " + gameId +  " PlayerId: " + playerId));
-//        List<Building> playerBuildings = buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId)).toList();
+        validateGameAndPlayer(gameId, playerId);
 
-        return null;
+        Resources playerResources =  resourceRepository.findByGameIdAndPlayerId(gameId, playerId).orElseThrow(() -> new NoResourceFoundException("GameId: " + gameId +  " PlayerId: " + playerId));
+
+        if(playerResources == null) {
+            logger.error("Resources not found for player: " + playerId + " in game: " + gameId);
+            throw new NoResourceFoundException("GameId: " + gameId +  " PlayerId: " + playerId);
+        }
+
+        List<BuildingType> availableBuildingTypes = new ArrayList<>();
+
+        long playerBuildingCount = getPlayerBuildingCount(playerId, gameId);
+        if(playerBuildingCount < 3 && playerResources.hasEnoughResourcesToBuild(BuildingType.SETTLEMENT)){
+            availableBuildingTypes.add(BuildingType.SETTLEMENT);
+        }
+        if(playerResources.hasEnoughResourcesToBuild(BuildingType.TOWN)){
+            availableBuildingTypes.add(BuildingType.TOWN);
+        }
+        if(playerResources.hasEnoughResourcesToBuild(BuildingType.CASTLE)){
+            availableBuildingTypes.add(BuildingType.CASTLE);
+        }
+
+        return CompletableFuture.completedFuture(availableBuildingTypes);
     }
 
     @Transactional
-    public BuildingType upgradeBuilding(Long playerId, Long gameId, Long buildingId) {
+    public BuildingType upgradeBuilding(Long gameId, Long playerId, Long buildingId) {
         if(playerId == null || gameId == null || buildingId == null) {
             logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
             throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + ", or buildingId: " + buildingId + "| is null");
         }
 
-        //May need to check if player has enough resources to upgrade
+        validateGameAndPlayer(gameId, playerId);
 
         Optional<Building> buildingToUpgrade = buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId) && building.getId().equals(buildingId)).findFirst();
         if(buildingToUpgrade.isEmpty()) {
             logger.error("Building not found with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
             throw new NoBuildingFoundException("GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
         }
-
 
         Resources playerResources = resourceRepository.findByGameIdAndPlayerId(gameId, playerId).orElseThrow(() -> new NoResourceFoundException("GameId: " + gameId +  " PlayerId: " + playerId));
         if(!playerResources.hasEnoughResourcesToBuild(getNextBuildingType(buildingToUpgrade.get().getType()))) {
@@ -121,23 +204,23 @@ public class BuildingService {
         }
 
         switch (buildingToUpgrade.get().getType()) {
-            case SETTLEMENT:
-                buildingToUpgrade.get().setType(BuildingType.TOWN);
-
+            case SETTLEMENT: //Current building type is settlement
                 playerResources.subtract(ResourceType.WOOD, 2);
                 playerResources.subtract(ResourceType.CLAY, 2);
                 playerResources.subtract(ResourceType.WHEAT, 2);
 
+                buildingToUpgrade.get().setType(BuildingType.TOWN);
+
                 resourceRepository.save(playerResources);
                 buildingRepository.save(buildingToUpgrade.get());
                 return BuildingType.TOWN;
-            case TOWN:
-                buildingToUpgrade.get().setType(BuildingType.CASTLE);
-
+            case TOWN:  //Current building type is town
                 playerResources.subtract(ResourceType.WOOD, 3);
                 playerResources.subtract(ResourceType.STONE, 3);
                 playerResources.subtract(ResourceType.SHEEP, 3);
                 playerResources.subtract(ResourceType.GOLD, 3);
+
+                buildingToUpgrade.get().setType(BuildingType.CASTLE);
 
                 resourceRepository.save(playerResources);
                 buildingRepository.save(buildingToUpgrade.get());
@@ -147,14 +230,15 @@ public class BuildingService {
                 return null;
         }
     }
+
     @Async
-    public Future<Building> getBuildingInfo(Long playerId, Long gameId, Long buildingId) {
+    public Future<Building> getBuildingInfo(Long gameId, Long playerId, Long buildingId) {
         if(playerId == null || gameId == null || buildingId == null) {
             logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
             throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + ", or buildingId: " + buildingId + "| is null");
         }
 
-        Optional<Building> building = buildingRepository.findAll().stream().filter(b -> b.getPlayerId().equals(playerId) && b.getGameId().equals(gameId) && b.getId().equals(buildingId)).findFirst();
+        Optional<Building> building = buildingRepository.findById(buildingId);
         if(building.isEmpty()) {
             logger.error("Building not found with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
             throw new NoBuildingFoundException("GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
@@ -169,6 +253,26 @@ public class BuildingService {
             case TOWN -> BuildingType.CASTLE;
             case CASTLE -> throw new BuildingIsAlreadyAtMaxLevelException();
         };
+    }
+
+    //helper method
+    private long getPlayerBuildingCount(Long playerId, Long gameId) {
+        return buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId)).count();
+    }
+
+    //helper method
+    private void validateGameAndPlayer(Long gameId, Long playerId) {
+        Optional<Game> game = gameRepository.findById(gameId);
+
+        if (game.isEmpty()) {
+            logger.error("validateGameAndPlayer: Game not found with the given Id: " + gameId);
+            throw new GameNotFoundException(gameId);
+        }
+
+        if (game.get().getPlayerById(playerId) == null) {
+            logger.error("Player not found with the given Id: " + playerId);
+            throw new NoPlayerFoundException("PlayerId: " + playerId + " not found in game with GameId: " + gameId);
+        }
     }
 
 }
