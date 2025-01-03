@@ -67,15 +67,12 @@ public class GamePlayService {
     {
          // Roll the dice to get the dice value between 1 to 6 (inclusive)
          int diceValue = (int) (Math.random() * 6 + 1);
-         // int diceValue = 1; // for testing
 
         if(gameId == null || playerId == null)
         {
             throw new IllegalArgumentException("GameId and PlayerId cannot be null");
         }
         try{
-           
-
             //Check if the game exists
             Game game = gameService.getGameById(gameId).get();
             if(game == null)
@@ -93,8 +90,7 @@ public class GamePlayService {
             //Iterate through all the players and their buildings to distribute resources
             for (User player : players) 
             {
-                // List<Building> buildings = buildingService.getBuildings(gameId, player.getId()).get();  
-                List<Building> buildings = buildingRepository.findByGameIdAndPlayerId(gameId, player.getId());
+                List<Building> buildings = buildingService.getBuildingsTransactional(gameId, player.getId());
                 System.out.println("Buildings: " + buildings);
                 if(buildings == null || buildings.isEmpty())
                 {
@@ -135,7 +131,7 @@ public class GamePlayService {
     @Async
     public CompletableFuture<String> upgradeBuilding(Long gameId, Long playerId, Long buildingId) {
         try {
-            Building building = buildingService.getBuildingInfo(playerId, gameId, buildingId).get();
+            Building building = buildingService.getBuildingInfo(gameId, playerId, buildingId).get();
             
             if (building == null) {
                 throw new IllegalArgumentException("Building not found with ID: " + buildingId);
@@ -149,7 +145,9 @@ public class GamePlayService {
                 throw new IllegalArgumentException("Building is already at max level");
             }
 
-            buildingService.upgradeBuilding(playerId, gameId, buildingId);
+            if(buildingService.upgradeBuilding(gameId, playerId, buildingId) == BuildingType.CASTLE){
+                return CompletableFuture.completedFuture("WIN");
+            }
             return CompletableFuture.completedFuture("Building upgraded successfully");
         } catch (Exception e) {
             log.error("Error while upgrading building: {}", e.getMessage());
