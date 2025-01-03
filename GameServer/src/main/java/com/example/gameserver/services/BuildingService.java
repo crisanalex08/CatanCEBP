@@ -4,6 +4,7 @@ import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.Resources;
 import com.example.gameserver.entity.User;
 import com.example.gameserver.enums.BuildingType;
+import com.example.gameserver.enums.GameStatus;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.exceptions.*;
 import com.example.gameserver.repository.BuildingRepository;
@@ -95,6 +96,42 @@ public class BuildingService {
         Building building = new Building(gameId, playerId, BuildingType.SETTLEMENT);
         buildingRepository.save(building);
         return building;
+    }
+
+    //clears the buildings when the game is finished
+    @Transactional
+    public void clearBuildings(Long gameId) {
+        if(gameId == null) {
+            throw new NullValueException("gameId: "+ gameId + "| is null");
+        }
+
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+
+        if(game.getStatus() != GameStatus.FINISHED) {
+            throw new GameNotFinishedException(gameId);
+        }
+
+        buildingRepository.deleteAll(buildingRepository.findAll().stream().filter(building -> building.getGameId().equals(gameId)).toList());
+        buildingRepository.flush();
+    }
+
+
+    //used to avoid calling async methods from transactional methods
+    @Transactional
+    public List<Building> getBuildingsTransactional(Long gameId, Long playerId) {
+        if(playerId == null || gameId == null) {
+            throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + "| is null");
+        }
+
+        if(gameRepository.findById(gameId).isEmpty()) {
+            throw new GameNotFoundException(gameId);
+        }
+
+        if(gameRepository.findById(gameId).get().getPlayerById(playerId) == null) {
+            throw new NoPlayerFoundException("PlayerId: " + playerId + " not found in game with GameId: " + gameId);
+        }
+
+        return  buildingRepository.findAll().stream().filter(building -> building.getPlayerId().equals(playerId) && building.getGameId().equals(gameId)).toList();
     }
 
     @Async
@@ -228,7 +265,7 @@ public class BuildingService {
         Optional<Game> game = gameRepository.findById(gameId);
 
         if (game.isEmpty()) {
-            logger.error("Game not found with the given Id: " + gameId);
+            logger.error("validateGameAndPlayer: Game not found with the given Id: " + gameId);
             throw new GameNotFoundException(gameId);
         }
 

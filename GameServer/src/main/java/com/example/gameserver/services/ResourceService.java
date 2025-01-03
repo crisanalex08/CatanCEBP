@@ -1,6 +1,9 @@
 package com.example.gameserver.services;
 import com.example.gameserver.api.dto.User.PlayerDetailsDTO;
 import com.example.gameserver.entity.Game;
+import com.example.gameserver.enums.GameStatus;
+import com.example.gameserver.exceptions.GameNotFinishedException;
+import com.example.gameserver.exceptions.GameNotFoundException;
 import com.example.gameserver.repository.BuildingRepository;
 import com.example.gameserver.repository.GameRepository;
 import com.example.gameserver.repository.ResourceRepository;
@@ -63,6 +66,24 @@ public class ResourceService {
 
         return "Resources initialized for all players"; 
     }
+
+    //clears the resouces of the game from the DB after the game is declared finished
+    @Transactional
+    public void clearResources(Long gameId) {
+        if (gameId == null) {
+            return;
+        }
+
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+
+        if(game.getStatus() != GameStatus.FINISHED) {
+            throw new GameNotFinishedException(gameId);
+        }
+
+        resourceRepository.deleteAll(resourceRepository.findAll().stream().filter(resources -> resources.getGameId().equals(gameId)).toList());
+        resourceRepository.flush();
+    }
+
     @Async
     public Future<Resources> getPlayerResources(Long gameId, Long playerId) {
         if (gameId == null || playerId == null) {

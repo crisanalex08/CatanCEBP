@@ -33,17 +33,18 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class GamePlayController {
     private final GamePlayService gamePlayService;
-    // private final GameService gameService;
+     private final GameService gameService;
     private final ResourceService resourceService;
     private final BuildingService buildingService;
     private final GamesWebSocketHandler gamesWebSocketHandler;
 
 
     @Autowired
-    public GamePlayController(GamePlayService gamePlayService, ResourceService resourceService, BuildingService buildingService, GamesWebSocketHandler gamesWebSocketHandler) {
+    public GamePlayController(GamePlayService gamePlayService, ResourceService resourceService, BuildingService buildingService, GamesWebSocketHandler gamesWebSocketHandler, GameService gameService) {
         this.gamePlayService = gamePlayService;
         this.resourceService = resourceService;
         this.buildingService = buildingService;
+        this.gameService = gameService;
         this.gamesWebSocketHandler = gamesWebSocketHandler;
     }
 
@@ -94,7 +95,14 @@ public class GamePlayController {
     public ResponseEntity<?> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
         try {
             Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+            if(result.get().equals("WIN")){
+                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("GameWon by Player: " + playerId));
+                gameService.endGame(gameId);
+                buildingService.clearBuildings(gameId);
+                resourceService.clearResources(gameId);
+            }else {
+                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+            }
             return ResponseEntity.ok(result.get());
         } catch (Exception e) {
             log.error("Error upgrading building", e);
