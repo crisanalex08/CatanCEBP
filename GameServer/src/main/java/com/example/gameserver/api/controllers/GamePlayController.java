@@ -2,6 +2,7 @@ package com.example.gameserver.api.controllers;
 
 import java.util.concurrent.Future;
 
+import com.example.gameserver.websocket.GamesWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import com.example.gameserver.services.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.socket.TextMessage;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -34,12 +36,15 @@ public class GamePlayController {
     // private final GameService gameService;
     private final ResourceService resourceService;
     private final BuildingService buildingService;
+    private final GamesWebSocketHandler gamesWebSocketHandler;
+
 
     @Autowired
-    public GamePlayController(GamePlayService gamePlayService, ResourceService resourceService, BuildingService buildingService) {
+    public GamePlayController(GamePlayService gamePlayService, ResourceService resourceService, BuildingService buildingService, GamesWebSocketHandler gamesWebSocketHandler) {
         this.gamePlayService = gamePlayService;
         this.resourceService = resourceService;
         this.buildingService = buildingService;
+        this.gamesWebSocketHandler = gamesWebSocketHandler;
     }
 
     @Operation(summary = "Start game and initialize player resources and buildings")
@@ -47,6 +52,7 @@ public class GamePlayController {
     public ResponseEntity<?> startGame(@PathVariable Long gameId) {
         try {
             Game result = gamePlayService.initializeGame(gameId);
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error starting game", e);
@@ -59,6 +65,7 @@ public class GamePlayController {
     public ResponseEntity<?> rollDiceAndDistributeResources(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
             String result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error rolling dice", e);
@@ -72,6 +79,7 @@ public class GamePlayController {
     public ResponseEntity<?> constructBuilding(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
             CompletableFuture<Building> building = gamePlayService.constructBuilding(playerId, gameId);
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
             return ResponseEntity.ok(building.get());
         } catch (Exception e) {
             log.error("Error constructing building", e);
@@ -86,6 +94,7 @@ public class GamePlayController {
     public ResponseEntity<?> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
         try {
             Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
             return ResponseEntity.ok(result.get());
         } catch (Exception e) {
             log.error("Error upgrading building", e);
