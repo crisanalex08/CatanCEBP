@@ -33,16 +33,11 @@ import org.slf4j.LoggerFactory;
 @Service
 public class GameService {
     private static final Logger logger = LoggerFactory.getLogger(GameService.class);
-
-    private final ResourceService resourceService;
-    private final BuildingService buildingService;
     private final GameRepository gameRepository;
     private final UsersRepository usersRepository;
 
     @Autowired
-    public GameService(ResourceService resourceService, BuildingService buildingService, GameRepository gameRepository, UsersRepository usersRepository) {
-        this.resourceService = resourceService;
-        this.buildingService = buildingService;
+    public GameService(GameRepository gameRepository, UsersRepository usersRepository) {
         this.gameRepository = gameRepository;
         this.usersRepository = usersRepository;
     }
@@ -119,8 +114,25 @@ public class GameService {
             throw new GameNotFoundException(gameId);
         }
     }
+
+    // End the game with the given gameId
+    @Transactional
+    public void endGame(Long gameId){
+        if(gameId == null) {
+            throw new IllegalArgumentException("Game id cannot be null");
+        }
+
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+
+        if(game.getStatus() != GameStatus.IN_PROGRESS) {
+            throw new InvalidGameStateException("Game not in progress!");
+        }
+
+        game.setStatus(GameStatus.FINISHED);
+        gameRepository.save(game);
+    }
+
     // Join the game with the given gameId and request details a different player than the host
-   
     @Transactional
     public Game joinGame(Long gameId, PlayerJoinRequest request) {
     
