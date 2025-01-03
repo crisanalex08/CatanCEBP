@@ -4,7 +4,6 @@ import java.util.concurrent.Future;
 
 import com.example.gameserver.websocket.GamesWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
+import com.example.gameserver.models.DiceRollResponse;
 import com.example.gameserver.services.BuildingService;
 import com.example.gameserver.services.GamePlayService;
 import com.example.gameserver.services.GameService;
@@ -33,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class GamePlayController {
     private final GamePlayService gamePlayService;
-     private final GameService gameService;
+    private final GameService gameService;
     private final ResourceService resourceService;
     private final BuildingService buildingService;
     private final GamesWebSocketHandler gamesWebSocketHandler;
@@ -53,11 +53,11 @@ public class GamePlayController {
     public ResponseEntity<?> startGame(@PathVariable Long gameId) {
         try {
             Game result = gamePlayService.initializeGame(gameId);
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Game Started"));
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error starting game", e);
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -65,8 +65,10 @@ public class GamePlayController {
     @PostMapping("/{gameId}/roll/{playerId}")
     public ResponseEntity<?> rollDiceAndDistributeResources(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
-            String result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+            DiceRollResponse result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
+            if(result.isSuccess()) {
+                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
+            }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error rolling dice", e);
@@ -80,7 +82,7 @@ public class GamePlayController {
     public ResponseEntity<?> constructBuilding(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
             CompletableFuture<Building> building = gamePlayService.constructBuilding(playerId, gameId);
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
             return ResponseEntity.ok(building.get());
         } catch (Exception e) {
             log.error("Error constructing building", e);
@@ -101,7 +103,7 @@ public class GamePlayController {
                 buildingService.clearBuildings(gameId);
                 resourceService.clearResources(gameId);
             }else {
-                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("AvailableBuildings"));
+                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
             }
             return ResponseEntity.ok(result.get());
         } catch (Exception e) {

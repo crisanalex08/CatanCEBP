@@ -33,11 +33,14 @@ public class User {
     private String name;
     private Long gameId;
 
+    private boolean isHost;
+
     @NotNull
     public PlayerDetailsDTO toGetPlayerDTO() {
         PlayerDetailsDTO dto = new PlayerDetailsDTO();
         dto.setId(this.id);
         dto.setName(this.name);
+        dto.setHost(this.isHost);
         return dto;
     }
 

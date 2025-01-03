@@ -3,15 +3,15 @@
         <h1>{{ game.name }}</h1>
     </div>
     <div class="mesage-container">
-        <span *ngIf="game.settings.currentPlayersCount == game.settings.maxPlayers">{{ waitingForHostMessage }}</span>
-        <span *ngIf="game.settings.currentPlayersCount < game.settings.maxPlayers">{{ waitingForPlayersMessage }}</span>
+        <span *ngIf="game?.settings && game.settings.currentPlayersCount === game.settings.maxPlayers">{{ waitingForHostMessage }}</span>
+        <span *ngIf="game?.settings && game.settings.currentPlayersCount < game.settings.maxPlayers">{{ waitingForPlayersMessage }}</span>
     </div>
     <div class="game-players-container">
         <p-table [value]="game.players" class="player-list-table">
             <ng-template pTemplate="header">
                 <tr>
-                    <th>Players: {{ game.settings.currentPlayersCount }}/{{
-                        game.settings.maxPlayers}}</th>
+                    <th>Players: {{ game?.settings?.currentPlayersCount }}/{{
+                        game?.settings?.maxPlayers}}</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-player>
@@ -31,11 +31,12 @@
     <div class="game-actions-container">
         <button pButton type="button" label="Leave Game"
             (click)="leaveGame()"></button>
-        <button pButton type="button" label="Start Game"
+
+        <button pButton type="button" label="Start Game" *ngIf="IsHost"
             (click)="startGame()"></button>
     </div>
   
 </div>
 <div class="game-board">
-    <app-game-ui *ngIf="IsGameStarted" ></app-game-ui>
+    <app-game-ui *ngIf="IsGameStarted"></app-game-ui>
 </div>

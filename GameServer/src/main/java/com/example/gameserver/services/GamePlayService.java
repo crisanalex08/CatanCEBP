@@ -15,7 +15,9 @@ import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.User;
 import com.example.gameserver.enums.BuildingType;
 import com.example.gameserver.enums.ResourceType;
+import com.example.gameserver.models.DiceRollResponse;
 import com.example.gameserver.models.ProductionData;
+import com.example.gameserver.repository.BuildingRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -27,17 +29,22 @@ public class GamePlayService {
     private final ResourceService resourceService;
     private final BuildingService buildingService;
     private final TradeService tradeService;
+    private final BuildingRepository buildingRepository;
 
     @Autowired
     public GamePlayService(
             GameService gameService,
             ResourceService resourceService,
             BuildingService buildingService,
-            TradeService tradeService) {
+            TradeService tradeService,
+            BuildingRepository buildingRepository
+
+            ) {
         this.gameService = gameService;
         this.resourceService = resourceService;
         this.buildingService = buildingService;
         this.tradeService = tradeService;
+        this.buildingRepository = buildingRepository;
     }
 
     @Transactional
@@ -56,12 +63,12 @@ public class GamePlayService {
     }
     //Roll the dice and produce resources for all buildings
     @Transactional
-    public String rollDiceAndDistributeResources(Long gameId, Long PlayerId)
+    public DiceRollResponse rollDiceAndDistributeResources(Long gameId, Long playerId)
     {
          // Roll the dice to get the dice value between 1 to 6 (inclusive)
          int diceValue = (int) (Math.random() * 6 + 1);
 
-        if(gameId == null || PlayerId == null)
+        if(gameId == null || playerId == null)
         {
             throw new IllegalArgumentException("GameId and PlayerId cannot be null");
         }
@@ -83,7 +90,7 @@ public class GamePlayService {
             //Iterate through all the players and their buildings to distribute resources
             for (User player : players) 
             {
-                List<Building> buildings = buildingService.getBuildingsTransactional(player.getId(), gameId);
+                List<Building> buildings = buildingService.getBuildingsTransactional(gameId, player.getId());
                 System.out.println("Buildings: " + buildings);
                 if(buildings == null || buildings.isEmpty())
                 {
@@ -105,13 +112,14 @@ public class GamePlayService {
                 }
             }
             
+            return new DiceRollResponse(diceValue, gameId, playerId, "Resources distributed successfully", true, null);
         }
         catch(Exception e)
         {
             log.error("Error while distributing resources: {}", e.getMessage());
-            return "Error while distributing resources";
+            return new DiceRollResponse(diceValue, gameId, playerId, "Failed to distribute resources", false, e.getMessage());
         }
-        return "Resources distributed successfully for players when dice value is: " + diceValue + " rolled by player: " + PlayerId;
+       
 }
 
     @Async

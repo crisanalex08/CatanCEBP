@@ -61,6 +61,7 @@ public class GameService {
         if (player == null) {
             player = new User();
             player.setName(request.getHostName());
+            player.setHost(true);
             player = usersRepository.save(player);  // Save and get the persisted entity
         }
     
@@ -111,7 +112,7 @@ public class GameService {
             
             return game;
         } catch (Exception e) {
-            throw new GameNotFoundException(gameId);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
