@@ -15,7 +15,6 @@ export class UserService {
 
   checkUsername(userName: string) {
     var request_url = this.url + '/api/users/check?username=' + userName;
-    console.log('Requesting user data:', request_url);
     return this.http.get(request_url).pipe(
       tap((response: any) => {
         console.log('Response:', response);

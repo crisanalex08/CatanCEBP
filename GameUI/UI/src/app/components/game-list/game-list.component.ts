@@ -34,7 +34,6 @@ export class GameListComponent {
       next: () => {
         this.gameService.joinGame(game.id, this.playerName).subscribe({
           next: response => {
-            console.log(response);
             this.router.navigate([`/game/${game.id}`]);
           },
           error: error => {

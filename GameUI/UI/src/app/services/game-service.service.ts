@@ -26,13 +26,11 @@ export class GameService {
 
   checkGameId(gameId: string) {
     var request_url = this.url + '/api/games/' + gameId;
-    console.log('Requesting game data:', request_url);
     return this.http.get(request_url);
   }
 
   list() {
     var request_url = this.url + '/api/games/list';
-    console.log('Requesting game list:', request_url);
     return this.http.get<Game[]>(request_url).pipe(
       tap((res: Game[]) => {
         this.games.next([...res]);
@@ -47,7 +45,6 @@ export class GameService {
       hostName: gameDetails.hostname,
       maxPlayers: gameDetails.maxPlayers,
     }
-    console.log('Creating game with data:', request_body);
     return this.http.post<Game>(request_url, request_body).pipe(
       tap((res: Game) => {
         const games = this.games.value;

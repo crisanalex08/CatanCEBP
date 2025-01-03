@@ -8,6 +8,7 @@ import { HomeComponent } from './components/home-component/home-component.compon
 import { GameService } from './services/game-service.service';
 import { HttpClientModule } from '@angular/common/http';
 import { GameListComponent } from './components/game-list/game-list.component';
+import { InGameComponent } from './components/in-game/in-game.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -17,7 +18,10 @@ import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { InGameComponent } from './components/in-game/in-game.component';
+import { CardModule } from 'primeng/card';
+import { ToolbarModule } from 'primeng/toolbar';
+import { ChipModule } from 'primeng/chip';
+
 import { WebSocketService } from './services/websocket.service';
 import { GameUIComponent } from "./components/game-ui/game-ui.component";
 
@@ -27,7 +31,7 @@ import { GameUIComponent } from "./components/game-ui/game-ui.component";
     HomeComponent,
     GameListComponent,
     InGameComponent,
-   
+    GameUIComponent
   ],
   imports: [
     BrowserModule,
@@ -41,7 +45,9 @@ import { GameUIComponent } from "./components/game-ui/game-ui.component";
     DialogModule,
     DropdownModule,
     InputNumberModule,
-    GameUIComponent
+    CardModule,
+    ToolbarModule,
+    ChipModule
 ],
   providers: [GameService, WebSocketService],
   bootstrap: [AppComponent]
