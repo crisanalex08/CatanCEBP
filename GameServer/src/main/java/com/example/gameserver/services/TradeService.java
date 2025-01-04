@@ -43,32 +43,34 @@ public class TradeService {
     }
     @Transactional
     public Trade createTrade(TradeCreateRequestDTO request) {
-        if(request == null) {
-            return null;
-        }
-
-        Optional<Game> game = gameRepository.findById(request.getGameId());
-        if (game.isEmpty()) {
-            logger.error("Game not found, ID: " + request.getGameId());
-            return null;
-        }
-
-        PlayerDetailsDTO fromPlayer = game.get().getPlayerById(request.getFromPlayerId());
-        if (fromPlayer == null) {
-            logger.error("Player not found, ID: " + (request.getFromPlayerId()));
-            return null;
-        }
-
-        PlayerDetailsDTO toPlayer = game.get().getPlayerById(request.getToPlayerId());
-        if (toPlayer == null) {
-            logger.error("Player not found, ID: " + (request.getToPlayerId()));
-            return null;
-        }
+//        if(request == null) {
+//            return null;
+//        }
+//
+//        Optional<Game> game = gameRepository.findById(request.getGameId());
+//        if (game.isEmpty()) {
+//            logger.error("Game not found, ID: " + request.getGameId());
+//            return null;
+//        }
+//
+//        PlayerDetailsDTO fromPlayer = game.get().getPlayerById(request.getFromPlayerId());
+//        if (fromPlayer == null) {
+//            logger.error("Player not found, ID: " + (request.getFromPlayerId()));
+//            return null;
+//        }
+//
+//        PlayerDetailsDTO toPlayer = game.get().getPlayerById(request.getToPlayerId());
+//        if (toPlayer == null) {
+//            logger.error("Player not found, ID: " + (request.getToPlayerId()));
+//            return null;
+//        }
 
         //check if toPlayerId has the resources available
 
-        Trade trade = new Trade(request.getGameId(), request.getFromPlayerId(), request.getToPlayerId(), request.getOffer(), request.getRequest(), TradeStatus.ACTIVE);
+//        Trade trade = new Trade(request.getGameId(), request.getFromPlayerId(), request.getToPlayerId(), request.getOffer(), request.getRequest(), TradeStatus.ACTIVE);
+        Trade trade = new Trade(request.getGameId(), request.getFromPlayerId(), request.getToPlayerId(), /*request.getOffer(), request.getRequest(),*/ TradeStatus.ACTIVE);
         tradeRepository.save(trade);
+//        System.out.println(request.getGameId());
         return trade;
 
     }

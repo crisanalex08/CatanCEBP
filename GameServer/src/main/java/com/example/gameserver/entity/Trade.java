@@ -15,21 +15,21 @@ public class Trade {
     private Long gameId;
     private Long fromPlayerId;
     private Long toPlayerId;
-    @OneToOne
-    private Resources offering;
-    @OneToOne
-    private Resources requesting;
+//    @OneToOne
+//    private Resources offering;
+//    @OneToOne
+//    private Resources requesting;
     @Enumerated(EnumType.STRING)
     private TradeStatus status;
     //    private Date created;
     //    private Date expires;
 
-    public Trade(Long gameId, Long fromPlayerId, Long toPlayerId, Resources offer, Resources request, TradeStatus tradeStatus) {
+    public Trade(Long gameId, Long fromPlayerId, Long toPlayerId/*, Resources offer, Resources request*/, TradeStatus tradeStatus) {
         this.gameId = gameId;
         this.fromPlayerId = fromPlayerId;
         this.toPlayerId = toPlayerId;
-        this.offering = offer;
-        this.requesting = request;
+//        this.offering = offer;
+//        this.requesting = request;
         this.status = tradeStatus;
     }
 
