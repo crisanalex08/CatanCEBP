@@ -1,0 +1,43 @@
+.game-background {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;
+    height: 96vh;
+    width: 100%;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    /* Horizontal alignment */
+    align-items: center;
+    background-image: url('https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/MapBackground.png');
+}
+
+.board-container {
+    width: 800px;
+    /* Set desired width */
+    height: 800px;
+    /* Set desired height */
+    overflow: hidden;
+    /* Prevent overflow */
+}
+
+.board-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.game-building {
+    position: absolute;
+    font-size: 24px;
+    transform: translate(-50%, -50%);
+    /* Center the element */
+    height: 100px;
+    width: 100px;
+}
+
+.game-building img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }

@@ -1,0 +1,15 @@
+<div class="game-background">
+    <div class="board-container" (click)="getCursorPosition($event)">
+        <img
+            src="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/Map.png"
+            alt="Image">
+    </div>
+    <div class="game-building"
+        *ngFor="let spot of buildingSpots"
+        [style.top.px]="spot.y"
+        [style.left.px]="spot.x">
+        <img
+            [src]="spot.building.image"
+            alt="Image">
+    </div>
+</div>

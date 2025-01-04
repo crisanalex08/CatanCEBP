@@ -24,6 +24,8 @@ import { ChipModule } from 'primeng/chip';
 
 import { WebSocketService } from './services/websocket.service';
 import { GameUIComponent } from "./components/game-ui/game-ui.component";
+import { GameBoardComponent } from './components/game-board/game-board.component';
+import { GameBoardService } from './services/game-board.service';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,8 @@ import { GameUIComponent } from "./components/game-ui/game-ui.component";
     HomeComponent,
     GameListComponent,
     InGameComponent,
-    GameUIComponent
+    GameUIComponent,
+    GameBoardComponent
   ],
   imports: [
     BrowserModule,
@@ -49,7 +52,7 @@ import { GameUIComponent } from "./components/game-ui/game-ui.component";
     ToolbarModule,
     ChipModule
 ],
-  providers: [GameService, WebSocketService],
+  providers: [GameService, WebSocketService, GameBoardService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
