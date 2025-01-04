@@ -1,8 +1,5 @@
 package com.example.gameserver.api.dto.User;
 
-import java.util.HashSet;
-
-import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.User;
 
 import lombok.Data;

@@ -7,7 +7,6 @@ import com.example.gameserver.entity.Game;
 import com.example.gameserver.enums.GameStatus;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
