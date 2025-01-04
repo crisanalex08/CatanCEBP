@@ -18,11 +18,12 @@ import com.example.gameserver.entity.Trade;
 import com.example.gameserver.services.TradeService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+//import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/games/{gameId}/trades/")
+@RequestMapping("/api/games/trades/")
 @Tag(name = "Trade Controller", description = "Operations to manage trades")
 public class TradeController {
 
@@ -34,10 +35,9 @@ public class TradeController {
     }
 
     @Operation (summary = "Create a trade")
-    @PostMapping("/{playerId}/create-trade")
-    public ResponseEntity<Trade> createTrade(@RequestBody TradeCreateRequestDTO request, @PathVariable String gameId, @PathVariable String playerId) {
-
-        Trade trade = tradeService.createTrade(gameId, playerId, request);
+    @PostMapping("/create")
+    public ResponseEntity<Trade> createTrade(@RequestBody TradeCreateRequestDTO request) {
+        Trade trade = tradeService.createTrade(request);
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
