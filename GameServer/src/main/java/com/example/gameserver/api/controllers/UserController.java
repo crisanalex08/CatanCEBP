@@ -33,6 +33,35 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Operation(summary = "Create user")
+    @PostMapping("/create")
+    public ResponseEntity<?> createUser(String username) {
+        try {
+            if (username == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            var user = usersService.CreateUser(username);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "Retrieve user")
+    @PostMapping("/retrieve")
+    public ResponseEntity<?> retrieveUser(String username) {
+        try {
+            if (username == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            var user = usersService.retrieveUser(username);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
 
 

@@ -13,13 +13,23 @@ public class UserService {
 
     public User retrieveOrCreateUser(String username) {
        var user = usersRepository.getUserByName(username);
-
          if(user == null) {
               user = new User();
               user.setName(username);
               usersRepository.save(user);
          }
-            return user;
+         return user;
+    }
+
+    public User retrieveUser(String username) {
+        return usersRepository.getUserByName(username);
+    }
+
+    public User CreateUser(String username) {
+        var user = new User();
+        user.setName(username);
+        usersRepository.save(user);
+        return user;
     }
 
     public User getUserByUsername(String username) {
