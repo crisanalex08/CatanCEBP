@@ -3,7 +3,12 @@ package com.example.gameserver.api.controllers;
 import java.util.concurrent.Future;
 
 import com.example.gameserver.websocket.GamesWebSocketHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.gameserver.api.dto.GameMessage;
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
 import com.example.gameserver.models.DiceRollResponse;
@@ -21,9 +27,12 @@ import com.example.gameserver.services.ResourceService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.TextMessage;
 
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
 @CrossOrigin
@@ -68,6 +77,21 @@ public class GamePlayController {
             DiceRollResponse result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
             if(result.isSuccess()) {
                 gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
+                GameMessage message = new GameMessage();
+                message.setGameId(gameId);
+                message.setSender("System");
+                message.setContent("Player " + playerId + " rolled " + result.getDiceRoll());
+                message.setTimestamp(LocalDateTime.now());
+
+                ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+            String jsonMessage = mapper.writeValueAsString(message);
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage(jsonMessage));
+                
+
+                
             }
             return ResponseEntity.ok(result);
         } catch (Exception e) {

@@ -13,7 +13,7 @@
   'zIndex': '100', 
   'top': '90px',}">
   
-    <app-game-chat [gameId]="game.id" [playerName]="playerName"></app-game-chat>
+    <app-game-chat [gameId]="game.id" [playerName]="playerName"  (sendMessageEvent)="sendMessage($event)"></app-game-chat>
  
   </p-card>
   

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Game, PlayerResources } from 'src/app/models/game-model';
+import { ChatMessage } from 'src/app/models/message-model';
 import { GameService } from 'src/app/services/game-service.service';
 import { GamePlayService } from 'src/app/services/gameplay-service';
 import { WebSocketService } from 'src/app/services/websocket.service';
@@ -11,6 +12,10 @@ import { WebSocketService } from 'src/app/services/websocket.service';
   styleUrl: './game-ui.component.css'
 })
 export class GameUIComponent {
+    
+    @Output() sendMessageEvent = new EventEmitter<ChatMessage>();
+
+
     game: Game = {} as Game;
     gameId: number = -1;
     playerName: string = '';
@@ -31,7 +36,7 @@ export class GameUIComponent {
         private WebSocketService: WebSocketService
 
     ) {}
-    private wsUrl = 'ws://localhost:8080/lobby';
+
     ngOnInit() {
          this.gameService.currentGame$.subscribe(game => {
             this.game = game;
@@ -60,5 +65,9 @@ export class GameUIComponent {
             return;
         }
         this.gamePlayService.rollDice(this.game.id, playerId).subscribe();
+    }
+
+    sendMessage(message: ChatMessage) {
+        this.sendMessageEvent.emit(message);
     }
 }

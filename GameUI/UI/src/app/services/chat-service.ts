@@ -12,12 +12,15 @@ export class ChatService {
   constructor() { }
 
   addMessage(message: ChatMessage) {
+    console.log('Adding message:', message);
     const currentMessages = this.messagesSubject.value;
-    this.messagesSubject.next([...currentMessages, message]);
+    currentMessages.push(message);
   }
 
   addSystemMessage(content: string) {
-    const systemMessage: ChatMessage = {
+    const systemMessage: ChatMessage = 
+    {
+      gameId: -1,
       sender: 'System',
       content: content,
       timestamp: new Date(),
