@@ -2,6 +2,7 @@ package com.example.gameserver.api.controllers;
 
 import java.util.List;
 
+import com.example.gameserver.enums.TradeStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +36,13 @@ public class TradeController {
     }
 
     @Operation (summary = "Create a trade")
-    @PostMapping("/create")
-    public ResponseEntity<Trade> createTrade(@RequestBody TradeCreateRequestDTO request) {
-        Trade trade = tradeService.createTrade(request);
-        if (trade == null) {
+    @PostMapping("/merchant-trade")
+    public ResponseEntity<TradeStatus> createTrade(@RequestBody TradeCreateRequestDTO request) {
+        TradeStatus tradeStatus = tradeService.merchantTrade(request);
+        if (tradeStatus == TradeStatus.CANCELLED) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(trade, HttpStatus.CREATED);
+        return new ResponseEntity<>(tradeStatus, HttpStatus.CREATED);
         
     }
 

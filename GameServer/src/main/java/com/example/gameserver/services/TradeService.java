@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.example.gameserver.api.dto.User.PlayerDetailsDTO;
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
+import com.example.gameserver.entity.Resources;
 import com.example.gameserver.repository.*;
 import com.example.gameserver.enums.TradeStatus;
 import org.slf4j.Logger;
@@ -42,37 +43,39 @@ public class TradeService {
         this.tradeRepository = tradeRepository;
     }
     @Transactional
-    public Trade createTrade(TradeCreateRequestDTO request) {
-//        if(request == null) {
-//            return null;
-//        }
-//
-//        Optional<Game> game = gameRepository.findById(request.getGameId());
-//        if (game.isEmpty()) {
-//            logger.error("Game not found, ID: " + request.getGameId());
-//            return null;
-//        }
-//
-//        PlayerDetailsDTO fromPlayer = game.get().getPlayerById(request.getFromPlayerId());
-//        if (fromPlayer == null) {
-//            logger.error("Player not found, ID: " + (request.getFromPlayerId()));
-//            return null;
-//        }
-//
-//        PlayerDetailsDTO toPlayer = game.get().getPlayerById(request.getToPlayerId());
-//        if (toPlayer == null) {
-//            logger.error("Player not found, ID: " + (request.getToPlayerId()));
-//            return null;
-//        }
+    public TradeStatus merchantTrade(TradeCreateRequestDTO request) {
+        if(request == null) {
+            logger.error("Request body is null.");
+            return TradeStatus.CANCELLED;
+        }
 
-        //check if toPlayerId has the resources available
+        Optional<Game> game = gameRepository.findById(request.getGameId());
+        if (game.isEmpty()) {
+            logger.error("Game not found, ID: " + request.getGameId());
+            return TradeStatus.CANCELLED;
+        }
 
-//        Trade trade = new Trade(request.getGameId(), request.getFromPlayerId(), request.getToPlayerId(), request.getOffer(), request.getRequest(), TradeStatus.ACTIVE);
-        Trade trade = new Trade(request.getGameId(), request.getFromPlayerId(), request.getToPlayerId(), /*request.getOffer(), request.getRequest(),*/ TradeStatus.ACTIVE);
-        tradeRepository.save(trade);
-//        System.out.println(request.getGameId());
-        return trade;
+        if (request.getOffer() == request.getRequest()) {
+            logger.error("Offered and requested resource cannot be the same.");
+            return TradeStatus.CANCELLED;
+        }
 
+        Optional<Resources> resources = resourceRepository.findByGameIdAndPlayerId(request.getGameId(), request.getPlayerId());
+        if (resources.isEmpty()) {
+            logger.error("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + request.getPlayerId());
+            return TradeStatus.CANCELLED;
+        }
+        Resources playerResources = resources.get();
+        if(playerResources.hasEnoughResources(request.getOffer(), 3)) {
+            playerResources.subtract(request.getOffer(), 3);
+            playerResources.add(request.getRequest(), 1);
+            resourceRepository.save(playerResources);
+            return TradeStatus.COMPLETED;
+        }
+        else {
+            logger.error("Player has not enough offering resources.");
+        }
+        return TradeStatus.CANCELLED;
     }
 
     @Async

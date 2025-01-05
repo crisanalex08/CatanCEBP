@@ -1,5 +1,6 @@
 package com.example.gameserver.entity;
 
+import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.enums.TradeStatus;
 
 
@@ -15,21 +16,21 @@ public class Trade {
     private Long gameId;
     private Long fromPlayerId;
     private Long toPlayerId;
-//    @OneToOne
-//    private Resources offering;
-//    @OneToOne
-//    private Resources requesting;
+    @Enumerated(EnumType.STRING)
+    private ResourceType offering;
+    @Enumerated(EnumType.STRING)
+    private ResourceType requesting;
     @Enumerated(EnumType.STRING)
     private TradeStatus status;
     //    private Date created;
     //    private Date expires;
 
-    public Trade(Long gameId, Long fromPlayerId, Long toPlayerId/*, Resources offer, Resources request*/, TradeStatus tradeStatus) {
+    public Trade(Long gameId, Long fromPlayerId, Long toPlayerId, ResourceType offer, ResourceType request, TradeStatus tradeStatus) {
         this.gameId = gameId;
         this.fromPlayerId = fromPlayerId;
         this.toPlayerId = toPlayerId;
-//        this.offering = offer;
-//        this.requesting = request;
+        this.offering = offer;
+        this.requesting = request;
         this.status = tradeStatus;
     }
 
