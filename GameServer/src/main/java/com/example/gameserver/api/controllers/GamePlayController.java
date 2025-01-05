@@ -76,7 +76,7 @@ public class GamePlayController {
         try {
             DiceRollResponse result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
             if(result.isSuccess()) {
-                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
+                // gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
                 GameMessage message = new GameMessage();
                 message.setGameId(gameId);
                 message.setSender("System");

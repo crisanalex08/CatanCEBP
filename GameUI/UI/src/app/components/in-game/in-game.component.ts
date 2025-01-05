@@ -111,11 +111,10 @@ export class InGameComponent implements OnInit, OnDestroy {
 
         if (message.data.includes('content')) {
           let chatMessage: ChatMessage = JSON.parse(message.data);
+          if (chatMessage.sender === 'System') {
+            this.updateGameInfo();
+          }
           this.chatService.addMessage(chatMessage);
-        }
-
-        if (message.data === 'Resources Updated') {
-          this.updateGameInfo();
         }
       },
       error: (error) => {
