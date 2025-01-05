@@ -12,7 +12,7 @@ import lombok.Data;
 public class Trade {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Long tradeId;
     private Long gameId;
     private Long fromPlayerId;
     private Long toPlayerId;

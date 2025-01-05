@@ -8,7 +8,9 @@ import java.util.Optional;
 
 @Repository
 public interface TradeRepository extends JpaRepository<Trade, Long> {
-    Optional<Trade> findByGameIdAndFromPlayerId(Long gameId, Long fromPlayerId);
+    Optional<Trade> findByGameIdAndTradeId(Long gameId, Long tradeId);
 
-    Optional<Trade> findByGameIdAndToPlayerId(Long gameId, Long toPlayerId);
+//    Optional<Trade> findByGameIdAndFromPlayerId(Long gameId, Long fromPlayerId);
+//
+//    Optional<Trade> findByGameIdAndToPlayerId(Long gameId, Long toPlayerId);
 }
