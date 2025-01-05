@@ -7,7 +7,12 @@ import { BehaviorSubject, take, tap } from 'rxjs';
 })
 export class UserService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { 
+    const username = localStorage.getItem('username');
+    if (username) {
+      this.playerName.next(username);
+    }
+  }
   url = 'http://localhost:8080';
   
   playerName = new BehaviorSubject<string>('');

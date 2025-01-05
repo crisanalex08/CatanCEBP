@@ -34,9 +34,12 @@
 
         <button pButton type="button" label="Start Game" *ngIf="IsHost"
             (click)="startGame()"></button>
+
+     
     </div>
   
 </div>
 <div class="game-board">
-    <app-game-ui *ngIf="IsGameStarted"></app-game-ui>
+    <app-game-ui *ngIf="IsGameStarted"  [game]="game" (sendMessageEvent)="sendMessage($event)" ></app-game-ui>
+    
 </div>

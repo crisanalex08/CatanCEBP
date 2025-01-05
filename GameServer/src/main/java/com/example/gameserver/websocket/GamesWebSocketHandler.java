@@ -8,6 +8,11 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.example.gameserver.api.dto.GameMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 public class GamesWebSocketHandler extends TextWebSocketHandler {
 
     
@@ -74,9 +79,27 @@ public class GamesWebSocketHandler extends TextWebSocketHandler {
     }
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        for (WebSocketSession webSocketSession : sessions) {
-            webSocketSession.sendMessage(message);
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule()).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        GameMessage gameMessage = objectMapper.readValue(message.getPayload(), GameMessage.class);
+
+        Long gameId = gameMessage.getGameId();
+        if(gameId == null){
+            System.out.println("Game ID is null in WEB SOCKET HANDLE TEXT MESSAGE");
+            return;
         }
+        if(lobbySessions.containsKey(gameId.toString())) {
+
+            for (WebSocketSession webSocketSession : lobbySessions.get(gameId.toString())) {
+                try {
+                    webSocketSession.sendMessage(message);
+                    System.out.println("Message sent");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+       
     }
 
     public void broadcastGameList() {

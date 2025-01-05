@@ -124,7 +124,7 @@ public class GamePlayService {
 
     @Async
     public CompletableFuture<Building> constructBuilding(Long playerId, Long gameId){
-        return CompletableFuture.completedFuture(buildingService.constructBuilding(playerId, gameId));
+        return CompletableFuture.completedFuture(buildingService.constructBuilding(gameId, playerId));
     }
 
     
