@@ -83,6 +83,7 @@ export class InGameComponent implements OnInit, OnDestroy {
     this.gameService.joinGame(this.gameId, this.playerName).subscribe({
       next: (response) => {
         this.game = response as Game;
+        this.gameService.currentGame.next(this.game);
       },
       error: (error) => {
         console.error(error);

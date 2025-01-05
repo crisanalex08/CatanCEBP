@@ -40,5 +40,6 @@
   
 </div>
 <div class="game-board">
-    <app-game-ui *ngIf="IsGameStarted" (sendMessageEvent)="sendMessage($event)" ></app-game-ui>
+    <app-game-ui *ngIf="IsGameStarted"  [game]="game" (sendMessageEvent)="sendMessage($event)" ></app-game-ui>
+    
 </div>

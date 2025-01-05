@@ -1,6 +1,9 @@
 <div class="game-container">
   <p-toolbar>
-    <div *ngFor="let player of game.players"
+       <div *ngFor="let player of game.players; let i = index"
+      [style.background-color]="playersColor[i]"
+      [style.border]="player.name === playerName ? '6px solid gray' : 'none'"
+      [style.shadow]="player.name === playerName ? '0 0 10px gray' : 'none'"
       class="player-name-active">
       {{player.name}}
     </div>
@@ -27,14 +30,16 @@
     [style]="{ width: '15rem', 
   overflow: 'hidden',
   'position': 'fixed',
+  'zIndex': '100',
   'left': '0',
   'bottom': '0',}">
    
     <div class="actions-container">
       <p-button class="action-button" severity="secondary" label="Roll Dice"
         (click)="rollDice()"></p-button>
-      <p-button class="action-button" severity="secondary"
-        label="Build Settlement"></p-button>
+      <p-button class="action-button" severity="secondary" 
+        (click)="buildSettlement()"
+        label="Build Settlement" ></p-button>
       <p-button class="action-button" severity="secondary"
         label="Upgrade Construction"></p-button>
       <p-button class="action-button" severity="secondary"
@@ -48,6 +53,7 @@
     [style]="{ width: '10rem', 
   overflow: 'hidden',
   'position': 'fixed',
+  'zIndex': '100',
   'right': '0',
   'top': '90px',}">
    <div class="resources-container">
@@ -71,6 +77,7 @@
     [style]="{ 
   overflow: 'hidden',
   'position': 'fixed',
+  'zIndex': '100',
   'right': '0',
   'bottom': '0',}">
     <div class="resources-container">
@@ -114,6 +121,7 @@
       </div>
     </div>
   </p-card>
-
- 
+  <div class="game-board">
+    <app-game-board></app-game-board>
+  </div>
 </div>

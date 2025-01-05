@@ -1,0 +1,1 @@
+export const PlayersColor = ['RED', 'BLUE', 'ORANGE', 'YELLOW'];
