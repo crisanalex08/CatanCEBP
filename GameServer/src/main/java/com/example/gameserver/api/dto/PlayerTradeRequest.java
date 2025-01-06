@@ -7,9 +7,9 @@ import lombok.Data;
 
 
 @Data
-public class TradeCreateRequestDTO {
+public class PlayerTradeRequest {
     private Long gameId;
-    private Long playerId;
+    private Long fromPlayerId;
 //    private Long toPlayerId; //to be implemented for this to be chosen by the game
     private ResourceType offer;
     private ResourceType request;
