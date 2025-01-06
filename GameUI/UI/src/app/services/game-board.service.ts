@@ -96,6 +96,7 @@ export class GameBoardService {
           .subscribe({
             next: () => {
               const newSpot: BuildingSpot = {
+                buildingId: 1,
                 playerId: playerId,
                 playerIndex: playerIndex,
                 x: availableSpot.x,
@@ -116,6 +117,7 @@ export class GameBoardService {
     else {
       if (availableSpot) {
         const newSpot: BuildingSpot = {
+          buildingId: 1,
           playerId: this.currentGame.players[playerIndex].id,
           playerIndex: playerIndex,
           x: availableSpot.x,
@@ -130,12 +132,21 @@ export class GameBoardService {
   }
 
   updateAllBuildings() {
-    this.gamePlayService.getAllBuildings(this.currentGame.id).subscribe(buildings => {
-      let buildingSpots = buildings as Building[];
-      buildingSpots.forEach((building: any) => {
+    this.gamePlayService.getAllBuildings(this.currentGame.id).subscribe(res => {
+      res.forEach((building: any) => {
+        let index = this.buildingSpots.findIndex((bs) => bs.buildingId === building.id) ?? -1;
+        if(index !== -1)
+        {
+          res = res.filter((b: any) => b.id !== building.id);
+        }
+      });
+      let buildings = res as Building[]
+
+      buildings.forEach((building: any) => {
+        
         const playerName = this.currentGame.players.find(player => player.id === building.playerId)?.name;
         if (playerName)
-          this.buildSettlement(playerName, true, buildingSpots);
+          this.buildSettlement(playerName, true, buildings);
       });
 
       this.$buildingSpots.next(this.buildingSpots);

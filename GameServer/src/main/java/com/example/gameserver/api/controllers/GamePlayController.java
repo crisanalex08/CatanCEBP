@@ -108,7 +108,20 @@ public class GamePlayController {
     public ResponseEntity<?> constructBuilding(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
             CompletableFuture<Building> building = gamePlayService.constructBuilding(playerId, gameId);
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
+            if(building.get() != null) {
+                GameMessage message = new GameMessage();
+                message.setGameId(gameId);
+                message.setSender("System");
+                message.setContent("Player " + playerId + " constructed " + building.get().getType());
+                message.setTimestamp(LocalDateTime.now());
+
+                ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+                String jsonMessage = mapper.writeValueAsString(message);
+                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage(jsonMessage));
+            }
             return ResponseEntity.ok(building.get());
         } catch (Exception e) {
             log.error("Error constructing building", e);
