@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { ChatService } from 'src/app/services/chat-service';
 import { ChatMessage } from 'src/app/models/message-model';
 import { WebSocketService } from 'src/app/services/websocket.service';
@@ -9,34 +9,36 @@ import { WebSocketService } from 'src/app/services/websocket.service';
   styleUrls: ['./game-chat.component.css']
 })
 export class GameChatComponent implements OnInit {
-  @Input() gameId: number;
-  @Input() playerName: string;
+  @Input() gameId!: number;
+  @Input() playerName!: string;
+  @Output() sendMessageEvent = new EventEmitter<ChatMessage>();
   messages: ChatMessage[] = [];
   newMessage: string = '';
 
   constructor(
     private chatService: ChatService,
-    private webSocketService: WebSocketService
+  
   ) { }
 
   ngOnInit() {
     this.chatService.messages$.subscribe(messages => {
       this.messages = messages;
     });
+    
   }
 
   sendMessage() {
     if (!this.newMessage.trim()) return;
 
     const message: ChatMessage = {
+      gameId: this.gameId,
       sender: this.playerName,
       content: this.newMessage,
       timestamp: new Date()
     };
 
-    // Send via WebSocket
-    this.webSocketService.connect(`ws://localhost:8080/lobby/${this.gameId}`).next(new MessageEvent('message', { data: JSON.stringify(message) }));
-    this.chatService.addMessage(message);
-    this.newMessage = '';
+   this.sendMessageEvent.emit(message);
+   this.newMessage = '';
+
   }
 }

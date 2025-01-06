@@ -1,18 +1,18 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Route, Router } from '@angular/router';
 import { GameService } from 'src/app/services/game-service.service';
 import { Game } from 'src/app/models/game-model';
 import { UserService } from 'src/app/services/user-service.service';
 import { WebSocketService } from 'src/app/services/websocket.service';
-import { AppModule } from 'src/app/app.module';
 import { GamePlayService } from 'src/app/services/gameplay-service';
 import { Subscription } from 'rxjs';
+import { ChatMessage } from 'src/app/models/message-model';
+import { ChatService } from 'src/app/services/chat-service';
 
 @Component({
   selector: 'app-in-game',
   templateUrl: './in-game.component.html',
-  styleUrl: './in-game.component.css'
+  styleUrl: './in-game.component.css',
 })
 export class InGameComponent implements OnInit, OnDestroy {
   @Input() playerName: string = '';
@@ -27,10 +27,11 @@ export class InGameComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private gameService: GameService,
     private userService: UserService,
+    private chatService: ChatService,
     private gameePlayService: GamePlayService,
     private router: Router,
     private WebSocketService: WebSocketService
-  ) { }
+  ) {}
 
   private wsUrl = 'ws://localhost:8080/lobby';
 
@@ -45,98 +46,115 @@ export class InGameComponent implements OnInit, OnDestroy {
       next: (game) => {
         this.game = game as Game;
         this.gameService.currentGame.next(this.game);
-        
-        // Then set up the subscription for future updates
+
         this.gameService.currentGame$.subscribe({
-          next: game => {
+          next: (game) => {
             this.game = game;
-          }
+          },
         });
-        
-        // Continue with the rest of your initialization
+
         this.setupWebSocketConnection();
         this.IsGameStarted = this.game.status === 'IN_PROGRESS' ? true : false;
-        this.IsHost = this.game.players?.find(player => player.name === this.playerName)?.host ?? false;
+        this.IsHost =
+          this.game.players?.find((player) => player.name === this.playerName)
+            ?.host ?? false;
       },
       error: (error) => {
         console.error('Error fetching game:', error);
-      }
+      },
     });
-  
-    this.gameService.currentGame$.subscribe({
-      next: game => {
-        this.game = game;
-      }
-    })
 
-  
+    this.gameService.currentGame$.subscribe({
+      next: (game) => {
+        this.game = game;
+      },
+    });
+
     this.userService.playerName$.subscribe({
-      next: playerName => {
+      next: (playerName) => {
         this.playerName = playerName;
-      }
+      },
     });
 
     if (this.playerName === '')
       this.playerName = localStorage.getItem('username') ?? '';
-    else
-      localStorage.setItem('username', this.playerName);
-
-   
+    else localStorage.setItem('username', this.playerName);
 
     this.gameService.joinGame(this.gameId, this.playerName).subscribe({
-      next: response => {
+      next: (response) => {
         this.game = response as Game;
+        this.gameService.currentGame.next(this.game);
       },
-      error: error => {
+      error: (error) => {
         console.error(error);
-      }
+      },
     });
   }
 
   private setupWebSocketConnection() {
-    this.wsSubscription = this.WebSocketService.connect(this.wsUrl + '/' + this.gameId).subscribe({
+    this.wsSubscription = this.WebSocketService.connect(
+      this.wsUrl + '/' + this.gameId
+    ).subscribe({
       next: (message: any) => {
         console.log('WebSocket message received:', message);
-        
-        if (message.data === 'Player Joined' || message.data === 'Player Left') {
+
+        if (
+          message.data === 'Player Joined' ||
+          message.data === 'Player Left'
+        ) {
           this.updateGameInfo();
         }
-        
+
         if (message.data === 'Game Started') {
-          console.log('Game started message received');
           this.IsGameStarted = true;
           this.updateGameInfo();
         }
-        
-        if (message.data === 'Resources Updated') {
-          this.updateGameInfo();
+
+        if (message.data.includes('content')) {
+          let chatMessage: ChatMessage = JSON.parse(message.data);
+          if (chatMessage.sender === 'System') {
+            this.updateGameInfo();
+          }
+          this.chatService.addMessage(chatMessage);
         }
       },
-      error: error => {
+      error: (error) => {
         console.error('WebSocket error:', error);
       },
       complete: () => {
         console.log('WebSocket connection closed');
-      }
+      },
     });
   }
 
   startGame() {
     this.IsStarting = true;
     this.gameePlayService.startGame(this.gameId).subscribe({
-      next: response => {
+      next: (response) => {
         console.log(response);
         this.IsGameStarted = true;
-        this.WebSocketService.connect(this.wsUrl + '/' + this.gameId).next(new MessageEvent('GameStarted'));
+        this.WebSocketService.connect(this.wsUrl + '/' + this.gameId).next(
+          new MessageEvent('GameStarted')
+        );
       },
-      error: error => {
+      error: (error) => {
         console.error('Error starting game:', error);
         this.IsStarting = false;
       },
       complete: () => {
         this.IsStarting = false;
-      }
+      },
     });
+  }
+  sendMessage(message: ChatMessage) {
+    if (!message.content.trim()) return;
+
+    if (this.gameId === null) {
+      console.error('No game ID');
+      return;
+    }
+
+    this.WebSocketService.sendMessage(message, this.gameId);
   }
 
   ngOnDestroy() {
@@ -147,23 +165,24 @@ export class InGameComponent implements OnInit, OnDestroy {
 
   private updateGameInfo() {
     this.gameService.getGameInfo(this.gameId).subscribe({
-      next: response => {
+      next: (response) => {
         this.game = response as Game;
         this.gameService.currentGame.next(this.game);
-        this.IsHost = this.game.players?.find(player => player.host === true)?.name === this.playerName;
-        console.log('Game:', this.game);
-      }
+        this.IsHost =
+          this.game.players?.find((player) => player.host === true)?.name ===
+          this.playerName;
+      },
     });
   }
 
   leaveGame() {
     this.gameService.leaveGame(this.gameId, this.playerName).subscribe({
-      next: response => {
+      next: (response) => {
         this.router.navigate(['/home']);
       },
-      error: error => {
+      error: (error) => {
         console.error(error);
-      }
+      },
     });
   }
 }
