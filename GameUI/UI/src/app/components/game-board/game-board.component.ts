@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Building, BuildingSpot, BuildingType } from 'src/app/models/building-model';
 import { Game } from 'src/app/models/game-model';
 import { GameBoardService } from 'src/app/services/game-board.service';
@@ -11,19 +11,21 @@ import { UserService } from 'src/app/services/user-service.service';
   templateUrl: './game-board.component.html',
   styleUrl: './game-board.component.css'
 })
-export class GameBoardComponent {
+export class GameBoardComponent implements OnInit {
   @Input() game!: Game;
   buildings: Building[] = [];
   buildingSpots: BuildingSpot[] = [];
   currentPlayer: string | null = null;
-  constructor(private userService: UserService,
+
+  constructor(
+    private userService: UserService,
     private gameBoardService: GameBoardService,
     private gamePlayService: GamePlayService
   ) { }
 
   ngOnInit() {
-
-    this.gameBoardService.$buildingSpots.subscribe(spots => {
+    // Subscribe to building spots updates
+    this.gameBoardService.getBuildingSpots().subscribe(spots => {
       this.buildingSpots = spots;
     });
 

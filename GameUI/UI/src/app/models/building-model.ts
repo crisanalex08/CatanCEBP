@@ -18,3 +18,10 @@ export interface BuildingSpot{
     building: Building | null;
     playerColor: string;
 }
+
+export interface ValidSpot {
+    x: number;
+    y: number;
+    radius: number;
+    color: string;
+}
