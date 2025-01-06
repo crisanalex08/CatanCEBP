@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +34,7 @@ import org.springframework.web.socket.TextMessage;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @CrossOrigin
@@ -132,6 +134,18 @@ public class GamePlayController {
             return ResponseEntity.ok(result.get());
         } catch (Exception e) {
             log.error("Error upgrading building", e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Get players buildings")
+    @GetMapping("/{gameId}/buildings")
+    public ResponseEntity<?> getBuildings(@PathVariable Long gameId) {
+        try {
+            Future<List<Building>> result = buildingService.getAllBuildings(gameId);
+            return ResponseEntity.ok(result.get());
+        } catch (Exception e) {
+            log.error("Error getting buildings", e);
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

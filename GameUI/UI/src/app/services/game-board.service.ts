@@ -104,7 +104,7 @@ export class GameBoardService {
             console.log('Building spot added');
           },
           error: (error) => {
-            console.error('Error building settlement:', error.getMessage());
+            console.error('Error building settlement:', error);
           },
         });
     }

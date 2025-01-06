@@ -21,6 +21,10 @@ export class GamePlayService{
 
     private playerResources = new BehaviorSubject<any>(null);
     playerResources$ = this.playerResources.asObservable();
+
+    private playerBuildings = new BehaviorSubject<any>(null);
+    playerBuildings$ = this.playerBuildings.asObservable();
+
     private handleError(error: HttpErrorResponse) {
       let errorMessage = 'An error occurred';
       
@@ -82,9 +86,26 @@ export class GamePlayService{
       const request_url = `${this.url}/api/gameplay/${gameId}/construct/${playerId}`;
       return this.http.post(request_url, {}).pipe(
         tap(() => {
+          
           console.log('Settlement built');
         }),
         catchError(this.handleError.bind(this))
       );
     }
+
+    getAllBuildings(gameId: number) {
+      const request_url = `${this.url}/api/gameplay/${gameId}/buildings`;
+      return this.http.get(request_url).pipe(
+        tap((buildings: any) => {
+          this.playerBuildings.next(buildings);
+          console.log('Player buildings:', buildings);
+        }),
+        catchError((error) => {
+          console.error('Error:', error);
+          return error
+        })
+      );  
+
+    }
+
   }
