@@ -150,6 +150,20 @@ public class BuildingService {
       return CompletableFuture.completedFuture(playerBuildings);
     }
 
+    @Async 
+    public Future<List<Building>> getAllBuildings(Long gameId) {
+        if(gameId == null) {
+            throw new NullValueException("gameId: "+ gameId + "| is null");
+        }
+
+        if(gameRepository.findById(gameId).isEmpty()) {
+            throw new GameNotFoundException(gameId);
+        }
+
+
+        return CompletableFuture.completedFuture(buildingRepository.findAll().stream().filter(building -> building.getGameId().equals(gameId)).toList());
+    }
+
     @Async
     public Future<List<BuildingType>> getAvailableBuildingTypes(Long gameId, Long playerId) {
         if(playerId == null || gameId == null) {

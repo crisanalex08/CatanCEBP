@@ -101,8 +101,6 @@ public class GameController {
     public ResponseEntity<?> startGame(@PathVariable Long gameId) {
         try {
             Game game = gameService.startGame(gameId);
-            
-
 
             return new ResponseEntity<>(game, HttpStatus.OK);
         } catch (GameNotFoundException e) {

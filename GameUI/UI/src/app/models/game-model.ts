@@ -1,3 +1,5 @@
+import { User } from "./user.model";
+
 export interface GameSettings {
     maxPlayers: number;
     currentPlayersCount: number;
@@ -7,7 +9,7 @@ export interface Game {
     id: number;
     name: string;
     hostId: number;
-    players: any[];
+    players: User[];
     status: string;
     settings: GameSettings;
 }

@@ -31,7 +31,7 @@ export class InGameComponent implements OnInit, OnDestroy {
     private gameePlayService: GamePlayService,
     private router: Router,
     private WebSocketService: WebSocketService
-  ) {}
+  ) { }
 
   private wsUrl = 'ws://localhost:8080/lobby';
 
@@ -56,8 +56,7 @@ export class InGameComponent implements OnInit, OnDestroy {
         this.setupWebSocketConnection();
         this.IsGameStarted = this.game.status === 'IN_PROGRESS' ? true : false;
         this.IsHost =
-          this.game.players?.find((player) => player.name === this.playerName)
-            ?.host ?? false;
+          this.game.players?.find((player) => player.name === this.playerName)?.isHost ?? false;
       },
       error: (error) => {
         console.error('Error fetching game:', error);
@@ -169,7 +168,7 @@ export class InGameComponent implements OnInit, OnDestroy {
         this.game = response as Game;
         this.gameService.currentGame.next(this.game);
         this.IsHost =
-          this.game.players?.find((player) => player.host === true)?.name ===
+          this.game.players?.find((player) => player.isHost === true)?.name ===
           this.playerName;
       },
     });

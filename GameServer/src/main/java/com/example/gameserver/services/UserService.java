@@ -4,9 +4,13 @@ import com.example.gameserver.entity.User;
 import com.example.gameserver.repository.UsersRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.List;
+
 @Service
 public class UserService {
-    private  UsersRepository usersRepository;
+    private UsersRepository usersRepository;
+
     public UserService(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }

@@ -8,6 +8,7 @@ import { Building, BuildingSpot, BuildingType } from '../models/building-model';
 import { GameService } from './game-service.service';
 import { PlayersColor } from '../enums/PlayersColor';
 import { GamePlayService } from './gameplay-service';
+import { ConfigService } from './config-service.service';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +36,9 @@ export class GameBoardService {
   constructor(
     private userService: UserService,
     private gameService: GameService,
-    private gamePlayService: GamePlayService
+    private gamePlayService: GamePlayService,
+    private http: HttpClient,
+    private config: ConfigService
   ) {
     this.gameService.currentGame$.subscribe((game) => {
       this.currentGame = game;
@@ -67,7 +70,8 @@ export class GameBoardService {
   $buildingSpots = new BehaviorSubject<BuildingSpot[]>(this.buildingSpots);
   currentPlayer: string | null = null;
 
-  buildSettlement(playerName: string) {
+  buildSettlement(playerName: string, buildingExists = false, buildings: Building[] = []) {
+
     let playerIndex = -1;
     if (this.currentGame) {
       playerIndex = this.currentGame.players.findIndex(
@@ -84,29 +88,58 @@ export class GameBoardService {
         spot.color === this.playersColor[playerIndex] &&
         !this.buildingSpots.some((bs) => bs.x === spot.x && bs.y === spot.y)
     );
-
-    if (availableSpot) {
-      const playerId = this.currentGame.players[playerIndex].id;
-      this.gamePlayService
-        .buildSettlement(this.currentGame.id, playerId)
-        .subscribe({
-          next: () => {
-            const newSpot: BuildingSpot = {
-              playerId: playerId,
-              playerIndex: playerIndex,
-              x: availableSpot.x,
-              y: availableSpot.y,
-              playerColor: this.playersColor[playerIndex],
-              building: this.buildings[0],
-            };
-            this.buildingSpots.push(newSpot);
-            this.$buildingSpots.next(this.buildingSpots);
-            console.log('Building spot added');
-          },
-          error: (error) => {
-            console.error('Error building settlement:', error.getMessage());
-          },
-        });
+    if (!buildingExists) {
+      if (availableSpot) {
+        const playerId = this.currentGame.players[playerIndex].id;
+        this.gamePlayService
+          .buildSettlement(this.currentGame.id, playerId)
+          .subscribe({
+            next: () => {
+              const newSpot: BuildingSpot = {
+                playerId: playerId,
+                playerIndex: playerIndex,
+                x: availableSpot.x,
+                y: availableSpot.y,
+                playerColor: this.playersColor[playerIndex],
+                building: this.buildings[0],
+              };
+              this.buildingSpots.push(newSpot);
+              this.$buildingSpots.next(this.buildingSpots);
+              console.log('Building spot added');
+            },
+            error: (error) => {
+              console.error('Error building settlement:', error);
+            },
+          });
+      }
     }
+    else {
+      if (availableSpot) {
+        const newSpot: BuildingSpot = {
+          playerId: this.currentGame.players[playerIndex].id,
+          playerIndex: playerIndex,
+          x: availableSpot.x,
+          y: availableSpot.y,
+          playerColor: this.playersColor[playerIndex],
+          building: this.buildings[0],
+        }
+        this.buildingSpots.push(newSpot);
+        this.$buildingSpots.next(this.buildingSpots);
+      }
+    }
+  }
+
+  updateAllBuildings() {
+    this.gamePlayService.getAllBuildings(this.currentGame.id).subscribe(buildings => {
+      let buildingSpots = buildings as Building[];
+      buildingSpots.forEach((building: any) => {
+        const playerName = this.currentGame.players.find(player => player.id === building.playerId)?.name;
+        if (playerName)
+          this.buildSettlement(playerName, true, buildingSpots);
+      });
+
+      this.$buildingSpots.next(this.buildingSpots);
+    }
+    );
   }
 }
