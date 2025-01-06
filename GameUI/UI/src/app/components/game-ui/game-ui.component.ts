@@ -63,9 +63,6 @@ export class GameUIComponent {
                 }
             });
         });
-      
-
-       
     }
     rollDice() {
         const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;

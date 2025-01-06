@@ -5,6 +5,7 @@ import { UserService } from './user-service.service';
 import { User } from '../models/user.model';
 import { BehaviorSubject, tap } from 'rxjs';
 import { tick } from '@angular/core/testing';
+import { ConfigService } from './config-service.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +14,11 @@ export class GameService {
 
   constructor(
     private http: HttpClient,
-    private userService: UserService
+    private userService: UserService,
+    private config: ConfigService
   ) { }
 
-  url = 'http://localhost:8080';
+  url = this.config.serverUrl;
   user: User | undefined;
 
   games = new BehaviorSubject<Game[]>([]);

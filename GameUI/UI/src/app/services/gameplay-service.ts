@@ -4,6 +4,7 @@ import { Game, GameCreateDetails } from '../models/game-model';
 import { UserService } from './user-service.service';
 import { User } from '../models/user.model';
 import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
+import { ConfigService } from './config-service.service';
 
 
 @Injectable({
@@ -13,10 +14,11 @@ import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
 export class GamePlayService{
     constructor(
         private http: HttpClient,
-        private userService: UserService
+        private userService: UserService,
+        private config: ConfigService
     ) { }
 
-    url = 'http://localhost:8080';
+    url = this.config.serverUrl;
     user: User | undefined;
 
     private playerResources = new BehaviorSubject<any>(null);
@@ -54,7 +56,7 @@ export class GamePlayService{
     }
 
     // Add method to fetch resources
-    getPlayerResources(gameId: number, playerId: number) {
+    getPlayerResources(gameId: number, playerId: string) {
       const request_url = `${this.url}/api/games/${gameId}/resources/${playerId}`;
       return this.http.get(request_url).pipe(
         tap((resources: any) => {
@@ -68,7 +70,7 @@ export class GamePlayService{
       );
     }
     //Add method for rolling dice
-    rollDice(gameId: number, playerId: number) {
+    rollDice(gameId: number, playerId: string) {
       const request_url = `${this.url}/api/gameplay/${gameId}/roll/${playerId}`;
       return this.http.post(request_url, {}).pipe(
       tap(() => {
@@ -81,7 +83,7 @@ export class GamePlayService{
         })
       );
     }
-    buildSettlement(gameId: number, playerId: number)
+    buildSettlement(gameId: number, playerId: string)
     {
       const request_url = `${this.url}/api/gameplay/${gameId}/construct/${playerId}`;
       return this.http.post(request_url, {}).pipe(

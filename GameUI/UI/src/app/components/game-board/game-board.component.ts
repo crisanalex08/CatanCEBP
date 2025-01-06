@@ -27,11 +27,7 @@ export class GameBoardComponent {
       this.buildingSpots = spots;
     });
 
-    this.gamePlayService.getAllBuildings(this.game?.id).subscribe(buildings => {
-      console.log(buildings);
-      this.buildings = buildings;
-    }
-    );
+    this.gameBoardService.updateAllBuildings();
 
     this.userService.playerName$.subscribe(playerName => {
       this.currentPlayer = playerName;
