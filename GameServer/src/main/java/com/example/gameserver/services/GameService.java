@@ -42,20 +42,20 @@ public class GameService {
         this.usersRepository = usersRepository;
     }
 
-  
+
     // Create a new game with the given hostId and settings
     @Transactional
     public Game createGame(GameCreateRequest request) {
-        if(request.getName() == null) {
+        if (request.getName() == null) {
             throw new IllegalArgumentException("Game name cannot be null");
         }
-        if(request.getMaxPlayers() < 2) {
+        if (request.getMaxPlayers() < 2) {
             throw new IllegalArgumentException("Max Players Settings must be at least 2");
         }
-        if(request.getHostName() == null) {
+        if (request.getHostName() == null) {
             throw new IllegalArgumentException("Host name cannot be null");
         }
-    
+
         // Get or create the player
         User player = usersRepository.getUserByName(request.getHostName());
         if (player == null) {
@@ -64,52 +64,52 @@ public class GameService {
             player.setHost(true);
             player = usersRepository.save(player);  // Save and get the persisted entity
         }
-    
-        if(player.getGameId() != null) {
+
+        if (player.getGameId() != null) {
             throw new InvalidGameStateException("Player already in a game");
         }
-    
+
         // Create the game
         Game game = new Game();
         game.setHostId(player.getId());
         game.setName(request.getName());
         game.setStatus(GameStatus.WAITING);
-        
+
         GameSettings settings = new GameSettings();
         settings.setMaxPlayers(request.getMaxPlayers());
         settings.setCurrentPlayersCount(1);
         game.setSettings(settings);
-    
-        
+
+
         Set<User> players = new HashSet<>();
         players.add(player);
         game.setPlayers(players);
-    
+
         game = gameRepository.save(game);
-        
+
         // Update player's game association
         player.setGameId(game.getId());
         usersRepository.save(player);
-    
+
         return game;
     }
 
     // Host is starting the game with the given gameId
     @Transactional
     public Game startGame(Long gameId) {
-        if(gameId == null) {
+        if (gameId == null) {
             throw new IllegalArgumentException("Game id cannot be null");
         }
         Future<Game> futureGame = getGameById(gameId);
-        try{
+        try {
             Game game = futureGame.get();
             if (game.getStatus() != GameStatus.WAITING) {
                 throw new InvalidGameStateException("Game already started");
             }
-    
-            game.setStatus(GameStatus.IN_PROGRESS); 
+
+            game.setStatus(GameStatus.IN_PROGRESS);
             gameRepository.save(game);
-            
+
             return game;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -118,14 +118,14 @@ public class GameService {
 
     // End the game with the given gameId
     @Transactional
-    public void endGame(Long gameId){
-        if(gameId == null) {
+    public void endGame(Long gameId) {
+        if (gameId == null) {
             throw new IllegalArgumentException("Game id cannot be null");
         }
 
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
 
-        if(game.getStatus() != GameStatus.IN_PROGRESS) {
+        if (game.getStatus() != GameStatus.IN_PROGRESS) {
             throw new InvalidGameStateException("Game not in progress!");
         }
 
@@ -136,104 +136,118 @@ public class GameService {
     // Join the game with the given gameId and request details a different player than the host
     @Transactional
     public Game joinGame(Long gameId, PlayerJoinRequest request) {
-    
-        if(gameId == null) {
+
+        if (gameId == null) {
             throw new IllegalArgumentException("Game id cannot be null");
         }
-        if(request.getPlayerName() == null) {
+        if (request.getPlayerName() == null) {
             throw new IllegalArgumentException("Player name cannot be null");
         }
-        
-
         User player = usersRepository.getUserByName(request.getPlayerName());
-        
 
-        if(player == null) {
+        System.out.println("\n\nPlayer Name: " + request.getPlayerName() + " isRefresh: " + request.isRefresh());
+
+        if (player == null) {
+            System.out.println("\n\nPlayer is null");
             player = new User();
             player.setName(request.getPlayerName());
-            usersRepository.save(player);
+            player.setGameId(gameId);
+            player.setHost(false);
+            player = usersRepository.save(player);
+        } else {
+            System.out.println("\n\nPlayer is not null");
+            if(!request.isRefresh()) {
+                System.out.println("\n\nNot a refresh");
+                return null;
+            }
         }
 
-        Future<Game> futureGame = getGameById(gameId);
-        try{
-            Game game = futureGame.get();
-            if(player.getGameId() != null && player.getGameId().equals(gameId)) {
-                return game;
-            }
-            if (game.getStatus() != GameStatus.WAITING) {
-                throw new InvalidGameStateException("Game already started");
-            }
-            if(game.getHostId().equals(player.getId())) {
-                throw new HostAlreadyJoinedException(player.getId());
-            }
-            if(game.getPlayers().size() >= game.getSettings().getMaxPlayers()) {
-                throw new InvalidGameStateException("Game is full");
-            }
-            if(player.getGameId() != null && !player.getGameId().equals(gameId)) {
-                throw new InvalidGameStateException("Player already in a game");
-            }
-            game.getPlayers().add(player);
-            game.getSettings().setCurrentPlayersCount(game.getPlayers().size());
-            gameRepository.save(game);
-            
-            player.setGameId(game.getId());
-            usersRepository.save(player);
-
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+        if (request.isRefresh()) {
             return game;
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        if (game.getStatus() != GameStatus.WAITING) {
+            throw new InvalidGameStateException("Game already started");
         }
-        
+        if (game.getHostId().equals(player.getId())) {
+            throw new HostAlreadyJoinedException(player.getId());
+        }
+        if (game.getPlayers().size() >= game.getSettings().getMaxPlayers()) {
+            throw new InvalidGameStateException("Game is full");
+        }
+        if (player.getGameId() != null && !player.getGameId().equals(gameId)) {
+            throw new InvalidGameStateException("Player already in a game");
+        }
+
+        System.out.println("adding player to game");
+        game.getPlayers().add(player);
+        System.out.println("player added to game");
+        game.getSettings().setCurrentPlayersCount(game.getPlayers().size());
+        gameRepository.save(game);
+        System.out.println("game saved");
+        return game;
     }
+
 
     @Transactional
     public void leaveGame(Long gameId, PlayerJoinRequest request) {
 
-        if(gameId == null) {
+        if (gameId == null) {
             throw new IllegalArgumentException("Game id cannot be null");
         }
-        if(request.getPlayerName() == null) {
+        if (request.getPlayerName() == null) {
             throw new IllegalArgumentException("Player name cannot be null");
         }
 
         User player = usersRepository.getUserByName(request.getPlayerName());
 
-        if(player == null) {
+        if (player == null) {
             throw new IllegalArgumentException("Player cannot be found");
         }
 
         Game game = gameRepository.findGameById(gameId);
-        if(game == null) {
+        if (game == null) {
             throw new GameNotFoundException(gameId);
         }
 
-        if(game.getStatus() == GameStatus.FINISHED){
+        if (game.getStatus() == GameStatus.FINISHED) {
             return;
         }
 
         game.getPlayers().remove(player);
+        player.setGameId(null);
         game.getSettings().setCurrentPlayersCount(game.getPlayers().size());
 
-        player.setGameId(null);
-        if(game.getPlayers().isEmpty()) {
+        if (game.getPlayers().isEmpty()) { // if game is empty, delete it
             gameRepository.delete(game);
+            usersRepository.delete(player);
             return;
         }
-        gameRepository.save(game);
-        usersRepository.save(player);
 
+        if (player.isHost()) // if host leaves, assign a new host
+        {
+            player.setHost(false);
+            User newHost = game.getPlayers().iterator().next();
+            System.out.println("\n\nNew host id: " + newHost.getId());
+            System.out.println("\n\nOld host id: " + player.getId());
+            game.setHostId(newHost.getId());
+            newHost.setHost(true);
+            usersRepository.save(newHost);
+        }
+        gameRepository.save(game);
+        usersRepository.delete(player);
     }
+
     // Get the game with the given gameId
     @Async
     public Future<Game> getGameById(Long gameId) {
-        if(gameId == null) {
+        if (gameId == null) {
             throw new IllegalArgumentException("Game id cannot be null");
         }
         return CompletableFuture.completedFuture(gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId)));
-       
+
     }
-    
+
 
     // List all games
     @Async

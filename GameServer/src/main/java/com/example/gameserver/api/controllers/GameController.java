@@ -70,6 +70,9 @@ public class GameController {
             @RequestBody  PlayerJoinRequest request) {
         try {
             Game game = gameService.joinGame(gameId, request);
+            if(game == null) {
+                return new ResponseEntity<>("Player already exists!",HttpStatus.NOT_FOUND);
+            }
             gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Player Joined"));
             gamesWebSocketHandler.broadcastGameList();
             return new ResponseEntity<>(game, HttpStatus.OK);

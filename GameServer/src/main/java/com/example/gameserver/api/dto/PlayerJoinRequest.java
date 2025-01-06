@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class PlayerJoinRequest {
     private String playerName;
+    private boolean isRefresh;
 }

@@ -1,5 +1,6 @@
 package com.example.gameserver.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,20 +8,6 @@ import lombok.NoArgsConstructor;
 import com.example.gameserver.api.dto.User.PlayerDetailsDTO;
 import com.example.gameserver.enums.GameStatus;
 
-
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Version;
 
 import java.util.Set;
 
@@ -41,9 +28,7 @@ public class Game {
     private String name;
     private Long hostId;
 
-    // @ManyToMany(fetch = FetchType.EAGER)
-    // private Set<User> players;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "gameId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<User> players;
 
 
@@ -55,8 +40,6 @@ public class Game {
     private GameSettings settings;
 
     public PlayerDetailsDTO getPlayerById(Long playerId) {
-        
-        
         User user = players.stream().filter(player -> player.getId().equals(playerId)).findFirst().orElse(null);
         if (user == null) {
             return null;

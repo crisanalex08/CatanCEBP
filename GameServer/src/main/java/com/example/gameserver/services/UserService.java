@@ -25,7 +25,7 @@ public class UserService {
         return usersRepository.getUserByName(username);
     }
 
-    public User CreateUser(String username) {
+    public User createUser(String username) {
         var user = new User();
         user.setName(username);
         usersRepository.save(user);
