@@ -56,16 +56,21 @@
         label="Upgrade Construction"></p-button>
       <p-button (onClick)="showMerchantTradeDialog()" icon="pi pi-arrow-right-arrow-left"
         label="Merchant Trade" class="action-button" />
-      <p-button
+      <p-button (onClick)="showPlayerTradeDialog()" icon="pi pi-arrow-right-arrow-left"
+        label="Trade with Player" class="action-button" />
+      <!-- <p-button
         class="action-button"
         severity="secondary"
-        label="Trade with Player"></p-button>
+        label="Trade with Player"></p-button> -->
       <p-button (onClick)="op.toggle($event)" icon="pi pi-dollar"
         label="Building Cost" class="action-button" />
     </div>
   </p-card>
   <p-dialog header="Merchant Trade" [(visible)]="merchantTradeDialogVisible" [modal]="true" [style]="{width: '600px', 'overflow': 'visible'}">
     <app-merchant-trade (closeDialogEvent)="closeMerchantTradeDialog()" [gameId]="game.id" [playerId]="currentPlayerId"></app-merchant-trade>
+  </p-dialog>
+  <p-dialog header="Request a trade with a player" [(visible)]="playerTradeDialogVisible" [modal]="true" [style]="{width: '600px', 'overflow': 'visible'}">
+    <app-trade (closeDialogEvent)="closePlayerTradeDialog()" [gameId]="game.id" [playerId]="currentPlayerId"></app-trade>
   </p-dialog>
   <p-card
     header="Resources"

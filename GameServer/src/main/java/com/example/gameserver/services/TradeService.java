@@ -89,9 +89,9 @@ public class TradeService {
                     tradeRepository.save(trade);
                     return trade;
                 }
-                logger.error("There are no players having the requested resource.");
-                return null;
             }
+            logger.error("There are no players having the requested resource.");
+            return null;
         }
         else {
             logger.error("Player does not have the offering resources.");

@@ -56,8 +56,10 @@ public class TradeController {
 
     @Operation (summary = "List a player trade")
     @PostMapping("/player-trade")
-    public ResponseEntity<Trade> createPlayerTrade(@RequestBody TradeRequest request) {
-        Trade trade = tradeService.playerTrade(request);
+    public ResponseEntity<Trade> createPlayerTrade(@RequestBody FETradeRequest request) {
+        ResourceType off = this.ResourceMap.get(request.getOffer());
+        ResourceType req = this.ResourceMap.get(request.getRequest());
+        Trade trade = tradeService.playerTrade(new TradeRequest(request.getGameId(), request.getPlayerId(), off, req));
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

@@ -23,13 +23,17 @@ export class TradeService {
       request: request
     }
 
-    // let request_body = JSON.stringify(trade);
-    // let test_body = {
-    //   gameId : 2002,
-    //   playerId : 2102,
-    //   offer : "CLAY",
-    //   request : "WOOD"
-    // }
     return this.http.post(this.config.serverUrl + '/api/games/' + gameId + '/trades/merchant-trade', trade);
+  }
+
+  createPlayerTrade(request: string, offer: string, gameId: number, playerId: number){
+    let trade: MerchantTrade = {
+      gameId: gameId,
+      playerId: playerId,
+      offer: offer,
+      request: request
+    }
+
+    return this.http.post(this.config.serverUrl + '/api/games/' + gameId + '/trades/player-trade', trade);
   }
 }
