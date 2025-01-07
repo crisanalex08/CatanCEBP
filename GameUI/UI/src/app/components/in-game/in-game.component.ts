@@ -117,7 +117,7 @@ export class InGameComponent implements OnInit, OnDestroy {
               if(chatMessage.content.includes('SETTLEMENT')) {
                   this.gameBoardService.updateAllBuildings();
               }
-
+          
             this.updateGameInfo();
           }
           this.chatService.addMessage(chatMessage);
@@ -136,7 +136,7 @@ export class InGameComponent implements OnInit, OnDestroy {
     this.IsStarting = true;
     this.gamePlayService.startGame(this.gameId).subscribe({
       next: (response) => {
-        console.log(response);
+       
         this.IsGameStarted = true;
         this.WebSocketService.connect(this.wsUrl + '/' + this.gameId).next(
           new MessageEvent('GameStarted')
@@ -166,6 +166,10 @@ export class InGameComponent implements OnInit, OnDestroy {
     if (this.wsSubscription) {
       this.wsSubscription.unsubscribe();
     }
+    this.chatService.clearMessages();
+    this.IsGameStarted = false;
+    this.IsHost = false;
+    this.IsStarting = false;
   }
 
   private updateGameInfo() {
