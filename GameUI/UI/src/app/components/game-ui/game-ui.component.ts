@@ -7,6 +7,7 @@ import { GameService } from 'src/app/services/game-service.service';
 import { GamePlayService } from 'src/app/services/gameplay-service';
 import { WebSocketService } from 'src/app/services/websocket.service';
 import { PlayersColor } from 'src/app/enums/PlayersColor';
+import { BuildingSpot, ServerBuilding } from 'src/app/models/building-model';
 
 @Component({
     selector: 'app-game-ui',
@@ -30,7 +31,8 @@ export class GameUIComponent {
 
     playersColor = PlayersColor;
 
-    
+    private readonly BASE_IMAGE_URL = 'https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/';
+
     constructor(
         private route: ActivatedRoute,
         private gameService: GameService, 
@@ -41,7 +43,7 @@ export class GameUIComponent {
     ) {}
     @Input() game: Game = {} as Game;
     currentPlayer: string | null = null;
-
+    playerBuildings: ServerBuilding[] = [];
    
      
     ngOnInit() {
@@ -64,6 +66,15 @@ export class GameUIComponent {
                 }
             });
         });
+            
+
+        this.gameBoardService.playerBuildings$.subscribe(buildings => {
+            console.log(buildings);
+            this.playerBuildings = buildings;
+            console.log("Added",this.playerBuildings);
+            
+        }
+        );
     }
     rollDice() {
         const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
@@ -80,11 +91,41 @@ export class GameUIComponent {
         }
         this.gameBoardService.buildSettlement(this.playerName);
     }
-    
+
 
     sendMessage(message: ChatMessage) {
         this.sendMessageEvent.emit(message);
     }
 
+    getBuildingImage(buildingType: string): string {
+        switch (buildingType) {
+            case 'SETTLEMENT':
+                return `${this.BASE_IMAGE_URL}Settlement.png`;
+            case 'TOWN':
+                return `${this.BASE_IMAGE_URL}Town.png`;
+            case 'CASTLE':
+                return `${this.BASE_IMAGE_URL}Castle.png`;
+            default:
+                return '';
+        }
+    }
+    getResourceImage(resourceType: string): string {
+        switch (resourceType) {
+            case 'WOOD':
+                return `${this.BASE_IMAGE_URL}wood.png`;
+            case 'CLAY':
+                return `${this.BASE_IMAGE_URL}clay.png`;
+            case 'STONE':
+                return `${this.BASE_IMAGE_URL}stone.png`;
+            case 'SHEEP':
+                return `${this.BASE_IMAGE_URL}sheep.png`;
+            case 'WHEAT':
+                return `${this.BASE_IMAGE_URL}wheat.png`;
+            case 'GOLD':
+                return `${this.BASE_IMAGE_URL}gold.png`;
+            default:
+                return '';
+        }
+    }
    
 }

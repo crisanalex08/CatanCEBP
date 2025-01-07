@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 import { Game } from '../models/game-model';
-import { Building, BuildingSpot, BuildingType, ValidSpot } from '../models/building-model';
+import { Building, BuildingSpot, BuildingType, ValidSpot,ServerBuilding } from '../models/building-model';
 import { UserService } from './user-service.service';
 import { GameService } from './game-service.service';
 import { GamePlayService } from './gameplay-service';
@@ -51,6 +51,9 @@ export class GameBoardService {
   private currentGame?: Game;
   private buildingSpots: BuildingSpot[] = [];
   private buildingSpots$ = new BehaviorSubject<BuildingSpot[]>(this.buildingSpots);
+
+  private playerBuildings: ServerBuilding[] = [];
+  public playerBuildings$ = new BehaviorSubject<ServerBuilding[]>(this.playerBuildings).asObservable();
 
   constructor(
     private userService: UserService,
@@ -155,7 +158,7 @@ export class GameBoardService {
       });
   }
 
-  private syncBuildings(serverBuildings: any[]): void {
+  private syncBuildings(serverBuildings: ServerBuilding[]): void {
     // Remove buildings that no longer exist on server
     this.buildingSpots = this.buildingSpots.filter(spot =>
       serverBuildings.some(b => b.id === spot.buildingId)
@@ -166,14 +169,21 @@ export class GameBoardService {
       const exists = this.buildingSpots.some(spot => spot.buildingId === building.id);
       if (!exists) {
         const playerName = this.currentGame!.players.find(
-          player => player.id === building.playerId
+          player => parseInt(player.id) === building.playerId
         )?.name;
         
         if (playerName) {
+          if(playerName === this.userService.playerName.value)
+          {
+            this.playerBuildings.push(building);
+          }
           this.buildSettlement(playerName, true);
+          
         }
       }
     });
+
+    
 
     this.buildingSpots$.next(this.buildingSpots);
   }
