@@ -2,12 +2,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Game, PlayerResources } from 'src/app/models/game-model';
 import { ChatMessage } from 'src/app/models/message-model';
-import { GameBoardService } from 'src/app/services/game-board.service';
+import { GameBoardService } from 'src/app/services/board.service';
 import { GameService } from 'src/app/services/game-service.service';
 import { GamePlayService } from 'src/app/services/gameplay-service';
 import { WebSocketService } from 'src/app/services/websocket.service';
 import { PlayersColor } from 'src/app/enums/PlayersColor';
-import { BuildingSpot, ServerBuilding } from 'src/app/models/building-model';
+import { ServerBuilding } from 'src/app/models/building-model';
 
 @Component({
     selector: 'app-game-ui',
@@ -15,7 +15,7 @@ import { BuildingSpot, ServerBuilding } from 'src/app/models/building-model';
     styleUrl: './game-ui.component.css'
 })
 export class GameUIComponent {
-    
+    merchantTradeDialogVisible = false;
     @Output() sendMessageEvent = new EventEmitter<ChatMessage>();
 
     gameId: number = -1;
@@ -35,43 +35,52 @@ export class GameUIComponent {
 
     constructor(
         private route: ActivatedRoute,
-        private gameService: GameService, 
+        private gameService: GameService,
         private gamePlayService: GamePlayService,
         private WebSocketService: WebSocketService,
         private gameBoardService: GameBoardService
 
-    ) {}
+    ) { }
     @Input() game: Game = {} as Game;
     currentPlayer: string | null = null;
+    currentPlayerId: number | null = null;
     playerBuildings: ServerBuilding[] = [];
-   
-     
+
+    closeMerchantTradeDialog() {
+        this.merchantTradeDialogVisible = false;
+    }
+
     ngOnInit() {
-        
-         this.gameService.currentGame$.subscribe(game => {
+
+        this.gameService.currentGame$.subscribe(game => {
             this.game = game;
             if (!this.game.id) {
                 return;
             }
-        
-            this.playerName = localStorage.getItem('username') ?? ''; 
-            const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id; 
+
+            this.playerName = localStorage.getItem('username') ?? '';
+            const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
             if (!playerId) {
                 return;
             }
-            
+            this.currentPlayerId = parseInt(playerId.toString());
             this.game.status == "IN_PROGRESS" && this.gamePlayService.getPlayerResources(this.game.id, playerId).subscribe({
                 next: resources => {
                     this.currentPlayerResources = resources.quantities;
                 }
             });
         });
-            
+
 
         this.gameBoardService.getPlayerBuildings().subscribe(buildings => {
             this.playerBuildings = buildings;
         });
     }
+
+    showMerchantTradeDialog() {
+        this.merchantTradeDialogVisible = true;
+    }
+
     rollDice() {
         const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
         if (!playerId) {
@@ -123,5 +132,5 @@ export class GameUIComponent {
                 return '';
         }
     }
-   
+
 }

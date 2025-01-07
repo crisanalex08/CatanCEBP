@@ -1,0 +1,24 @@
+<div class="dialog-container">
+    <div class="trade-container">
+        <div class="offer">
+            <p-dropdown appendTo="body" [options]="ResourceType"
+                [(ngModel)]="selectedOffer"
+                placeholder="Select a Resource to Offer"></p-dropdown>
+        </div>
+        <div class="request">
+            <p-dropdown appendTo="body" [options]="ResourceType"
+                [(ngModel)]="selectedRequest"
+                placeholder="Select a Resource to Request"></p-dropdown>
+        </div>
+    </div>
+    <div class="confirm-message"
+        *ngIf="selectedOffer && selectedRequest && selectedOffer !== selectedRequest">
+        <p>You are about to trade 3x {{ selectedOffer }} for one {{
+            selectedRequest }}</p>
+    </div>
+    <div class="trade-buttons">
+        <button pButton type="button" label="Trade" (click)="tradeResources()"
+            [disabled]="!selectedOffer || !selectedRequest || selectedOffer === selectedRequest"></button>
+        <button pButton type="button" label="Cancel" (click)="closeDialog()"></button>
+    </div>
+</div>

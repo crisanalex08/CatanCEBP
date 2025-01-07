@@ -2,13 +2,13 @@ import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Route, Router } from '@angular/router';
 import { GameService } from 'src/app/services/game-service.service';
 import { Game } from 'src/app/models/game-model';
-import { UserService } from 'src/app/services/user-service.service';
+import { UserService } from 'src/app/services/user.service';
 import { WebSocketService } from 'src/app/services/websocket.service';
 import { GamePlayService } from 'src/app/services/gameplay-service';
 import { Subscription } from 'rxjs';
 import { ChatMessage } from 'src/app/models/message-model';
-import { ChatService } from 'src/app/services/chat-service';
-import { GameBoardService } from 'src/app/services/game-board.service';
+import { ChatService } from 'src/app/services/chat.service';
+import { GameBoardService } from 'src/app/services/board.service';
 
 @Component({
   selector: 'app-in-game',

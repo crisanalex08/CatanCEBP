@@ -8,13 +8,7 @@ import com.example.gameserver.enums.TradeStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.gameserver.api.dto.TradeCreateRequestDTO;
 import com.example.gameserver.entity.Trade;
@@ -22,9 +16,9 @@ import com.example.gameserver.services.TradeService;
 
 import io.swagger.v3.oas.annotations.Operation;
 //import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/games/{gameId}/trades/")
 @Tag(name = "Trade Controller", description = "Operations to manage trades")
@@ -45,7 +39,6 @@ public class TradeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(tradeStatus, HttpStatus.CREATED);
-        
     }
 
     @Operation (summary = "List a player trade")
@@ -79,7 +72,6 @@ public class TradeController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     @Operation (summary = "Decline a trade")
     @DeleteMapping("/{playerId}/decline-trade/{tradeId}")   
     public ResponseEntity<Trade> declineTrade(@PathVariable String gameId,@PathVariable String tradeId, @PathVariable String playerId) {
@@ -89,11 +81,4 @@ public class TradeController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
-
-
-
-
-    
 }

@@ -1,10 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Building, BuildingSpot, BuildingType } from 'src/app/models/building-model';
 import { Game } from 'src/app/models/game-model';
-import { GameBoardService } from 'src/app/services/game-board.service';
+import { GameBoardService } from 'src/app/services/board.service';
 import { GameService } from 'src/app/services/game-service.service';
 import { GamePlayService } from 'src/app/services/gameplay-service';
-import { UserService } from 'src/app/services/user-service.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-game-board',

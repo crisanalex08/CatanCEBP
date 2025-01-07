@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Game, GameCreateDetails } from '../models/game-model';
-import { UserService } from './user-service.service';
-import { User } from '../models/user.model';
+import { UserService } from './user.service';
+import { User } from '../models/user-model';
 import { BehaviorSubject, tap } from 'rxjs';
 import { tick } from '@angular/core/testing';
-import { ConfigService } from './config-service.service';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'

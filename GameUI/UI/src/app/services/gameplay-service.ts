@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Game, GameCreateDetails } from '../models/game-model';
-import { UserService } from './user-service.service';
-import { User } from '../models/user.model';
+import { UserService } from './user.service';
+import { User } from '../models/user-model';
 import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
-import { ConfigService } from './config-service.service';
+import { ConfigService } from './config.service';
 
 
 @Injectable({
