@@ -51,13 +51,14 @@ export class GameUIComponent {
             if (!this.game.id) {
                 return;
             }
-            console.log(this.game.players);
-            this.playerName = localStorage.getItem('username') ?? '';
-            const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
+        
+            this.playerName = localStorage.getItem('username') ?? ''; 
+            const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id; 
             if (!playerId) {
                 return;
             }
-            this.gamePlayService.getPlayerResources(this.game.id, playerId).subscribe({
+            
+            this.game.status == "IN_PROGRESS" && this.gamePlayService.getPlayerResources(this.game.id, playerId).subscribe({
                 next: resources => {
                     this.currentPlayerResources = resources.quantities;
                 }

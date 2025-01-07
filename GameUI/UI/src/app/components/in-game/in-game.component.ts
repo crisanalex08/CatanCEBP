@@ -8,6 +8,7 @@ import { GamePlayService } from 'src/app/services/gameplay-service';
 import { Subscription } from 'rxjs';
 import { ChatMessage } from 'src/app/models/message-model';
 import { ChatService } from 'src/app/services/chat-service';
+import { GameBoardService } from 'src/app/services/game-board.service';
 
 @Component({
   selector: 'app-in-game',
@@ -28,7 +29,8 @@ export class InGameComponent implements OnInit, OnDestroy {
     private gameService: GameService,
     private userService: UserService,
     private chatService: ChatService,
-    private gameePlayService: GamePlayService,
+    private gamePlayService: GamePlayService,
+    private gameBoardService: GameBoardService,
     private router: Router,
     private WebSocketService: WebSocketService
   ) { }
@@ -56,7 +58,7 @@ export class InGameComponent implements OnInit, OnDestroy {
         this.setupWebSocketConnection();
         this.IsGameStarted = this.game.status === 'IN_PROGRESS' ? true : false;
         this.IsHost =
-          this.game.players?.find((player) => player.name === this.playerName)?.isHost ?? false;
+          this.game.players?.find((player) => player.name === this.playerName)?.host ?? false;
       },
       error: (error) => {
         console.error('Error fetching game:', error);
@@ -112,6 +114,10 @@ export class InGameComponent implements OnInit, OnDestroy {
         if (message.data.includes('content')) {
           let chatMessage: ChatMessage = JSON.parse(message.data);
           if (chatMessage.sender === 'System') {
+              if(chatMessage.content.includes('SETTLEMENT')) {
+                  this.gameBoardService.updateAllBuildings();
+              }
+          
             this.updateGameInfo();
           }
           this.chatService.addMessage(chatMessage);
@@ -128,9 +134,9 @@ export class InGameComponent implements OnInit, OnDestroy {
 
   startGame() {
     this.IsStarting = true;
-    this.gameePlayService.startGame(this.gameId).subscribe({
+    this.gamePlayService.startGame(this.gameId).subscribe({
       next: (response) => {
-        console.log(response);
+       
         this.IsGameStarted = true;
         this.WebSocketService.connect(this.wsUrl + '/' + this.gameId).next(
           new MessageEvent('GameStarted')
@@ -160,6 +166,10 @@ export class InGameComponent implements OnInit, OnDestroy {
     if (this.wsSubscription) {
       this.wsSubscription.unsubscribe();
     }
+    this.chatService.clearMessages();
+    this.IsGameStarted = false;
+    this.IsHost = false;
+    this.IsStarting = false;
   }
 
   private updateGameInfo() {
@@ -168,7 +178,7 @@ export class InGameComponent implements OnInit, OnDestroy {
         this.game = response as Game;
         this.gameService.currentGame.next(this.game);
         this.IsHost =
-          this.game.players?.find((player) => player.isHost === true)?.name ===
+          this.game.players?.find((player) => player.host === true)?.name ===
           this.playerName;
       },
     });

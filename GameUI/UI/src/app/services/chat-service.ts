@@ -30,6 +30,6 @@ export class ChatService {
   }
 
   clearMessages() {
-    this.messagesSubject.next([]);
+    this.messagesSubject.next([]); 
   }
 }
