@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,11 +27,9 @@ import com.example.gameserver.services.ResourceService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.TextMessage;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -78,22 +75,7 @@ public class GamePlayController {
         try {
             DiceRollResponse result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
             if(result.isSuccess()) {
-                // gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
-                GameMessage message = new GameMessage();
-                message.setGameId(gameId);
-                message.setSender("System");
-                message.setContent("Player " + playerId + " rolled " + result.getDiceRoll());
-                message.setTimestamp(LocalDateTime.now());
-
-                ObjectMapper mapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-            String jsonMessage = mapper.writeValueAsString(message);
-            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage(jsonMessage));
-                
-
-                
+                sendSystemMessage(gameId, "Player " + playerId + " rolled " + result.getDiceRoll());
             }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
@@ -109,18 +91,7 @@ public class GamePlayController {
         try {
             CompletableFuture<Building> building = gamePlayService.constructBuilding(playerId, gameId);
             if(building.get() != null) {
-                GameMessage message = new GameMessage();
-                message.setGameId(gameId);
-                message.setSender("System");
-                message.setContent("Player " + playerId + " constructed " + building.get().getType());
-                message.setTimestamp(LocalDateTime.now());
-
-                ObjectMapper mapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-                String jsonMessage = mapper.writeValueAsString(message);
-                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage(jsonMessage));
+                sendSystemMessage(gameId, "Player " + playerId + " constructed " + building.get().getType());
             }
             return ResponseEntity.ok(building.get());
         } catch (Exception e) {
@@ -131,20 +102,30 @@ public class GamePlayController {
 
     }
 
+
+
     @Operation(summary = "Upgrade building")
     @PostMapping("/{gameId}/upgrade/{playerId}/{buildingId}")
     public ResponseEntity<?> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
         try {
             Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
-            if(result.get().equals("WIN")){
-                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("GameWon by Player: " + playerId));
-                gameService.endGame(gameId);
-                buildingService.clearBuildings(gameId);
-                resourceService.clearResources(gameId);
-            }else {
-                gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage("Resources Updated"));
+            String upgradedBuilding = result.get();
+
+            switch (upgradedBuilding){
+                case "Castle":
+                    sendSystemMessage(gameId, "GameWon by Player: " + playerId);
+                    gameService.endGame(gameId);
+                    buildingService.clearBuildings(gameId);
+                    resourceService.clearResources(gameId);
+                    break;
+                case "Town":
+                    sendSystemMessage(gameId, "Player with Id: " + playerId + " has upgraded a Settlement to Town");
+                    break;
+                default:
+                    sendSystemMessage(gameId, "Player with Id: " + playerId + " has upgraded a building");
+                    break;
             }
-            return ResponseEntity.ok(result.get());
+            return ResponseEntity.ok(upgradedBuilding);
         } catch (Exception e) {
             log.error("Error upgrading building", e);
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -162,5 +143,26 @@ public class GamePlayController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-    
+
+    // Send a system message to the game lobby(Helper method)
+    private void sendSystemMessage(Long gameId, String content){
+        GameMessage message = new GameMessage();
+        message.setGameId(gameId);
+        message.setSender("System");
+        message.setContent(content);
+        message.setTimestamp(LocalDateTime.now());
+
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        try {
+            String jsonMessage = mapper.writeValueAsString(message);
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage(jsonMessage));
+        }
+        catch (Exception e) {
+            log.error("GamePlayController: Error sending system message, could not map the message to string! ", e);
+        }
+    }
+
 }
