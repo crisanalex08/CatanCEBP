@@ -52,3 +52,28 @@
 .resource-cost > *{
   margin: 5px;
 }
+
+.buildings-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+
+.building-production
+{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+.building-production > *{
+  
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center ;
+  width: 100%;
+}

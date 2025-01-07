@@ -80,6 +80,7 @@ export class GameUIComponent {
         }
         this.gameBoardService.buildSettlement(this.playerName);
     }
+    
 
     sendMessage(message: ChatMessage) {
         this.sendMessageEvent.emit(message);

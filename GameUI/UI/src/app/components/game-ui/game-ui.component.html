@@ -1,123 +1,269 @@
 <div class="game-container">
   <p-toolbar>
-       <div *ngFor="let player of game.players; let i = index"
+    <div
+      *ngFor="let player of game.players; let i = index"
       [style.background-color]="playersColor[i]"
       [style.border]="player.name === playerName ? '6px solid gray' : 'none'"
       [style.shadow]="player.name === playerName ? '0 0 10px gray' : 'none'"
-      class="player-name-active">
-      {{player.name}}
+      class="player-name-active"
+    >
+      {{ player.name }}
     </div>
   </p-toolbar>
-  <p-card header="Game Chat"
+  <p-card
+    header="Game Chat"
     [style]="{ width: '20rem', 
   overflow: 'hidden',
   'position': 'fixed',
   'left': '0',
   'zIndex': '100', 
-  'top': '90px',}">
-  
-    <app-game-chat [gameId]="game.id" [playerName]="playerName"  (sendMessageEvent)="sendMessage($event)"></app-game-chat>
- 
+  'top': '90px',}"
+  >
+    <app-game-chat
+      [gameId]="game.id"
+      [playerName]="playerName"
+      (sendMessageEvent)="sendMessage($event)"
+    ></app-game-chat>
   </p-card>
-  
 
-  
-
-    
-    
-
-  <p-card header="Actions" class="actions-card"
+  <p-card
+    header="Actions"
+    class="actions-card"
     [style]="{ width: '15rem', 
   overflow: 'hidden',
   'position': 'fixed',
   'zIndex': '100',
   'left': '0',
-  'bottom': '0',}">
-   
+  'bottom': '0',}"
+  >
     <div class="actions-container">
-      <p-button class="action-button" severity="secondary" label="Roll Dice"
-        (click)="rollDice()"></p-button>
-      <p-button class="action-button" severity="secondary" 
+      <p-button
+        class="action-button"
+        severity="secondary"
+        label="Roll Dice"
+        (click)="rollDice()"
+      ></p-button>
+      <p-button
+        class="action-button"
+        severity="secondary"
         (click)="buildSettlement()"
-        label="Build Settlement" ></p-button>
-      <p-button class="action-button" severity="secondary"
-        label="Upgrade Construction"></p-button>
-      <p-button class="action-button" severity="secondary"
-        label="Trade with Merchant"></p-button>
-      <p-button class="action-button" severity="secondary"
-        label="Trade with Player"></p-button>
+        label="Build Settlement"
+      ></p-button>
+      <p-button
+        class="action-button"
+        severity="secondary"
+        label="Upgrade Construction"
+      ></p-button>
+      <p-button
+        class="action-button"
+        severity="secondary"
+        label="Trade with Merchant"
+      ></p-button>
+      <p-button
+        class="action-button"
+        severity="secondary"
+        label="Trade with Player"
+      ></p-button>
     </div>
   </p-card>
 
-  <p-card header="Resources" class="actions-card"
-    [style]="{ width: '10rem', 
+  <p-card
+    header="Resources"
+    class="actions-card"
+    [style]="{ width: '11rem', 
   overflow: 'hidden',
   'position': 'fixed',
   'zIndex': '100',
   'right': '0',
-  'top': '90px',}">
-   <div class="resources-container">
-    <p-chip label="Wood - {{currentPlayerResources.WOOD}}"
-        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png" />
-    <p-chip label="Clay - {{currentPlayerResources.CLAY}}"  
-        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/clay.png" />
-    <p-chip label="Stone - {{currentPlayerResources.STONE}}"
-        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/stone.png" />
-    <p-chip label="Wheat - {{currentPlayerResources.WHEAT}}"
-        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wheat.png" />
-    <p-chip label="Sheep - {{currentPlayerResources.SHEEP}}"
-        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/sheep.png" />
-    <p-chip label="Gold - {{currentPlayerResources.GOLD}}"
-        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/gold.png" />
-</div>
-    <!-- To be UPDATED -->
+  'top': '90px',}"
+  >
+    <div class="resources-container">
+      <p-chip
+        label="Wood - {{ currentPlayerResources.WOOD }}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png"
+      />
+      <p-chip
+        label="Clay - {{ currentPlayerResources.CLAY }}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/clay.png"
+      />
+      <p-chip
+        label="Stone - {{ currentPlayerResources.STONE }}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/stone.png"
+      />
+      <p-chip
+        label="Wheat - {{ currentPlayerResources.WHEAT }}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wheat.png"
+      />
+      <p-chip
+        label="Sheep - {{ currentPlayerResources.SHEEP }}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/sheep.png"
+      />
+      <p-chip
+        label="Gold - {{ currentPlayerResources.GOLD }}"
+        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/gold.png"
+      />
+    </div>
   </p-card>
 
-  <p-card header="Building Cost" class="cost-card"
+  <p-card
+    header="Building Cost"
+    class="cost-card"
     [style]="{ 
   overflow: 'hidden',
   'position': 'fixed',
   'zIndex': '100',
   'right': '0',
-  'bottom': '0',}">
+  'bottom': '0',}"
+  >
     <div class="resources-container">
-      <p style="font-size: 1.5rem;" >Settlement</p>
+      <p style="font-size: 1.5rem">Settlement</p>
       <div class="resource-cost">
-        <p-chip label="1"
-          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png" />
+        <p-chip
+          label="1"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png"
+        />
         <i class="pi pi-plus" style="font-size: 1.5rem"></i>
-        <p-chip label="1" image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/clay.png" />
+        <p-chip
+          label="1"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/clay.png"
+        />
         <i class="pi pi-plus" style="font-size: 1.5rem"></i>
-        <p-chip label="1"
-          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wheat.png" />
-       
+        <p-chip
+          label="1"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wheat.png"
+        />
       </div>
     </div>
-    
+
+    <p-card
+      header="Player Buildings"
+      class="buildings-card"
+      [style]="{
+        flex: '1',
+        overflow: 'hidden',
+        position: 'fixed',
+        zIndex: '100',
+        left: '50%',
+        bottom: '0',
+        transform: 'translateX(-50%)',
+        'margin-bottom': '1rem'
+      }"
+    >
+      <div class="buildings-container">
+        <div class="building-container">
+          <p-chip
+            label="Settlement"
+            image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/Settlement.png"
+          >
+          </p-chip>
+          <div class="building-production">
+            <span>
+              <p-chip
+                label="Wood"
+                styleClass="fixed-width-chip"
+                image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png"
+              />
+              <p-chip label="1"></p-chip>
+            </span>
+            <span>
+              <p-chip
+                label="Wood"
+                styleClass="fixed-width-chip"
+                image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png"
+              />
+              <p-chip label="1"></p-chip>
+            </span>
+          </div>
+        </div>
+        <div class="building-container">
+          <p-chip
+            label="Settlement"
+            image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/Settlement.png"
+          >
+          </p-chip>
+          <div class="building-production">
+            <span>
+              <p-chip
+                label="Wood"
+                styleClass="fixed-width-chip"
+                image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png"
+              />
+              <p-chip label="1"></p-chip>
+            </span>
+            <span>
+              <p-chip
+                label="Wood"
+                styleClass="fixed-width-chip"
+                image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png"
+              />
+              <p-chip label="1"></p-chip>
+            </span>
+          </div>
+        </div>
+        <div class="building-container">
+          <p-chip
+            label="Settlement"
+            image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/Settlement.png"
+          >
+          </p-chip>
+          <div class="building-production">
+            <span>
+              <p-chip
+                label="Wood"
+                styleClass="fixed-width-chip"
+                image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png"
+              />
+              <p-chip label="1"></p-chip>
+            </span>
+            <span>
+              <p-chip
+                label="Wood"
+                styleClass="fixed-width-chip"
+                image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png"
+              />
+              <p-chip label="1"></p-chip>
+            </span>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
     <div class="resources-container">
-      <p style="font-size: 1.5rem;" >Town</p>
+      <p style="font-size: 1.5rem">Town</p>
       <div class="resource-cost">
-        <p-chip label="2"
-          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png" />
+        <p-chip
+          label="2"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wood.png"
+        />
         <i class="pi pi-plus" style="font-size: 1.5rem"></i>
-        <p-chip label="2"
-        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/clay.png" />
+        <p-chip
+          label="2"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/clay.png"
+        />
         <i class="pi pi-plus" style="font-size: 1.5rem"></i>
-        <p-chip label="2"
-          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wheat.png" />
+        <p-chip
+          label="2"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/wheat.png"
+        />
       </div>
     </div>
     <div class="resources-container">
-      <p style="font-size: 1.5rem;" >Castle</p>
+      <p style="font-size: 1.5rem">Castle</p>
       <div class="resource-cost">
-        <p-chip label="3"
-          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/gold.png" />
+        <p-chip
+          label="3"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/gold.png"
+        />
         <i class="pi pi-plus" style="font-size: 1.5rem"></i>
-        <p-chip label="3"
-        image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/stone.png" />
+        <p-chip
+          label="3"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/stone.png"
+        />
         <i class="pi pi-plus" style="font-size: 1.5rem"></i>
-        <p-chip label="3"
-          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/sheep.png" />
+        <p-chip
+          label="3"
+          image="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/sheep.png"
+        />
       </div>
     </div>
   </p-card>
