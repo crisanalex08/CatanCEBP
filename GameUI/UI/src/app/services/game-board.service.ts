@@ -53,7 +53,7 @@ export class GameBoardService {
   private buildingSpots$ = new BehaviorSubject<BuildingSpot[]>(this.buildingSpots);
 
   private playerBuildings: ServerBuilding[] = [];
-  public playerBuildings$ = new BehaviorSubject<ServerBuilding[]>(this.playerBuildings).asObservable();
+  private playerBuildings$ = new BehaviorSubject<ServerBuilding[]>(this.playerBuildings);
 
   constructor(
     private userService: UserService,
@@ -159,32 +159,48 @@ export class GameBoardService {
   }
 
   private syncBuildings(serverBuildings: ServerBuilding[]): void {
-    // Remove buildings that no longer exist on server
+    // Sync buildingSpots
     this.buildingSpots = this.buildingSpots.filter(spot =>
       serverBuildings.some(b => b.id === spot.buildingId)
     );
 
+    // Sync playerBuildings
+    const currentPlayerName = this.userService.playerName.value;
+    const currentPlayerId = this.currentGame?.players.find(
+      player => player.name === currentPlayerName
+    )?.id;
+
+    if (currentPlayerId) {
+      // Filter buildings for current player
+      this.playerBuildings = serverBuildings.filter(
+        building => building.playerId === parseInt(currentPlayerId)
+      );
+      
+      // Notify subscribers
+      this.playerBuildings$.next(this.playerBuildings);
+    }
+
     // Add new buildings from server
     serverBuildings.forEach(building => {
-      const exists = this.buildingSpots.some(spot => spot.buildingId === building.id);
+      const exists = this.buildingSpots.some(spot => 
+        spot.buildingId === building.id
+      );
+      
       if (!exists) {
         const playerName = this.currentGame!.players.find(
           player => parseInt(player.id) === building.playerId
         )?.name;
         
         if (playerName) {
-          if(playerName === this.userService.playerName.value)
-          {
-            this.playerBuildings.push(building);
-          }
           this.buildSettlement(playerName, true);
-          
         }
       }
     });
 
-    
-
     this.buildingSpots$.next(this.buildingSpots);
+  }
+
+  getPlayerBuildings(): Observable<ServerBuilding[]> {
+    return this.playerBuildings$.asObservable();
   }
 }

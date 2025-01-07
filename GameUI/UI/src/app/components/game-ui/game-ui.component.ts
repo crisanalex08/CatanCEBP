@@ -68,13 +68,9 @@ export class GameUIComponent {
         });
             
 
-        this.gameBoardService.playerBuildings$.subscribe(buildings => {
-            console.log(buildings);
+        this.gameBoardService.getPlayerBuildings().subscribe(buildings => {
             this.playerBuildings = buildings;
-            console.log("Added",this.playerBuildings);
-            
-        }
-        );
+        });
     }
     rollDice() {
         const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
