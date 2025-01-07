@@ -3,10 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 import { Game } from '../models/game-model';
 import { Building, BuildingSpot, BuildingType, ValidSpot,ServerBuilding } from '../models/building-model';
-import { UserService } from './user-service.service';
+import { UserService } from './user.service';
 import { GameService } from './game-service.service';
 import { GamePlayService } from './gameplay-service';
-import { ConfigService } from './config-service.service';
+import { ConfigService } from './config.service';
 import { PlayersColor } from '../enums/PlayersColor';
 
 

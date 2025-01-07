@@ -21,12 +21,18 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ChipModule } from 'primeng/chip';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { AccordionModule } from 'primeng/accordion';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 import { WebSocketService } from './services/websocket.service';
 import { GameUIComponent } from "./components/game-ui/game-ui.component";
 import { GameChatComponent } from './game-chat/game-chat.component';
 import { GameBoardComponent } from './components/game-board/game-board.component';
-import { GameBoardService } from './services/game-board.service';
+import { GameBoardService } from './services/board.service';
+import { TradeListComponent } from './components/trade-list/trade-list.component';
+import { TradeComponent } from './components/trade/trade.component';
+import { MerchantTradeComponent } from './components/merchant-trade/merchant-trade.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +42,10 @@ import { GameBoardService } from './services/game-board.service';
     InGameComponent,
     GameUIComponent,
     GameChatComponent,
-    GameBoardComponent
+    GameBoardComponent,
+    TradeListComponent,
+    TradeComponent,
+    MerchantTradeComponent
   ],
   imports: [
     BrowserModule,
@@ -52,7 +61,10 @@ import { GameBoardService } from './services/game-board.service';
     InputNumberModule,
     CardModule,
     ToolbarModule,
-    ChipModule
+    ChipModule,
+    OverlayPanelModule,
+    AccordionModule,
+    ConfirmDialogModule
 ],
   providers: [GameService, WebSocketService, GameBoardService],
   bootstrap: [AppComponent]

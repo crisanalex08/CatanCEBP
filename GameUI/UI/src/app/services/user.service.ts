@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, take, tap } from 'rxjs';
-import { ConfigService } from './config-service.service';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'

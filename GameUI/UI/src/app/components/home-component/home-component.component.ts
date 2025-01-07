@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Game, GameCreateDetails } from 'src/app/models/game-model';
 import { GameService } from 'src/app/services/game-service.service';
-import { UserService } from 'src/app/services/user-service.service';
+import { UserService } from 'src/app/services/user.service';
 import { WebSocketService } from 'src/app/services/websocket.service';
 
 

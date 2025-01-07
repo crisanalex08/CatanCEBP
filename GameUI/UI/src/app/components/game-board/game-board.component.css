@@ -1,11 +1,7 @@
 .game-background {
-    position: relative;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    padding: 10px;
-    height: 96vh;
+    position: absolute;
+    height: calc(100vh - 86px);
     width: 100%;
-    overflow: visible;
     display: flex;
     justify-content: center;
     /* Horizontal alignment */

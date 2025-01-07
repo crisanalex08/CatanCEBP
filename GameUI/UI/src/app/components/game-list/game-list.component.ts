@@ -2,8 +2,8 @@ import { Component, Input } from '@angular/core';
 import { Game } from 'src/app/models/game-model';
 import { Router } from '@angular/router';
 import { GameService } from 'src/app/services/game-service.service';
-import { UserService } from 'src/app/services/user-service.service';
-import { User } from 'src/app/models/user.model';
+import { UserService } from 'src/app/services/user.service';
+import { User } from 'src/app/models/user-model';
 @Component({
   selector: 'game-list',
   templateUrl: './game-list.component.html',
