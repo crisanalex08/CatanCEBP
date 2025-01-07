@@ -43,7 +43,7 @@ public class Game {
 
     // @ManyToMany(fetch = FetchType.EAGER)
     // private Set<User> players;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "gameId", fetch = FetchType.EAGER)
     private Set<User> players;
 
 
