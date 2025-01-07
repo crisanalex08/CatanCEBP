@@ -4,24 +4,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.example.gameserver.api.dto.GetMyTradesRequest;
-import com.example.gameserver.api.dto.PlayerTradeRequest;
-import com.example.gameserver.api.dto.User.PlayerDetailsDTO;
+import com.example.gameserver.api.dto.FETradeRequest;
 import com.example.gameserver.entity.*;
-import com.example.gameserver.enums.BuildingType;
 import com.example.gameserver.exceptions.NoPlayerFoundException;
-import com.example.gameserver.repository.*;
 import com.example.gameserver.enums.TradeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.gameserver.repository.GameRepository;
 import com.example.gameserver.repository.ResourceRepository;
 import com.example.gameserver.repository.TradeRepository;
 
-import com.example.gameserver.api.dto.TradeCreateRequestDTO;
+import com.example.gameserver.api.dto.TradeRequest;
 
 import jakarta.transaction.Transactional;
 
@@ -45,7 +40,7 @@ public class TradeService {
         this.tradeRepository = tradeRepository;
     }
     @Transactional
-    public Trade playerTrade(PlayerTradeRequest request) {
+    public Trade playerTrade(TradeRequest request) {
         if(request == null) {
             logger.error("Request body is null.");
             return null;
@@ -62,15 +57,15 @@ public class TradeService {
             return null;
         }
 
-        List<Trade> activeTrades = tradeRepository.findAll().stream().filter(trade -> trade.getFromPlayerId().equals(request.getFromPlayerId()) && trade.getStatus().equals(TradeStatus.ACTIVE)).toList();
+        List<Trade> activeTrades = tradeRepository.findAll().stream().filter(trade -> trade.getFromPlayerId().equals(request.getPlayerId()) && trade.getStatus().equals(TradeStatus.ACTIVE)).toList();
         if (!activeTrades.isEmpty()) {
-            logger.error("Player " + request.getFromPlayerId() + " already has an active trade listed.");
+            logger.error("Player " + request.getPlayerId() + " already has an active trade listed.");
             return null;
         }
 
-        Optional<Resources> resources = resourceRepository.findByGameIdAndPlayerId(request.getGameId(), request.getFromPlayerId());
+        Optional<Resources> resources = resourceRepository.findByGameIdAndPlayerId(request.getGameId(), request.getPlayerId());
         if (resources.isEmpty()) {
-            logger.error("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + request.getFromPlayerId());
+            logger.error("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + request.getPlayerId());
             return null;
         }
 
@@ -81,7 +76,7 @@ public class TradeService {
                 throw new NoPlayerFoundException("GameId: " + request.getGameId());
             }
             for(User player : players) {
-                if(player.getId().equals(request.getFromPlayerId()))
+                if(player.getId().equals(request.getPlayerId()))
                     continue;
                 Optional<Resources> toResources = resourceRepository.findByGameIdAndPlayerId(request.getGameId(), player.getId());
                 if (toResources.isEmpty()) {
@@ -90,7 +85,7 @@ public class TradeService {
                 }
                 Resources toPlayerResources = resources.get();
                 if(toPlayerResources.hasEnoughResources(request.getRequest(), 1)) {
-                    Trade trade = new Trade(request.getGameId(), request.getFromPlayerId(), player.getId(), request.getOffer(), request.getRequest(), TradeStatus.ACTIVE);
+                    Trade trade = new Trade(request.getGameId(), request.getPlayerId(), player.getId(), request.getOffer(), request.getRequest(), TradeStatus.ACTIVE);
                     tradeRepository.save(trade);
                     return trade;
                 }
@@ -105,7 +100,7 @@ public class TradeService {
     }
 
     @Transactional
-    public TradeStatus merchantTrade(TradeCreateRequestDTO request) {
+    public TradeStatus merchantTrade(TradeRequest request) {
         if(request == null) {
             logger.error("Request body is null.");
             return TradeStatus.CANCELLED;

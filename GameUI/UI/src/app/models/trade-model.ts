@@ -14,8 +14,8 @@ export interface Trade{
 export interface MerchantTrade{
     gameId: number;
     playerId: number;
-    offer: ResourceType;
-    request: ResourceType;
+    offer: string;
+    request: string;
 }
 
 export enum TradeStatus{
