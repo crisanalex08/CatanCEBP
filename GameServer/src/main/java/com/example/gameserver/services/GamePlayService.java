@@ -145,10 +145,14 @@ public class GamePlayService {
                 throw new IllegalArgumentException("Building is already at max level");
             }
 
-            if(buildingService.upgradeBuilding(gameId, playerId, buildingId) == BuildingType.CASTLE){
-                return CompletableFuture.completedFuture("WIN");
-            }
-            return CompletableFuture.completedFuture("Building upgraded successfully");
+            BuildingType upgradedBuilding =  buildingService.upgradeBuilding(gameId, playerId, buildingId);
+
+            return switch (upgradedBuilding) {
+                case CASTLE -> CompletableFuture.completedFuture("Castle");
+                case TOWN -> CompletableFuture.completedFuture("Town");
+                default -> CompletableFuture.completedFuture("Building upgraded successfully");
+            };
+
         } catch (Exception e) {
             log.error("Error while upgrading building: {}", e.getMessage());
             return CompletableFuture.completedFuture(e.getMessage());

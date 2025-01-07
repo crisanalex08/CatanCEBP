@@ -222,7 +222,7 @@ public class GameService {
             return;
         }
 
-        if(player.isHost()){
+        if(player.isHost() && game.getStatus() == GameStatus.WAITING) {
             User newHost = game.getPlayers().iterator().next();
             newHost.setHost(true);
             game.setHostId(newHost.getId());
