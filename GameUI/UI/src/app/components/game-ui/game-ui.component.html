@@ -65,7 +65,7 @@
     </div>
   </p-card>
   <p-dialog header="Merchant Trade" [(visible)]="merchantTradeDialogVisible" [modal]="true" [style]="{width: '600px', 'overflow': 'visible'}">
-    <app-merchant-trade (closeDialogEvent)="closeMerchantTradeDialog()" [gameId]="game.id" [playerId]="currentPlayerId"></app-merchant-trade>
+    <app-merchant-trade (closeDialogEvent)="closeMerchantTradeDialog()" [gameId]="game.id" [playerId]="currentPlayerId || 0"></app-merchant-trade>
   </p-dialog>
   <p-card
     header="Resources"
