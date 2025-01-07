@@ -214,14 +214,23 @@ public class GameService {
 
         game.getPlayers().remove(player);
         game.getSettings().setCurrentPlayersCount(game.getPlayers().size());
-
         player.setGameId(null);
+
         if(game.getPlayers().isEmpty()) {
             gameRepository.delete(game);
+            usersRepository.delete(player);
             return;
         }
+
+        if(player.isHost()){
+            User newHost = game.getPlayers().iterator().next();
+            newHost.setHost(true);
+            game.setHostId(newHost.getId());
+            usersRepository.save(newHost);
+        }
+
         gameRepository.save(game);
-        usersRepository.save(player);
+        usersRepository.delete(player);
 
     }
     // Get the game with the given gameId
