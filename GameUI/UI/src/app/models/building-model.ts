@@ -3,7 +3,18 @@ export enum BuildingType {
     Town,
     Castle
 }
-
+export interface ServerBuilding {
+    id: number;
+    type: BuildingType;
+    playerId: number;
+    gameId: number;
+    production:ProductionData[];
+}
+export interface ProductionData {
+    resourceType: 'WOOD' | 'CLAY' | 'STONE' | 'SHEEP' | 'WHEAT' | 'GOLD';
+    productionRate: number;
+    diceValue: number;
+}
 export interface Building {
     type: BuildingType;
     image: string;
