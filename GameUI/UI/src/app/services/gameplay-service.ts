@@ -18,14 +18,16 @@ export class GamePlayService{
         private config: ConfigService
     ) { }
 
-    url = this.config.serverUrl;
-    user: User | undefined;
+    private readonly url = this.config.serverUrl;
+    private user: User | undefined;
 
-    private playerResources = new BehaviorSubject<any>(null);
-    playerResources$ = this.playerResources.asObservable();
+    // Make subject private
+    private readonly playerResources = new BehaviorSubject<any>(null);
+    // Keep observable public
+    readonly playerResources$ = this.playerResources.asObservable();
 
-    private playerBuildings = new BehaviorSubject<any>(null);
-    playerBuildings$ = this.playerBuildings.asObservable();
+    private readonly playerBuildings = new BehaviorSubject<any>(null);
+    readonly playerBuildings$ = this.playerBuildings.asObservable();
 
     private handleError(error: HttpErrorResponse) {
       let errorMessage = 'An error occurred';
@@ -60,15 +62,13 @@ export class GamePlayService{
       const request_url = `${this.url}/api/games/${gameId}/resources/${playerId}`;
       return this.http.get(request_url).pipe(
         tap((resources: any) => {
-          this.playerResources.next(resources);
+          this.updatePlayerResources(resources);
           console.log('Player resources:', resources);
         }),
-        catchError((error) => {
-          console.error('Error:', error);
-          return error
-        })
+        catchError(this.handleError.bind(this))
       );
     }
+   
     //Add method for rolling dice
     rollDice(gameId: number, playerId: string) {
       const request_url = `${this.url}/api/gameplay/${gameId}/roll/${playerId}`;
@@ -108,6 +108,11 @@ export class GamePlayService{
         })
       );  
 
+    }
+
+    // Add method to update resources
+    updatePlayerResources(resources: any) {
+      this.playerResources.next(resources);
     }
 
   }
