@@ -39,6 +39,7 @@ export class TradeService {
 
     return this.http.post(this.config.serverUrl + '/api/games/' + gameId + '/trades/player-trade', trade);
   }
+
   getMyActiveTrades(gameId: number, playerId: number) {
     return this.http.get<Trade[]>(this.config.serverUrl + "/api/games/" + gameId + "/trades/" + playerId + "/trades").pipe(
       tap((res: Trade[]) => {
@@ -46,5 +47,9 @@ export class TradeService {
         this.trades.next([...res]);
       })
     );
+  }
+
+  acceptTrade(gameId: number, tradeId: number) {
+    return this.http.post(this.config.serverUrl + "/api/games/" + gameId + "/trades/accept-trade/" + tradeId, {});
   }
 }
