@@ -95,7 +95,7 @@ export class GameUIComponent implements OnInit, OnDestroy {
         // Existing buildings subscription
         this.subscriptions.push(
             this.gameBoardService.getPlayerBuildings().subscribe(buildings => {
-                this.playerBuildings = buildings;
+                this.playerBuildings = buildings.filter(building => building.playerId === this.currentPlayerId);
             })
         );
     }
@@ -125,7 +125,7 @@ export class GameUIComponent implements OnInit, OnDestroy {
         if (!playerId) {
             return;
         }
-        this.gameBoardService.buildSettlement(this.playerName);
+        this.gameBoardService.buildSettlement(playerId);
     }
 
     upgradeBuilding(building: ServerBuilding) {

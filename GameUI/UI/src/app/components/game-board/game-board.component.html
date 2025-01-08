@@ -1,8 +1,13 @@
 <div class="game-background">
-    <div class="board-container" (click)="getCursorPosition($event)">
-        <img src="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/MapWithSpotsColored.png" alt="Image">
-        <div class="game-building" *ngFor="let spot of buildingSpots" [style.left]="spot.x + '%'" [style.top]="spot.y + '%'">
-            <img [src]="getBuildingImage(spot.building?.type?.toString() || '')" alt="Image">
+    <div class="board-container">
+        <img src="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/MapWithSpotsColored.png" 
+             alt="Game Board">
+        <div class="game-building" 
+             *ngFor="let building of playerBuildings" 
+             [style.left]="building.x + '%'" 
+             [style.top]="building.y + '%'">
+            <img [src]="getBuildingImage(building.type)"
+                 [alt]="building.type">
         </div>
     </div>
 </div>

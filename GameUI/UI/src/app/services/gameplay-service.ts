@@ -109,7 +109,7 @@ export class GamePlayService{
       return this.http.get(request_url).pipe(
         tap((buildings: any) => {
           this.playerBuildings.next(buildings);
-          console.log('Player buildings:', buildings);
+          
         }),
         catchError((error) => {
           console.error('Error:', error);

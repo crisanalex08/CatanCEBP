@@ -174,7 +174,7 @@
           [image]="getBuildingImage(building.type.toString())">
         </p-chip>
       
-        <div (click)="upgradeBuilding(building)" class="upgrade-button">
+        <div (click)="upgradeBuilding(building)" class="upgrade-button" *ngIf="building.type !== 'CASTLE'">
           <i class="pi pi-angle-double-up"></i>
         </div>
     
