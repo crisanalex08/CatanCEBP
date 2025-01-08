@@ -31,9 +31,28 @@ export class TradeComponent {
     this.selectedRequest = '';
   }
 
+  mapResourceType(resourceType: string) {
+    switch (resourceType) {
+      case 'WOOD':
+        return ResourceType.WOOD;
+      case 'CLAY':
+        return ResourceType.CLAY;
+      case 'STONE':
+        return ResourceType.STONE;
+      case 'SHEEP':
+        return ResourceType.SHEEP;
+      case 'WHEAT':
+        return ResourceType.WHEAT;
+      case 'GOLD':
+        return ResourceType.GOLD;
+      default:
+        return ResourceType.WOOD;
+    }
+  }
+
   tradeResources() {
     this.closeDialogEvent.emit();
-    this.tradeService.createPlayerTrade(this.selectedRequest, this.selectedOffer, this.gameId, this.playerId).subscribe();
+    this.tradeService.createPlayerTrade(this.mapResourceType(this.selectedRequest), this.mapResourceType(this.selectedOffer), this.gameId, this.playerId).subscribe();
     console.log(`Offer: ${this.selectedOffer}, Request: ${this.selectedRequest}`);
   }
 

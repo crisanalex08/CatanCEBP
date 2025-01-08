@@ -6,16 +6,16 @@ export interface Trade{
     gameId: number;
     fromPlayerId: number;
     toPlayerId: number;
-    resourceOffered: Resource;
-    resourceRequested: Resource;
-    tradeStatus: TradeStatus;
+    offer: ResourceType;
+    request: ResourceType;
+    status: TradeStatus;
 }
 
 export interface MerchantTrade{
     gameId: number;
     playerId: number;
-    offer: string;
-    request: string;
+    offer: ResourceType;
+    request: ResourceType;
 }
 
 export enum TradeStatus{

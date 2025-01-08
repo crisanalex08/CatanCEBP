@@ -52,7 +52,7 @@ export class MerchantTradeComponent {
 
   tradeResources() {
     this.closeDialogEvent.emit();
-    this.tradeService.createMerchantTrade(this.selectedRequest, this.selectedOffer, this.gameId, this.playerId).subscribe();
+    this.tradeService.createMerchantTrade(this.mapResourceType(this.selectedRequest), this.mapResourceType(this.selectedOffer), this.gameId, this.playerId).subscribe();
     console.log(`Offer: ${this.selectedOffer}, Request: ${this.selectedRequest}`);
   }
 

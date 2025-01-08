@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.example.gameserver.api.dto.FETradeRequest;
 import com.example.gameserver.entity.*;
 import com.example.gameserver.exceptions.NoPlayerFoundException;
 import com.example.gameserver.enums.TradeStatus;
@@ -180,11 +179,11 @@ public class TradeService {
 
         Resources fromPlayerResources = fromResources.get();
         Resources toPlayerResources = toResources.get();
-        if(fromPlayerResources.hasEnoughResources(trade.getOffering(), 1) && toPlayerResources.hasEnoughResources(trade.getRequesting(), 1)) {
-            fromPlayerResources.subtract(trade.getOffering(), 1);
-            fromPlayerResources.add(trade.getRequesting(), 1);
-            toPlayerResources.subtract(trade.getRequesting(), 1);
-            toPlayerResources.add(trade.getOffering(), 1);
+        if(fromPlayerResources.hasEnoughResources(trade.getOffer(), 1) && toPlayerResources.hasEnoughResources(trade.getRequest(), 1)) {
+            fromPlayerResources.subtract(trade.getOffer(), 1);
+            fromPlayerResources.add(trade.getRequest(), 1);
+            toPlayerResources.subtract(trade.getRequest(), 1);
+            toPlayerResources.add(trade.getOffer(), 1);
             resourceRepository.save(fromPlayerResources);
             resourceRepository.save(toPlayerResources);
             return TradeStatus.COMPLETED;

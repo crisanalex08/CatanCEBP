@@ -2,7 +2,6 @@ package com.example.gameserver.api.controllers;
 
 import java.util.List;
 
-import com.example.gameserver.api.dto.FETradeRequest;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.enums.TradeStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +43,8 @@ public class TradeController {
 
     @Operation (summary = "Make a merchant trade")
     @PostMapping("/merchant-trade")
-    public ResponseEntity<TradeStatus> createMerchantTrade(@RequestBody FETradeRequest request) {
-        ResourceType off = this.ResourceMap.get(request.getOffer());
-        ResourceType req = this.ResourceMap.get(request.getRequest());
-        TradeStatus tradeStatus = tradeService.merchantTrade(new TradeRequest(request.getGameId(), request.getPlayerId(), off, req));
+    public ResponseEntity<TradeStatus> createMerchantTrade(@RequestBody TradeRequest request) {
+        TradeStatus tradeStatus = tradeService.merchantTrade(request);
         if (tradeStatus == TradeStatus.CANCELLED) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -56,10 +53,8 @@ public class TradeController {
 
     @Operation (summary = "List a player trade")
     @PostMapping("/player-trade")
-    public ResponseEntity<Trade> createPlayerTrade(@RequestBody FETradeRequest request) {
-        ResourceType off = this.ResourceMap.get(request.getOffer());
-        ResourceType req = this.ResourceMap.get(request.getRequest());
-        Trade trade = tradeService.playerTrade(new TradeRequest(request.getGameId(), request.getPlayerId(), off, req));
+    public ResponseEntity<Trade> createPlayerTrade(@RequestBody TradeRequest request) {
+        Trade trade = tradeService.playerTrade(request);
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
