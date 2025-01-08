@@ -151,7 +151,7 @@ public class TradeService {
     }
 
     @Transactional
-    public TradeStatus acceptTrade(Long gameId, Long playerId, Long tradeId) {
+    public TradeStatus acceptTrade(Long gameId, Long tradeId) {
         Optional<Game> game = gameRepository.findById(gameId);
         if (game.isEmpty()) {
             logger.error("Game not found, ID: " + gameId);
@@ -167,13 +167,13 @@ public class TradeService {
 
         Optional<Resources> fromResources = resourceRepository.findByGameIdAndPlayerId(gameId, trade.getFromPlayerId());
         if (fromResources.isEmpty()) {
-            logger.error("Resources not found, Game ID: " + gameId + ", Player ID: " + playerId);
+            logger.error("Resources not found, Game ID: " + gameId + ", Player ID: " + trade.getFromPlayerId());
             return TradeStatus.CANCELLED;
         }
 
-        Optional<Resources> toResources = resourceRepository.findByGameIdAndPlayerId(gameId, playerId);
+        Optional<Resources> toResources = resourceRepository.findByGameIdAndPlayerId(gameId, trade.getToPlayerId());
         if (toResources.isEmpty()) {
-            logger.error("Resources not found, Game ID: " + gameId + ", Player ID: " + playerId);
+            logger.error("Resources not found, Game ID: " + gameId + ", Player ID: " + trade.getToPlayerId());
             return TradeStatus.CANCELLED;
         }
 
@@ -197,8 +197,24 @@ public class TradeService {
 
     // Still to be discussed
     @Transactional
-    public Trade declineTrade(String gameId, String playerId, String tradeId) {
-        return null;
+    public Trade declineTrade(Long gameId, Long tradeId) {
+        Optional<Game> game = gameRepository.findById(gameId);
+        if (game.isEmpty()) {
+            logger.error("Game not found, ID: " + gameId);
+            return null;
+        }
+
+        Optional<Trade> optionalTrade = tradeRepository.findByGameIdAndTradeId(gameId, tradeId);
+        if (optionalTrade.isEmpty()) {
+            logger.error("Trade not found, ID: " + tradeId);
+            return null;
+        }
+
+        Trade trade = optionalTrade.get();
+        tradeRepository.delete(trade);
+
+        return trade;
+
     }
 
     

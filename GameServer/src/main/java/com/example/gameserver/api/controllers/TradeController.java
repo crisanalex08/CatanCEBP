@@ -73,9 +73,9 @@ public class TradeController {
     }
 
     @Operation (summary = "Accept a trade")
-    @PutMapping("/{playerId}/accept-trade/{tradeId}")
-    public ResponseEntity<Trade> acceptTrade(@PathVariable Long gameId,@PathVariable Long tradeId, @PathVariable Long playerId) {
-        TradeStatus tradeStatus = tradeService.acceptTrade(gameId, playerId, tradeId);
+    @PutMapping("/accept-trade/{tradeId}")
+    public ResponseEntity<Trade> acceptTrade(@PathVariable Long gameId,@PathVariable Long tradeId) {
+        TradeStatus tradeStatus = tradeService.acceptTrade(gameId, tradeId);
         if (tradeStatus == TradeStatus.CANCELLED) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -83,9 +83,9 @@ public class TradeController {
     }
 
     @Operation (summary = "Decline a trade")
-    @DeleteMapping("/{playerId}/decline-trade/{tradeId}")   
-    public ResponseEntity<Trade> declineTrade(@PathVariable String gameId,@PathVariable String tradeId, @PathVariable String playerId) {
-        Trade trade = tradeService.declineTrade(gameId, playerId, tradeId);
+    @DeleteMapping("/decline-trade/{tradeId}")
+    public ResponseEntity<Trade> declineTrade(@PathVariable Long gameId,@PathVariable Long tradeId) {
+        Trade trade = tradeService.declineTrade(gameId, tradeId);
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
