@@ -1,0 +1,30 @@
+.trade-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    overflow: visible;
+  }
+  
+  .offer, .request {
+    flex: 1;
+    margin: 0 0.5rem;
+    position: relative;
+  }
+
+  .dialog-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+
+  .trade-buttons {
+    display: flex;
+    justify-content:  space-between;
+  }
+
+  .trade-buttons > * {
+    margin: 0 0.5rem;
+  }

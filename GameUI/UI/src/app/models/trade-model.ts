@@ -6,9 +6,9 @@ export interface Trade{
     gameId: number;
     fromPlayerId: number;
     toPlayerId: number;
-    resourceOffered: Resource;
-    resourceRequested: Resource;
-    tradeStatus: TradeStatus;
+    offer: ResourceType;
+    request: ResourceType;
+    status: TradeStatus;
 }
 
 export interface MerchantTrade{

@@ -1,1 +1,21 @@
-<p>trade-list works!</p>
+<p-table [value]="trades" 
+[tableStyle]="{ 'min-width': '10rem' }"
+[paginator]="false"
+[rows]="2"
+ >
+    <ng-template pTemplate="header">
+        <tr>
+            <th>To give</th>
+            <th>To get</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-trade>
+        <tr>
+            <td>{{ trade.offer }}</td>
+            <td>{{ trade.request }}</td>
+            <!-- <td><button pButton  (click)="joinGame(game)" [disabled]="isJoinButtonDisabled()">Join</button></td> -->
+            <td><button pButton >Accept</button></td>
+            <td><button pButton >Decline</button></td>
+        </tr>
+    </ng-template>
+</p-table>

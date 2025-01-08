@@ -8,6 +8,7 @@ import { HomeComponent } from './components/home-component/home-component.compon
 import { GameService } from './services/game-service.service';
 import { HttpClientModule } from '@angular/common/http';
 import { GameListComponent } from './components/game-list/game-list.component';
+import { TradeListComponent } from './components/trade-list/trade-list.component';
 import { InGameComponent } from './components/in-game/in-game.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -30,7 +31,7 @@ import { GameUIComponent } from "./components/game-ui/game-ui.component";
 import { GameChatComponent } from './game-chat/game-chat.component';
 import { GameBoardComponent } from './components/game-board/game-board.component';
 import { GameBoardService } from './services/board.service';
-import { TradeListComponent } from './components/trade-list/trade-list.component';
+// import { TradeListComponent } from './components/trade-list/trade-list.component';
 import { TradeComponent } from './components/trade/trade.component';
 import { MerchantTradeComponent } from './components/merchant-trade/merchant-trade.component';
 
@@ -39,11 +40,11 @@ import { MerchantTradeComponent } from './components/merchant-trade/merchant-tra
     AppComponent,
     HomeComponent,
     GameListComponent,
+    TradeListComponent,
     InGameComponent,
     GameUIComponent,
     GameChatComponent,
     GameBoardComponent,
-    TradeListComponent,
     TradeComponent,
     MerchantTradeComponent
   ],

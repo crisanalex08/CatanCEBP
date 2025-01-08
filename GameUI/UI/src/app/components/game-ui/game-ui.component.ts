@@ -16,6 +16,7 @@ import { ServerBuilding } from 'src/app/models/building-model';
 })
 export class GameUIComponent {
     merchantTradeDialogVisible = false;
+    playerTradeDialogVisible = false;
     @Output() sendMessageEvent = new EventEmitter<ChatMessage>();
 
     gameId: number = -1;
@@ -50,6 +51,10 @@ export class GameUIComponent {
         this.merchantTradeDialogVisible = false;
     }
 
+    closePlayerTradeDialog() {
+        this.playerTradeDialogVisible = false;
+    }
+
     ngOnInit() {
 
         this.gameService.currentGame$.subscribe(game => {
@@ -79,6 +84,10 @@ export class GameUIComponent {
 
     showMerchantTradeDialog() {
         this.merchantTradeDialogVisible = true;
+    }
+
+    showPlayerTradeDialog() {
+        this.playerTradeDialogVisible = true;
     }
 
     rollDice() {

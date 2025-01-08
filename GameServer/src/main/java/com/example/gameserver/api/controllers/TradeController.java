@@ -2,21 +2,22 @@ package com.example.gameserver.api.controllers;
 
 import java.util.List;
 
-import com.example.gameserver.api.dto.GetMyTradesRequest;
-import com.example.gameserver.api.dto.PlayerTradeRequest;
+import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.enums.TradeStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.gameserver.api.dto.TradeCreateRequestDTO;
+import com.example.gameserver.api.dto.TradeRequest;
 import com.example.gameserver.entity.Trade;
 import com.example.gameserver.services.TradeService;
 
 import io.swagger.v3.oas.annotations.Operation;
 //import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -26,6 +27,15 @@ public class TradeController {
 
     private final TradeService tradeService;
 
+    private final Map<String, ResourceType> ResourceMap = new HashMap<>() {{
+        put("WOOD", ResourceType.WOOD);
+        put("CLAY", ResourceType.CLAY);
+        put("STONE", ResourceType.STONE);
+        put("SHEEP", ResourceType.SHEEP);
+        put("WHEAT", ResourceType.WHEAT);
+        put("GOLD", ResourceType.GOLD);
+    }};
+
     @Autowired
     public TradeController(TradeService tradeService) {
         this.tradeService = tradeService;
@@ -33,7 +43,7 @@ public class TradeController {
 
     @Operation (summary = "Make a merchant trade")
     @PostMapping("/merchant-trade")
-    public ResponseEntity<TradeStatus> createMerchantTrade(@RequestBody TradeCreateRequestDTO request) {
+    public ResponseEntity<TradeStatus> createMerchantTrade(@RequestBody TradeRequest request) {
         TradeStatus tradeStatus = tradeService.merchantTrade(request);
         if (tradeStatus == TradeStatus.CANCELLED) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -43,7 +53,7 @@ public class TradeController {
 
     @Operation (summary = "List a player trade")
     @PostMapping("/player-trade")
-    public ResponseEntity<Trade> createPlayerTrade(@RequestBody PlayerTradeRequest request) {
+    public ResponseEntity<Trade> createPlayerTrade(@RequestBody TradeRequest request) {
         Trade trade = tradeService.playerTrade(request);
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
