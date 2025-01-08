@@ -116,8 +116,12 @@ export class InGameComponent implements OnInit, OnDestroy {
         if (message.data.includes('content')) {
           let chatMessage: ChatMessage = JSON.parse(message.data);
           if (chatMessage.sender === 'System') {
-              if(chatMessage.content.includes('SETTLEMENT')) {
+              if(chatMessage.content.includes('SETTLEMENT') || chatMessage.content.includes('TOWN') || chatMessage.content.includes('CASTLE')){
                   this.gameBoardService.updateAllBuildings();
+              }
+              if(chatMessage.content.includes('GameWon by Player')){
+                  const winnerName = chatMessage.content.split(' ')[4];
+                  console.log('GameWon by Player:', winnerName);
               }
           
             this.updateGameInfo();

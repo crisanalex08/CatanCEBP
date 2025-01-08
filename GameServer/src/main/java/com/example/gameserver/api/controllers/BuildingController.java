@@ -37,7 +37,7 @@ public class BuildingController {
             if (playerBuildings == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(playerBuildings, HttpStatus.CREATED);
+            return new ResponseEntity<>(playerBuildings, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -50,7 +50,7 @@ public class BuildingController {
         if (newBuilding == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(newBuilding, HttpStatus.CREATED);
+        return new ResponseEntity<>(newBuilding, HttpStatus.OK);
     }
 
     // This may need to communicate with ResourceService to get player resources

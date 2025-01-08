@@ -20,6 +20,7 @@ import com.example.gameserver.api.dto.GameMessage;
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
 import com.example.gameserver.models.DiceRollResponse;
+import com.example.gameserver.repository.UsersRepository;
 import com.example.gameserver.services.BuildingService;
 import com.example.gameserver.services.GamePlayService;
 import com.example.gameserver.services.GameService;
@@ -109,14 +110,18 @@ public class GamePlayController {
     public ResponseEntity<?> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
         try {
             Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
+
+          
+
             String upgradedBuilding = result.get();
 
             switch (upgradedBuilding){
                 case "Castle":
+                    sendSystemMessage(gameId, "Player with Id: " + playerId + " has upgraded a Town to Castle");
                     sendSystemMessage(gameId, "GameWon by Player: " + playerId);
                     gameService.endGame(gameId);
-                    buildingService.clearBuildings(gameId);
-                    resourceService.clearResources(gameId);
+                    // buildingService.clearBuildings(gameId);
+                    // resourceService.clearResources(gameId);
                     break;
                 case "Town":
                     sendSystemMessage(gameId, "Player with Id: " + playerId + " has upgraded a Settlement to Town");

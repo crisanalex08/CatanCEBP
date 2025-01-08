@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ResourceType } from 'src/app/models/resource-model';
 import { GameService } from 'src/app/services/game-service.service';
+import { GamePlayService } from 'src/app/services/gameplay-service';
 import { TradeService } from 'src/app/services/trade.service';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-merchant-trade',
@@ -10,8 +12,8 @@ import { TradeService } from 'src/app/services/trade.service';
 })
 export class MerchantTradeComponent {
   @Output() closeDialogEvent = new EventEmitter<void>();
-  @Input() gameId: number;
-  @Input() playerId: number;
+  @Input() gameId!: number;
+  @Input() playerId!: number;
 
   ResourceType = [
     { label: 'Wood', value: 'WOOD' },
@@ -26,6 +28,7 @@ export class MerchantTradeComponent {
   selectedRequest: string;
 
   constructor(private tradeService: TradeService,
+    private gamePlayerService: GamePlayService,
     private gameService: GameService) {
     this.selectedOffer = '';
     this.selectedRequest = '';
@@ -52,8 +55,26 @@ export class MerchantTradeComponent {
 
   tradeResources() {
     this.closeDialogEvent.emit();
-    this.tradeService.createMerchantTrade(this.mapResourceType(this.selectedRequest), this.mapResourceType(this.selectedOffer), this.gameId, this.playerId).subscribe();
-    console.log(`Offer: ${this.selectedOffer}, Request: ${this.selectedRequest}`);
+    
+    this.tradeService.createMerchantTrade(
+      this.mapResourceType(this.selectedRequest), 
+      this.mapResourceType(this.selectedOffer), 
+      this.gameId, 
+      this.playerId
+    ).pipe(
+      // Chain getPlayerResources after successful trade
+      switchMap(() => this.gamePlayerService.getPlayerResources(this.gameId, this.playerId.toString()))
+    ).subscribe({
+      next: (resources) => {
+        // Update resources in GamePlayService
+        // this.gamePlayerService.playerResources.next(resources);
+        // this.gamePlayerService.playerResources$.next(resources);
+        console.log('Trade completed and resources updated:', resources);
+      },
+      error: (err) => {
+        console.error('Error in trade or fetching resources:', err);
+      }
+    });
   }
 
   closeDialog() {
