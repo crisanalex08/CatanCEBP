@@ -18,7 +18,9 @@ export class GameUIComponent {
     merchantTradeDialogVisible = false;
     playerTradeDialogVisible = false;
     @Output() sendMessageEvent = new EventEmitter<ChatMessage>();
-
+    @Input() game: Game = {} as Game;
+    currentPlayerId: number | null = null;
+    playerBuildings: ServerBuilding[] = [];
     gameId: number = -1;
     playerName: string = '';
     currentPlayerResources: PlayerResources['quantities'] = {
@@ -42,10 +44,6 @@ export class GameUIComponent {
         private gameBoardService: GameBoardService
 
     ) { }
-    @Input() game: Game = {} as Game;
-    currentPlayer: string | null = null;
-    currentPlayerId: number | null = null;
-    playerBuildings: ServerBuilding[] = [];
 
     closeMerchantTradeDialog() {
         this.merchantTradeDialogVisible = false;
@@ -56,7 +54,6 @@ export class GameUIComponent {
     }
 
     ngOnInit() {
-
         this.gameService.currentGame$.subscribe(game => {
             this.game = game;
             if (!this.game.id) {

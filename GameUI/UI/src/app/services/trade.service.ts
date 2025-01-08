@@ -18,7 +18,7 @@ export class TradeService {
     private config: ConfigService
   ) { }
 
-  createMerchantTrade(request: ResourceType, offer: ResourceType, gameId: number, playerId: number){
+  createMerchantTrade(request: ResourceType, offer: ResourceType, gameId: number, playerId: number) {
     let trade: MerchantTrade = {
       gameId: gameId,
       playerId: playerId,
@@ -29,7 +29,7 @@ export class TradeService {
     return this.http.post(this.config.serverUrl + '/api/games/' + gameId + '/trades/merchant-trade', trade);
   }
 
-  createPlayerTrade(request: ResourceType, offer: ResourceType, gameId: number, playerId: number){
+  createPlayerTrade(request: ResourceType, offer: ResourceType, gameId: number, playerId: number) {
     let trade: MerchantTrade = {
       gameId: gameId,
       playerId: playerId,
@@ -39,12 +39,12 @@ export class TradeService {
 
     return this.http.post(this.config.serverUrl + '/api/games/' + gameId + '/trades/player-trade', trade);
   }
-
   getMyActiveTrades(gameId: number, playerId: number) {
     return this.http.get<Trade[]>(this.config.serverUrl + "/api/games/" + gameId + "/trades/" + playerId + "/trades").pipe(
-          tap((res: Trade[]) => {
-            this.trades.next([...res]);
-          })
-        );
+      tap((res: Trade[]) => {
+        console.log("Trades", res);
+        this.trades.next([...res]);
+      })
+    );
   }
 }
