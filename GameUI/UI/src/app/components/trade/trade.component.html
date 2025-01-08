@@ -13,8 +13,8 @@
     </div>
     <div class="confirm-message"
         *ngIf="selectedOffer && selectedRequest && selectedOffer !== selectedRequest">
-        <p>You are about to request one {{ selectedOffer }} for one {{
-            selectedRequest }}</p>
+        <p>You are about to request one {{ selectedRequest }} for one {{
+            selectedOffer }}</p>
     </div>
     <div class="trade-buttons">
         <button pButton type="button" label="Trade" (click)="tradeResources()"

@@ -194,16 +194,14 @@
   </p-card>
   <p-card
   header="Active Trades"
-  [style]="{ width: '20rem',
-    height: '20rem', 
+  [style]="{ width: '30rem',
+    height: 'calc()', 
     overflow: 'hidden',
     'position': 'fixed',
     'left': '0',
     'zIndex': '100', 
     'top': '30rem',}">
-    <div class="trade-list-container">
-      <app-trade-list ></app-trade-list>
-    </div>
+      <app-trade-list [gameId]="game.id" [playerId]="currentPlayerId"></app-trade-list>
   </p-card>
   
   <div class="game-board">

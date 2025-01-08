@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Route, Router } from '@angular/router';
 import { GameService } from 'src/app/services/game-service.service';
+import { TradeService } from 'src/app/services/trade.service';
 import { Game } from 'src/app/models/game-model';
 import { UserService } from 'src/app/services/user.service';
 import { WebSocketService } from 'src/app/services/websocket.service';
@@ -32,7 +33,8 @@ export class InGameComponent implements OnInit, OnDestroy {
     private gamePlayService: GamePlayService,
     private gameBoardService: GameBoardService,
     private router: Router,
-    private WebSocketService: WebSocketService
+    private WebSocketService: WebSocketService,
+    private tradeService: TradeService
   ) { }
 
   private wsUrl = 'ws://localhost:8080/lobby';
@@ -123,6 +125,21 @@ export class InGameComponent implements OnInit, OnDestroy {
               }
           
             this.updateGameInfo();
+            this.tradeService.getMyActiveTrades
+
+          }
+          this.chatService.addMessage(chatMessage);
+        }
+
+        if (message.data.includes('created a trade')) {
+          let chatMessage: ChatMessage = JSON.parse(message.data);
+          if (chatMessage.sender === 'System') {
+            const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
+            if (!playerId) {
+                return;
+            }
+            const currentPlayerId = parseInt(playerId.toString());
+            this.tradeService.getMyActiveTrades(this.gameId, currentPlayerId).subscribe();
           }
           this.chatService.addMessage(chatMessage);
         }

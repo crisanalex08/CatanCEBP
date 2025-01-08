@@ -82,11 +82,15 @@ public class TradeService {
                     logger.error("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + player.getId());
                     return null;
                 }
-                Resources toPlayerResources = resources.get();
+                Resources toPlayerResources = toResources.get();
                 if(toPlayerResources.hasEnoughResources(request.getRequest(), 1)) {
+                    logger.error("Player " + player.getId() + " has one " + request.getRequest() + " available.");
                     Trade trade = new Trade(request.getGameId(), request.getPlayerId(), player.getId(), request.getOffer(), request.getRequest(), TradeStatus.ACTIVE);
                     tradeRepository.save(trade);
                     return trade;
+                }
+                else {
+                    logger.error("Player " + player.getId() + " doesn't have one " + request.getRequest() + " available.");
                 }
             }
             logger.error("There are no players having the requested resource.");
@@ -151,7 +155,7 @@ public class TradeService {
     }
 
     @Transactional
-    public TradeStatus acceptTrade(Long gameId, Long playerId, Long tradeId) {
+    public TradeStatus acceptTrade(Long gameId, Long tradeId) {
         Optional<Game> game = gameRepository.findById(gameId);
         if (game.isEmpty()) {
             logger.error("Game not found, ID: " + gameId);
@@ -167,13 +171,13 @@ public class TradeService {
 
         Optional<Resources> fromResources = resourceRepository.findByGameIdAndPlayerId(gameId, trade.getFromPlayerId());
         if (fromResources.isEmpty()) {
-            logger.error("Resources not found, Game ID: " + gameId + ", Player ID: " + playerId);
+            logger.error("Resources not found, Game ID: " + gameId + ", Player ID: " + trade.getFromPlayerId());
             return TradeStatus.CANCELLED;
         }
 
-        Optional<Resources> toResources = resourceRepository.findByGameIdAndPlayerId(gameId, playerId);
+        Optional<Resources> toResources = resourceRepository.findByGameIdAndPlayerId(gameId, trade.getToPlayerId());
         if (toResources.isEmpty()) {
-            logger.error("Resources not found, Game ID: " + gameId + ", Player ID: " + playerId);
+            logger.error("Resources not found, Game ID: " + gameId + ", Player ID: " + trade.getToPlayerId());
             return TradeStatus.CANCELLED;
         }
 
@@ -186,6 +190,8 @@ public class TradeService {
             toPlayerResources.add(trade.getOffer(), 1);
             resourceRepository.save(fromPlayerResources);
             resourceRepository.save(toPlayerResources);
+            tradeRepository.delete(trade);
+            logger.error("Trade was completed successfully.");
             return TradeStatus.COMPLETED;
         }
         else {
@@ -197,8 +203,24 @@ public class TradeService {
 
     // Still to be discussed
     @Transactional
-    public Trade declineTrade(String gameId, String playerId, String tradeId) {
-        return null;
+    public Trade declineTrade(Long gameId, Long tradeId) {
+        Optional<Game> game = gameRepository.findById(gameId);
+        if (game.isEmpty()) {
+            logger.error("Game not found, ID: " + gameId);
+            return null;
+        }
+
+        Optional<Trade> optionalTrade = tradeRepository.findByGameIdAndTradeId(gameId, tradeId);
+        if (optionalTrade.isEmpty()) {
+            logger.error("Trade not found, ID: " + tradeId);
+            return null;
+        }
+
+        Trade trade = optionalTrade.get();
+        tradeRepository.delete(trade);
+
+        return trade;
+
     }
 
     

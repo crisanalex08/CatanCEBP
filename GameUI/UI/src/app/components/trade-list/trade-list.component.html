@@ -1,5 +1,5 @@
 <p-table [value]="trades" 
-[tableStyle]="{ 'min-width': '10rem' }"
+[tableStyle]="{ 'min-width': '20rem' }"
 [paginator]="false"
 [rows]="2"
  >
@@ -13,9 +13,10 @@
         <tr>
             <td>{{ trade.offer }}</td>
             <td>{{ trade.request }}</td>
-            <!-- <td><button pButton  (click)="joinGame(game)" [disabled]="isJoinButtonDisabled()">Join</button></td> -->
-            <td><button pButton >Accept</button></td>
-            <td><button pButton >Decline</button></td>
+            <td><button pButton  (click)="acceptTrade(trade.gameId, trade.tradeId)" >Accept</button></td>
+            <td><button pButton  (click)="declineTrade(trade.gameId, trade.tradeId)" >Decline</button></td>
+            <!-- <td><button pButton >Accept</button></td>
+            <td><button pButton >Decline</button></td> -->
         </tr>
     </ng-template>
 </p-table>
