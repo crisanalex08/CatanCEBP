@@ -26,4 +26,19 @@ export class TradeListComponent {
     });
   }
 
+  acceptTrade(gameId : number, tradeId : number) {
+    this.tradeService.acceptTrade(gameId, tradeId).subscribe({
+        next: () => {
+          this.trades = this.trades.filter(trade => trade.tradeId !== tradeId);
+        }
+    });
+  }
+
+  declineTrade(gameId : number, tradeId : number) {
+    this.tradeService.declineTrade(gameId, tradeId).subscribe({
+      next: () => {
+        this.trades = this.trades.filter(trade => trade.tradeId !== tradeId);
+      }
+    });
+  }
 }

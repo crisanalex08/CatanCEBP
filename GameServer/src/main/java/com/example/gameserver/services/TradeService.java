@@ -82,11 +82,15 @@ public class TradeService {
                     logger.error("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + player.getId());
                     return null;
                 }
-                Resources toPlayerResources = resources.get();
+                Resources toPlayerResources = toResources.get();
                 if(toPlayerResources.hasEnoughResources(request.getRequest(), 1)) {
+                    logger.error("Player " + player.getId() + " has one " + request.getRequest() + " available.");
                     Trade trade = new Trade(request.getGameId(), request.getPlayerId(), player.getId(), request.getOffer(), request.getRequest(), TradeStatus.ACTIVE);
                     tradeRepository.save(trade);
                     return trade;
+                }
+                else {
+                    logger.error("Player " + player.getId() + " doesn't have one " + request.getRequest() + " available.");
                 }
             }
             logger.error("There are no players having the requested resource.");
@@ -186,6 +190,8 @@ public class TradeService {
             toPlayerResources.add(trade.getOffer(), 1);
             resourceRepository.save(fromPlayerResources);
             resourceRepository.save(toPlayerResources);
+            tradeRepository.delete(trade);
+            logger.error("Trade was completed successfully.");
             return TradeStatus.COMPLETED;
         }
         else {

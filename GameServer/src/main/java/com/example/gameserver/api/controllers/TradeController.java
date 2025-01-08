@@ -1,9 +1,15 @@
 package com.example.gameserver.api.controllers;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.gameserver.websocket.GamesWebSocketHandler;
+import com.example.gameserver.api.dto.GameMessage;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.enums.TradeStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +22,20 @@ import com.example.gameserver.services.TradeService;
 import io.swagger.v3.oas.annotations.Operation;
 //import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.socket.TextMessage;
+import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 
 @CrossOrigin
+@Slf4j
 @RestController
 @RequestMapping("/api/games/{gameId}/trades/")
 @Tag(name = "Trade Controller", description = "Operations to manage trades")
 public class TradeController {
 
     private final TradeService tradeService;
+    private final GamesWebSocketHandler gamesWebSocketHandler;
 
     private final Map<String, ResourceType> ResourceMap = new HashMap<>() {{
         put("WOOD", ResourceType.WOOD);
@@ -37,7 +47,8 @@ public class TradeController {
     }};
 
     @Autowired
-    public TradeController(TradeService tradeService) {
+    public TradeController(TradeService tradeService, GamesWebSocketHandler gamesWebSocketHandler) {
+        this.gamesWebSocketHandler = gamesWebSocketHandler;
         this.tradeService = tradeService;
     }
 
@@ -48,6 +59,7 @@ public class TradeController {
         if (tradeStatus == TradeStatus.CANCELLED) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        sendSystemMessage(request.getGameId(), "Player: " + request.getPlayerId() + " has done a merchant trade.");
         return new ResponseEntity<>(tradeStatus, HttpStatus.CREATED);
     }
 
@@ -58,8 +70,8 @@ public class TradeController {
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        sendSystemMessage(request.getGameId(), "Player: " + request.getPlayerId() +" has created a trade.");
         return new ResponseEntity<>(trade, HttpStatus.CREATED);
-
     }
 
     @Operation (summary = "Get all active trades that a player can accept")
@@ -73,12 +85,13 @@ public class TradeController {
     }
 
     @Operation (summary = "Accept a trade")
-    @PutMapping("/accept-trade/{tradeId}")
+    @PostMapping("/accept-trade/{tradeId}")
     public ResponseEntity<Trade> acceptTrade(@PathVariable Long gameId,@PathVariable Long tradeId) {
         TradeStatus tradeStatus = tradeService.acceptTrade(gameId, tradeId);
         if (tradeStatus == TradeStatus.CANCELLED) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        sendSystemMessage(gameId, "Trade: " + tradeId + " has been accepted.");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -89,6 +102,27 @@ public class TradeController {
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        sendSystemMessage(gameId, "Trade: " + tradeId + " has been declined.");
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private void sendSystemMessage(Long gameId, String content){
+        GameMessage message = new GameMessage();
+        message.setGameId(gameId);
+        message.setSender("System");
+        message.setContent(content);
+        message.setTimestamp(LocalDateTime.now());
+
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        try {
+            String jsonMessage = mapper.writeValueAsString(message);
+            gamesWebSocketHandler.broadcastToLobby(gameId.toString(), new TextMessage(jsonMessage));
+        }
+        catch (Exception e) {
+            log.error("GamePlayController: Error sending system message, could not map the message to string! ", e);
+        }
     }
 }

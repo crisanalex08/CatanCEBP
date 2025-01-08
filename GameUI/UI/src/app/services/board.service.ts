@@ -158,6 +158,8 @@ export class GameBoardService {
       });
   }
 
+  
+
   private syncBuildings(serverBuildings: ServerBuilding[]): void {
     // Sync buildingSpots
     this.buildingSpots = this.buildingSpots.filter(spot =>

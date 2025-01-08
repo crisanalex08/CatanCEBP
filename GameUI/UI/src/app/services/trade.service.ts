@@ -52,4 +52,8 @@ export class TradeService {
   acceptTrade(gameId: number, tradeId: number) {
     return this.http.post(this.config.serverUrl + "/api/games/" + gameId + "/trades/accept-trade/" + tradeId, {});
   }
+
+  declineTrade(gameId: number, tradeId: number) {
+    return this.http.delete(this.config.serverUrl + "/api/games/" + gameId + "/trades/decline-trade/" + tradeId, {});
+  }
 }
