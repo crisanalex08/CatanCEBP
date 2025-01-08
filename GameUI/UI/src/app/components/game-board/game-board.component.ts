@@ -22,11 +22,12 @@ export class GameBoardComponent implements OnInit {
     private gameBoardService: GameBoardService,
     private gamePlayService: GamePlayService
   ) { }
-
+   private readonly BASE_IMAGE_URL = 'https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/';
   ngOnInit() {
     // Subscribe to building spots updates
     this.gameBoardService.getBuildingSpots().subscribe(spots => {
       this.buildingSpots = spots;
+      console.log('Building spots updated', this.buildingSpots);
     });
 
     this.gameBoardService.updateAllBuildings();
@@ -42,5 +43,19 @@ export class GameBoardComponent implements OnInit {
     const y = ((event.clientY - rect.top) / rect.height) * 100;
 
     console.log(`x: ${x}, y: ${y}`);
-  }    
+  }
+
+  getBuildingImage(buildingType: string): string {
+    switch (buildingType) {
+        case 'SETTLEMENT':
+            return `${this.BASE_IMAGE_URL}Settlement.png`;
+        case 'TOWN':
+            return `${this.BASE_IMAGE_URL}Town.png`;
+        case 'CASTLE':
+            return `${this.BASE_IMAGE_URL}Castle.png`;
+        default:
+            return '';
+    }
+}
+      
 }

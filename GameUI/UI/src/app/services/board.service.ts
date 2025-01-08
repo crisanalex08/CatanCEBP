@@ -123,6 +123,28 @@ export class GameBoardService {
       });
   }
 
+  public upgradeBuilding(playerId: string, gameId: number, building: any) {
+    if (!this.currentGame) {
+      console.error('No active game');
+      return;
+    }
+
+    this.gamePlayService.upgradeBuilding(this.currentGame.id, playerId, building)
+      .pipe(
+        catchError(error => {
+          console.error('Error upgrading building:', error);
+          return of(null);
+        })
+      )
+      .subscribe(response => {
+        if (response) {
+          this.updateAllBuildings();
+        }
+      });
+  }
+
+  
+
   private handleExistingSettlement(playerIndex: number, spot: ValidSpot): void {
     const playerId = this.currentGame!.players[playerIndex].id;
     this.addBuildingSpot(playerIndex, spot, playerId);

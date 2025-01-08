@@ -64,6 +64,27 @@
   flex-direction: column;
   gap: 1rem;
 }
+.building-label{
+ display: flex;
+ flex-direction: row;
+ align-items: center;
+  justify-content: center;
+}
+.building-label .upgrade-button{
+  background-color: var(--primary-color);
+  color:black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+  width: 3rem;
+  border-radius: 20px;
+  height: 2rem;
+}
+.building-label .upgrade-button:hover{
+  background-color: #ffd64fbe;
+  color:aliceblue;
+}
 
 
 .building-production

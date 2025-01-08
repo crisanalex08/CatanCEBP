@@ -128,6 +128,15 @@ export class GameUIComponent implements OnInit, OnDestroy {
         this.gameBoardService.buildSettlement(this.playerName);
     }
 
+    upgradeBuilding(building: ServerBuilding) {
+        console.log('Upgrade building:', building);
+        const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
+        if (!playerId) {
+            return;
+        }
+        this.gameBoardService.upgradeBuilding(playerId,this.gameId, building);
+    }
+
 
     sendMessage(message: ChatMessage) {
         this.sendMessageEvent.emit(message);

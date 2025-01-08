@@ -70,7 +70,7 @@
     <app-merchant-trade (closeDialogEvent)="closeMerchantTradeDialog()" [gameId]="game.id" [playerId]="currentPlayerId || 0"></app-merchant-trade>
   </p-dialog>
   <p-dialog header="Request a trade with a player" [(visible)]="playerTradeDialogVisible" [modal]="true" [style]="{width: '600px', 'overflow': 'visible'}">
-    <app-trade (closeDialogEvent)="closePlayerTradeDialog()" [gameId]="game.id" [playerId]="currentPlayerId"></app-trade>
+    <app-trade (closeDialogEvent)="closePlayerTradeDialog()" [gameId]="game.id" [playerId]="currentPlayerId!"></app-trade>
   </p-dialog>
   <p-card
     header="Resources"
@@ -168,10 +168,17 @@
       }">
     <div class="buildings-container">
       <div class="building-container" *ngFor="let building of playerBuildings">
+        <span class="building-label">
         <p-chip
           [label]="building.type.toString()"
           [image]="getBuildingImage(building.type.toString())">
         </p-chip>
+      
+        <div (click)="upgradeBuilding(building)" class="upgrade-button">
+          <i class="pi pi-angle-double-up"></i>
+        </div>
+    
+      </span>
         <div class="building-production">
           <span *ngFor="let resource of building.production">
             <p-chip

@@ -2,7 +2,7 @@
     <div class="board-container" (click)="getCursorPosition($event)">
         <img src="https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/MapWithSpotsColored.png" alt="Image">
         <div class="game-building" *ngFor="let spot of buildingSpots" [style.left]="spot.x + '%'" [style.top]="spot.y + '%'">
-            <img [src]="spot.building?.image" alt="Building">
+            <img [src]="getBuildingImage(spot.building?.type?.toString() || '')" alt="Image">
         </div>
     </div>
 </div>

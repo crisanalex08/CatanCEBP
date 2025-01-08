@@ -94,6 +94,15 @@ export class GamePlayService{
         catchError(this.handleError.bind(this))
       );
     }
+    upgradeBuilding(gameId: number, playerId: string, building: any) {
+      const request_url = `${this.url}/api/gameplay/${gameId}/upgrade/${playerId}/${building.id}`;
+      return this.http.post(request_url, {}).pipe(
+        tap(() => {
+          console.log('Building upgraded');
+        }),
+        catchError(this.handleError.bind(this))
+      );
+    }
 
     getAllBuildings(gameId: number) {
       const request_url = `${this.url}/api/gameplay/${gameId}/buildings`;

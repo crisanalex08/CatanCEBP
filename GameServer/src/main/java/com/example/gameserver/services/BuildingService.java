@@ -7,6 +7,7 @@ import com.example.gameserver.enums.BuildingType;
 import com.example.gameserver.enums.GameStatus;
 import com.example.gameserver.enums.ResourceType;
 import com.example.gameserver.exceptions.*;
+import com.example.gameserver.models.ProductionData;
 import com.example.gameserver.repository.BuildingRepository;
 import com.example.gameserver.repository.GameRepository;
 
@@ -21,8 +22,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -223,8 +228,9 @@ public class BuildingService {
                 playerResources.subtract(ResourceType.CLAY, 2);
                 playerResources.subtract(ResourceType.WHEAT, 2);
 
+                buildingToUpgrade.get().setProduction(setProductionData(BuildingType.TOWN));
                 buildingToUpgrade.get().setType(BuildingType.TOWN);
-
+                
                 resourceRepository.save(playerResources);
                 buildingRepository.save(buildingToUpgrade.get());
                 return BuildingType.TOWN;
@@ -243,6 +249,42 @@ public class BuildingService {
                 logger.error("Building is already at max level");
                 return null;
         }
+    }
+    public List<ProductionData> setProductionData(BuildingType type)
+    {
+        List<ResourceType> possibleResources = new ArrayList<>();
+
+        List<ProductionData> list = new ArrayList<>();
+        if(type == BuildingType.TOWN) {
+
+            possibleResources = Arrays.asList(
+                ResourceType.WHEAT, 
+                ResourceType.SHEEP, 
+                ResourceType.GOLD
+            );
+        }
+            Collections.shuffle(possibleResources);
+            List<ResourceType> resources = possibleResources.subList(0, 2);
+            
+            Random random = new Random();
+            Set<Integer> diceValues = new HashSet<>();
+
+            for(ResourceType resource : resources) {
+                ProductionData data = new ProductionData();
+                data.setResourceType(resource);
+                data.setProductionRate(1);
+                int diceValue;
+                do {
+                    diceValue = random.nextInt(6) + 1;
+                } while (diceValues.contains(diceValue));
+                
+                diceValues.add(diceValue);
+                data.setDiceValue(diceValue);
+                data.setResourceType(resource);
+                list.add(data);
+                
+            }
+            return list;
     }
 
     @Async
