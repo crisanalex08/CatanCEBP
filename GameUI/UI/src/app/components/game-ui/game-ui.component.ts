@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Game, PlayerResources } from 'src/app/models/game-model';
 import { ChatMessage } from 'src/app/models/message-model';
 import { GameBoardService } from 'src/app/services/board.service';
@@ -14,8 +15,9 @@ import { ServerBuilding } from 'src/app/models/building-model';
     templateUrl: './game-ui.component.html',
     styleUrl: './game-ui.component.css'
 })
-export class GameUIComponent {
+export class GameUIComponent implements OnInit, OnDestroy {
     merchantTradeDialogVisible = false;
+    playerTradeDialogVisible = false;
     @Output() sendMessageEvent = new EventEmitter<ChatMessage>();
 
     gameId: number = -1;
@@ -32,6 +34,7 @@ export class GameUIComponent {
     playersColor = PlayersColor;
 
     private readonly BASE_IMAGE_URL = 'https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/';
+    private subscriptions: Subscription[] = [];
 
     constructor(
         private route: ActivatedRoute,
@@ -50,35 +53,63 @@ export class GameUIComponent {
         this.merchantTradeDialogVisible = false;
     }
 
+    closePlayerTradeDialog() {
+        this.playerTradeDialogVisible = false;
+    }
+
     ngOnInit() {
+        // Existing game subscription
+        this.subscriptions.push(
+            this.gameService.currentGame$.subscribe(game => {
+                this.game = game;
+                if (!this.game.id) {
+                    return;
+                }
 
-        this.gameService.currentGame$.subscribe(game => {
-            this.game = game;
-            if (!this.game.id) {
-                return;
-            }
+                this.playerName = localStorage.getItem('username') ?? '';
+                const playerId = this.game.players.find(player => 
+                    player.name === localStorage.getItem('username')
+                )?.id;
+                
+                if (!playerId) {
+                    return;
+                }
+                this.currentPlayerId = parseInt(playerId.toString());
+                this.game.status == "IN_PROGRESS" && this.gamePlayService.getPlayerResources(this.game.id, playerId).subscribe({
+                    next: resources => {
+                        this.currentPlayerResources = resources.quantities;
+                    }
+                });
+            })
+        );
 
-            this.playerName = localStorage.getItem('username') ?? '';
-            const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
-            if (!playerId) {
-                return;
-            }
-            this.currentPlayerId = parseInt(playerId.toString());
-            this.game.status == "IN_PROGRESS" && this.gamePlayService.getPlayerResources(this.game.id, playerId).subscribe({
-                next: resources => {
+        // Add subscription to player resources
+        this.subscriptions.push(
+            this.gamePlayService.playerResources$.subscribe(resources => {
+                if (resources) {
                     this.currentPlayerResources = resources.quantities;
                 }
-            });
-        });
+            })
+        );
 
+        // Existing buildings subscription
+        this.subscriptions.push(
+            this.gameBoardService.getPlayerBuildings().subscribe(buildings => {
+                this.playerBuildings = buildings.filter(building => building.playerId === this.currentPlayerId);
+            })
+        );
+    }
 
-        this.gameBoardService.getPlayerBuildings().subscribe(buildings => {
-            this.playerBuildings = buildings;
-        });
+    ngOnDestroy() {
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 
     showMerchantTradeDialog() {
         this.merchantTradeDialogVisible = true;
+    }
+
+    showPlayerTradeDialog() {
+        this.playerTradeDialogVisible = true;
     }
 
     rollDice() {
@@ -94,7 +125,16 @@ export class GameUIComponent {
         if (!playerId) {
             return;
         }
-        this.gameBoardService.buildSettlement(this.playerName);
+        this.gameBoardService.buildSettlement(playerId);
+    }
+
+    upgradeBuilding(building: ServerBuilding) {
+        console.log('Upgrade building:', building);
+        const playerId = this.game.players.find(player => player.name === localStorage.getItem('username'))?.id;
+        if (!playerId) {
+            return;
+        }
+        this.gameBoardService.upgradeBuilding(playerId,this.gameId, building);
     }
 
 

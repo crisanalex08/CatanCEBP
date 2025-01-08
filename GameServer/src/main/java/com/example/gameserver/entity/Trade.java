@@ -17,9 +17,9 @@ public class Trade {
     private Long fromPlayerId;
     private Long toPlayerId;
     @Enumerated(EnumType.STRING)
-    private ResourceType offering;
+    private ResourceType offer;
     @Enumerated(EnumType.STRING)
-    private ResourceType requesting;
+    private ResourceType request;
     @Enumerated(EnumType.STRING)
     private TradeStatus status;
     //    private Date created;
@@ -29,8 +29,8 @@ public class Trade {
         this.gameId = gameId;
         this.fromPlayerId = fromPlayerId;
         this.toPlayerId = toPlayerId;
-        this.offering = offer;
-        this.requesting = request;
+        this.offer = offer;
+        this.request = request;
         this.status = tradeStatus;
     }
 

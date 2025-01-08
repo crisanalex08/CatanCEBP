@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, tap, map } from 'rxjs';
 import { Game } from '../models/game-model';
-import { Building, BuildingSpot, BuildingType, ValidSpot,ServerBuilding } from '../models/building-model';
+import { Building, BuildingSpot, BuildingType, ValidSpot, ServerBuilding } from '../models/building-model';
 import { UserService } from './user.service';
 import { GameService } from './game-service.service';
 import { GamePlayService } from './gameplay-service';
@@ -14,7 +14,7 @@ import { PlayersColor } from '../enums/PlayersColor';
   providedIn: 'root',
 })
 export class GameBoardService {
-  private readonly validSpots:ValidSpot[] = [
+  private readonly validSpots: ValidSpot[] = [
     // ORANGE
     { x: 39, y: 80, radius: 10, color: 'ORANGE' },
     { x: 58, y: 78, radius: 10, color: 'ORANGE' },
@@ -49,9 +49,6 @@ export class GameBoardService {
   ];
 
   private currentGame?: Game;
-  private buildingSpots: BuildingSpot[] = [];
-  private buildingSpots$ = new BehaviorSubject<BuildingSpot[]>(this.buildingSpots);
-
   private playerBuildings: ServerBuilding[] = [];
   private playerBuildings$ = new BehaviorSubject<ServerBuilding[]>(this.playerBuildings);
 
@@ -63,53 +60,19 @@ export class GameBoardService {
   ) {
     this.gameService.currentGame$.subscribe(game => {
       this.currentGame = game;
+      if (game?.id) {
+        this.updateAllBuildings();
+      }
     });
   }
 
-  getBuildingSpots(): Observable<BuildingSpot[]> {
-    return this.buildingSpots$.asObservable();
-  }
-
-  buildSettlement(playerName: string, buildingExists = false): void {
+  buildSettlement(playerId: string): void {
     if (!this.currentGame) {
       console.error('No active game');
       return;
     }
 
-    const playerIndex = this.currentGame.players.findIndex(
-      player => player.name === playerName
-    );
-
-    if (playerIndex === -1) {
-      console.error('Player not found');
-      return;
-    }
-
-    const availableSpot = this.findAvailableSpot(playerIndex);
-    if (!availableSpot) {
-      console.error('No available spots');
-      return;
-    }
-
-    if (!buildingExists) {
-      this.handleNewSettlement(playerIndex, availableSpot);
-    } else {
-      this.handleExistingSettlement(playerIndex, availableSpot);
-    }
-  }
-
-  private findAvailableSpot(playerIndex: number): ValidSpot | undefined {
-    return this.validSpots.find(
-      spot =>
-        spot.color === PlayersColor[playerIndex] &&
-        !this.buildingSpots.some(bs => bs.x === spot.x && bs.y === spot.y)
-    );
-  }
-
-  private handleNewSettlement(playerIndex: number, spot: ValidSpot): void {
-    const playerId = this.currentGame!.players[playerIndex].id;
-    
-    this.gamePlayService.buildSettlement(this.currentGame!.id, playerId)
+    this.gamePlayService.buildSettlement(this.currentGame.id, playerId)
       .pipe(
         catchError(error => {
           console.error('Error building settlement:', error);
@@ -118,29 +81,29 @@ export class GameBoardService {
       )
       .subscribe(response => {
         if (response) {
-          this.addBuildingSpot(playerIndex, spot, playerId);
+          this.updateAllBuildings();
         }
       });
   }
 
-  private handleExistingSettlement(playerIndex: number, spot: ValidSpot): void {
-    const playerId = this.currentGame!.players[playerIndex].id;
-    this.addBuildingSpot(playerIndex, spot, playerId);
-  }
+  public upgradeBuilding(playerId: string, gameId: number, building: any) {
+    if (!this.currentGame) {
+      console.error('No active game');
+      return;
+    }
 
-  private addBuildingSpot(playerIndex: number, spot: ValidSpot, playerId: string): void {
-    const newSpot: BuildingSpot = {
-      buildingId: Date.now(), // Temporary ID until server provides one
-      playerId,
-      playerIndex,
-      x: spot.x,
-      y: spot.y,
-      playerColor: PlayersColor[playerIndex],
-      building: this.buildings[0],
-    };
-
-    this.buildingSpots.push(newSpot);
-    this.buildingSpots$.next(this.buildingSpots);
+    this.gamePlayService.upgradeBuilding(this.currentGame.id, playerId, building)
+      .pipe(
+        catchError(error => {
+          console.error('Error upgrading building:', error);
+          return of(null);
+        })
+      )
+      .subscribe(response => {
+        if (response) {
+          this.updateAllBuildings();
+        }
+      });
   }
 
   updateAllBuildings(): void {
@@ -154,53 +117,55 @@ export class GameBoardService {
         })
       )
       .subscribe(buildings => {
-        this.syncBuildings(buildings);
+        this.playerBuildings = buildings;
+        this.playerBuildings$.next(this.playerBuildings);
       });
-  }
-
-  private syncBuildings(serverBuildings: ServerBuilding[]): void {
-    // Sync buildingSpots
-    this.buildingSpots = this.buildingSpots.filter(spot =>
-      serverBuildings.some(b => b.id === spot.buildingId)
-    );
-
-    // Sync playerBuildings
-    const currentPlayerName = this.userService.playerName.value;
-    const currentPlayerId = this.currentGame?.players.find(
-      player => player.name === currentPlayerName
-    )?.id;
-
-    if (currentPlayerId) {
-      // Filter buildings for current player
-      this.playerBuildings = serverBuildings.filter(
-        building => building.playerId === parseInt(currentPlayerId)
-      );
-      
-      // Notify subscribers
-      this.playerBuildings$.next(this.playerBuildings);
-    }
-
-    // Add new buildings from server
-    serverBuildings.forEach(building => {
-      const exists = this.buildingSpots.some(spot => 
-        spot.buildingId === building.id
-      );
-      
-      if (!exists) {
-        const playerName = this.currentGame!.players.find(
-          player => parseInt(player.id) === building.playerId
-        )?.name;
-        
-        if (playerName) {
-          this.buildSettlement(playerName, true);
-        }
-      }
-    });
-
-    this.buildingSpots$.next(this.buildingSpots);
   }
 
   getPlayerBuildings(): Observable<ServerBuilding[]> {
     return this.playerBuildings$.asObservable();
+  }
+
+  getBuildingsForDisplay(): Observable<ServerBuilding[]> {
+    return this.playerBuildings$.asObservable().pipe(
+      map(buildings => {
+        // Group buildings by player ID to handle multiple buildings per player
+        const buildingsByPlayer = new Map<number, ServerBuilding[]>();
+        
+        buildings.forEach(building => {
+          if (!buildingsByPlayer.has(building.playerId)) {
+            buildingsByPlayer.set(building.playerId, []);
+          }
+          buildingsByPlayer.get(building.playerId)!.push(building);
+        });
+
+        // Process each player's buildings and assign unique coordinates
+        return buildings.map(building => {
+          const playerColor = this.getPlayerColor(building.playerId);
+          const playerSpots = this.validSpots.filter(spot => spot.color === playerColor);
+          
+          // Get all buildings for this player
+          const playerBuildings = buildingsByPlayer.get(building.playerId) || [];
+          // Find index of current building in player's building list
+          const buildingIndex = playerBuildings.findIndex(b => b.id === building.id);
+          
+          // Get corresponding spot (use modulo in case there are more buildings than spots)
+          const spot = playerSpots[buildingIndex % playerSpots.length];
+          
+          return {
+            ...building,
+            x: spot?.x ?? 0,
+            y: spot?.y ?? 0
+          };
+        });
+      })
+    );
+  }
+
+  private getPlayerColor(playerId: number): string {
+    const playerIndex = this.currentGame?.players.findIndex(
+      p => parseInt(p.id) === playerId
+    ) ?? -1;
+    return PlayersColor[playerIndex] || '';
   }
 }
