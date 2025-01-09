@@ -127,7 +127,7 @@ public class GamePlayService {
 
     
     @Async
-    public CompletableFuture<String> upgradeBuilding(Long gameId, Long playerId, Long buildingId) {
+    public CompletableFuture<Building> upgradeBuilding(Long gameId, Long playerId, Long buildingId) {
         try {
             Building building = buildingService.getBuildingInfo(gameId, playerId, buildingId).get();
             
@@ -143,17 +143,17 @@ public class GamePlayService {
                 throw new IllegalArgumentException("Building is already at max level");
             }
 
-            BuildingType upgradedBuilding =  buildingService.upgradeBuilding(gameId, playerId, buildingId);
+            Building upgradedBuilding =  buildingService.upgradeBuilding(gameId, playerId, buildingId);
 
-            return switch (upgradedBuilding) {
-                case CASTLE -> CompletableFuture.completedFuture("Castle");
-                case TOWN -> CompletableFuture.completedFuture("Town");
-                default -> CompletableFuture.completedFuture("Building upgraded successfully");
-            };
+            if (upgradedBuilding == null) {
+                throw new IllegalArgumentException("Failed to upgrade building");
+            }
+            return CompletableFuture.completedFuture(upgradedBuilding);
 
         } catch (Exception e) {
             log.error("Error while upgrading building: {}", e.getMessage());
-            return CompletableFuture.completedFuture(e.getMessage());
+            System.out.println(e.getMessage());
+            throw new IllegalArgumentException("Failed to upgrade building because: " + e.getMessage());
         }
     }
     

@@ -3,9 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Game, GameCreateDetails } from '../models/game-model';
 import { UserService } from './user.service';
 import { User } from '../models/user-model';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, catchError, tap } from 'rxjs';
 import { tick } from '@angular/core/testing';
 import { ConfigService } from './config.service';
+import { MessageService } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class GameService {
   constructor(
     private http: HttpClient,
     private userService: UserService,
+    private messageService: MessageService,
     private config: ConfigService
   ) { }
 
@@ -53,7 +55,14 @@ export class GameService {
         games.push(res);
         this.games.next([...games]);
         this.currentGame.next(res);
-      })
+      }),
+      catchError((error) => {
+        console.error('Error:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message + ".Please try other name!" });
+        return [];
+      }
+    )
+      
     );
   }
 

@@ -115,30 +115,35 @@ public class GamePlayController {
     @PostMapping("/{gameId}/upgrade/{playerId}/{buildingId}")
     public ResponseEntity<?> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
         try {
-            Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
+            Future<Building> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
 
             String userName = getUserName(playerId);
           
 
-            String upgradedBuilding = result.get();
+            String upgradedBuilding = result.get().getType().toString();
             System.out.println(upgradedBuilding);
             switch (upgradedBuilding){
                 
-                case "Castle":
+                case "CASTLE":
                     sendSystemMessage(gameId, "Player " + userName + " has upgraded a Town to Castle");
                     sendSystemMessage(gameId, "GameWon by Player: " + userName);
                     gameService.endGame(gameId);
                     buildingService.clearBuildings(gameId);
                     resourceService.clearResources(gameId);
                     break;
-                case "Town":
+                case "TOWN":
                     sendSystemMessage(gameId, "Player " + userName + " has upgraded a Settlement to Town");
                     break;
                 
             }
-            return ResponseEntity.ok(upgradedBuilding);
+            return ResponseEntity.ok(result.get());
         } catch (Exception e) {
             log.error("Error upgrading building", e);
+            String message = e.getMessage().split(":")[2];
+            if(message.contains("Player does not have enough resources to perform this action"))
+            {
+                return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

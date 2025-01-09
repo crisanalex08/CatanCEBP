@@ -7,6 +7,7 @@ import java.util.Set;
 import com.example.gameserver.entity.*;
 import com.example.gameserver.exceptions.GameNotFoundException;
 import com.example.gameserver.exceptions.NoPlayerFoundException;
+import com.example.gameserver.exceptions.NotEnoughResourcesException;
 import com.example.gameserver.enums.TradeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,6 +203,7 @@ public class TradeService {
         }
         else {
             logger.error("Players have no longer enough resources to trade.");
+           
         }
         return TradeStatus.CANCELLED;
     }

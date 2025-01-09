@@ -55,13 +55,13 @@ public class BuildingController {
 
     // This may need to communicate with ResourceService to get player resources
     @PostMapping("/{playerId}/{buildingId}/upgrade")
-    public ResponseEntity<BuildingType> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
-        BuildingType upgradedType =  buildingService.upgradeBuilding(gameId, playerId, buildingId);
-        if (upgradedType == null) {
+    public ResponseEntity<Building> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
+        Building upgraded =  buildingService.upgradeBuilding(gameId, playerId, buildingId);
+        if (upgraded == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         }
-        return new ResponseEntity<>(upgradedType, HttpStatus.OK);
+        return new ResponseEntity<>(upgraded, HttpStatus.OK);
     }
 
 
