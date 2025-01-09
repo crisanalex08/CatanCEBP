@@ -50,10 +50,6 @@
         severity="secondary"
         (click)="buildSettlement()"
         label="Build Settlement"></p-button>
-      <p-button
-        class="action-button"
-        severity="secondary"
-        label="Upgrade Construction"></p-button>
       <p-button (onClick)="showMerchantTradeDialog()" icon="pi pi-arrow-right-arrow-left"
         label="Merchant Trade" class="action-button" />
       <p-button (onClick)="showPlayerTradeDialog()" icon="pi pi-arrow-right-arrow-left"
@@ -192,17 +188,23 @@
       </div>
     </div>
   </p-card>
-  <p-card
-  header="Active Trades"
-  [style]="{ width: '30rem',
-    height: 'calc()', 
+
+  <p-button #opTradeButton
+  id="tradeButton"
+  (click)="opTrade.show($event)"
+  (onClick)="opTrade.toggle($event)"
+  label="Trades"
+  [style]="{ width: '20rem', 
     overflow: 'hidden',
     'position': 'fixed',
     'left': '0',
-    'zIndex': '100', 
-    'top': '30rem',}">
-      <app-trade-list [gameId]="game.id" [playerId]="currentPlayerId"></app-trade-list>
-  </p-card>
+    'zIndex': '100',
+    'font-weight': 'bold',
+    'bottom': '0'}">
+</p-button>
+  <p-overlayPanel #opTrade [showCloseIcon]="true" [focusOnShow]="false" [appendTo]="opTradeButton">
+      <app-trade-list [gameId]="game.id" [playerId]="currentPlayerId!" (closeOverlay)="closeTradeOverlay()"></app-trade-list>
+  </p-overlayPanel>
   
   <div class="game-board">
     <app-game-board [game]="game"></app-game-board>

@@ -258,7 +258,7 @@ public class BuildingService {
         if(type == BuildingType.TOWN) {
 
             possibleResources = Arrays.asList(
-                ResourceType.WHEAT, 
+                ResourceType.STONE, 
                 ResourceType.SHEEP, 
                 ResourceType.GOLD
             );

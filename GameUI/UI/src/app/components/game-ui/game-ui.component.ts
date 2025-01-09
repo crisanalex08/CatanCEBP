@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, AfterContentInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { filter, Subscription, take } from 'rxjs';
 import { Game, PlayerResources } from 'src/app/models/game-model';
 import { ChatMessage } from 'src/app/models/message-model';
 import { GameBoardService } from 'src/app/services/board.service';
@@ -9,6 +9,8 @@ import { GamePlayService } from 'src/app/services/gameplay-service';
 import { WebSocketService } from 'src/app/services/websocket.service';
 import { PlayersColor } from 'src/app/enums/PlayersColor';
 import { ServerBuilding } from 'src/app/models/building-model';
+import { TradeService } from 'src/app/services/trade.service';
+import { OverlayPanel } from 'primeng/overlaypanel';
 
 @Component({
     selector: 'app-game-ui',
@@ -20,10 +22,13 @@ export class GameUIComponent implements OnInit, OnDestroy {
     playerTradeDialogVisible = false;
     @Output() sendMessageEvent = new EventEmitter<ChatMessage>();
     @Input() game: Game = {} as Game;
+    @ViewChild('opTradeButton', { static: true }) opTradeButton!: ElementRef;
+    @ViewChild('opTrade') opTrade!: OverlayPanel
     currentPlayerId: number | null = null;
     playerBuildings: ServerBuilding[] = [];
     gameId: number = -1;
     playerName: string = '';
+    showTrades = false;
     currentPlayerResources: PlayerResources['quantities'] = {
         WOOD: 0,
         CLAY: 0,
@@ -37,14 +42,16 @@ export class GameUIComponent implements OnInit, OnDestroy {
 
     private readonly BASE_IMAGE_URL = 'https://raw.githubusercontent.com/crisanalex08/CatanCEBP/refs/heads/main/GameUI/UI/src/assets/images/';
     private subscriptions: Subscription[] = [];
+    private tradeSubscription?: Subscription;
 
     constructor(
         private route: ActivatedRoute,
         private gameService: GameService,
         private gamePlayService: GamePlayService,
         private WebSocketService: WebSocketService,
-        private gameBoardService: GameBoardService
-
+        private gameBoardService: GameBoardService,
+        private tradeService: TradeService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     closeMerchantTradeDialog() {
@@ -57,6 +64,21 @@ export class GameUIComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         // Existing game subscription
+        this.tradeService.trades.subscribe(trades => {
+            if (trades.length > 0) {
+                // Get the button element after all updates are done
+                const buttonElement = document.querySelector('#tradeButton');
+                const childreen = buttonElement?.children;
+                if (buttonElement) {
+                    const event = new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window
+                    });
+                    this.opTrade.show(event, childreen![0]);
+                }
+            }
+        });
         this.subscriptions.push(
             this.gameService.currentGame$.subscribe(game => {
                 this.game = game;
@@ -65,10 +87,10 @@ export class GameUIComponent implements OnInit, OnDestroy {
                 }
 
                 this.playerName = localStorage.getItem('username') ?? '';
-                const playerId = this.game.players.find(player => 
+                const playerId = this.game.players.find(player =>
                     player.name === localStorage.getItem('username')
                 )?.id;
-                
+
                 if (!playerId) {
                     return;
                 }
@@ -132,7 +154,7 @@ export class GameUIComponent implements OnInit, OnDestroy {
         if (!playerId) {
             return;
         }
-        this.gameBoardService.upgradeBuilding(playerId,this.gameId, building);
+        this.gameBoardService.upgradeBuilding(playerId, this.gameId, building);
     }
 
 
@@ -171,4 +193,7 @@ export class GameUIComponent implements OnInit, OnDestroy {
         }
     }
 
+    closeTradeOverlay() {
+        this.opTrade.hide();
+    }
 }

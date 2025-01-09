@@ -17,12 +17,16 @@ import { GameBoardService } from 'src/app/services/board.service';
   styleUrl: './in-game.component.css',
 })
 export class InGameComponent implements OnInit, OnDestroy {
+
   @Input() playerName: string = '';
   gameId: number = -1;
   game: Game = {} as Game;
   IsGameStarted: boolean = false;
   IsHost: boolean = false;
   IsStarting: boolean = false;
+  showGameWonDialog: boolean = false;
+  winnerName: string = '';
+  isWinner: boolean = false;
   private wsSubscription: Subscription | undefined;
 
   constructor(
@@ -50,6 +54,14 @@ export class InGameComponent implements OnInit, OnDestroy {
       next: (game) => {
         this.game = game as Game;
         this.gameService.currentGame.next(this.game);
+
+        if(this.game.status === 'FINISHED'){
+          this.winnerName = this.game.players[0].name;
+          this.showGameWonDialog = true;
+          if(this.winnerName === this.playerName){
+            this.isWinner = true;
+          }
+        }
 
         this.gameService.currentGame$.subscribe({
           next: (game) => {
@@ -120,8 +132,12 @@ export class InGameComponent implements OnInit, OnDestroy {
                   this.gameBoardService.updateAllBuildings();
               }
               if(chatMessage.content.includes('GameWon by Player')){
-                  const winnerName = chatMessage.content.split(' ')[4];
-                  console.log('GameWon by Player:', winnerName);
+                  this.winnerName = chatMessage.content.split('GameWon by Player: ')[1];
+                  this.showGameWonDialog = true;
+                  if(this.winnerName === this.playerName){
+                      this.isWinner = true;
+                  }
+                  
               }
           
             this.updateGameInfo();

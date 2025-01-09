@@ -10,8 +10,8 @@ import { TradeService } from 'src/app/services/trade.service';
 })
 export class TradeComponent {
   @Output() closeDialogEvent = new EventEmitter<void>();
-  @Input() gameId: number;
-  @Input() playerId: number;
+  @Input() gameId!: number;
+  @Input() playerId!: number;
 
   ResourceType = [
     { label: 'Wood', value: 'WOOD' },
@@ -51,8 +51,8 @@ export class TradeComponent {
   }
 
   tradeResources() {
-    this.closeDialogEvent.emit();
     this.tradeService.createPlayerTrade(this.mapResourceType(this.selectedRequest), this.mapResourceType(this.selectedOffer), this.gameId, this.playerId).subscribe();
+    this.closeDialog();
     console.log(`Offer: ${this.selectedOffer}, Request: ${this.selectedRequest}`);
   }
 

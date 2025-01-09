@@ -110,12 +110,6 @@ export class GameBoardService {
     if (!this.currentGame) return;
 
     this.gamePlayService.getAllBuildings(this.currentGame.id)
-      .pipe(
-        catchError(error => {
-          console.error('Error fetching buildings:', error);
-          return of([]);
-        })
-      )
       .subscribe(buildings => {
         this.playerBuildings = buildings;
         this.playerBuildings$.next(this.playerBuildings);

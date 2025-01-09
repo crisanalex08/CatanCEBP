@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TradeService } from 'src/app/services/trade.service';
 import { Trade } from 'src/app/models/trade-model';
 
@@ -8,6 +8,7 @@ import { Trade } from 'src/app/models/trade-model';
   styleUrl: './trade-list.component.css'
 })
 export class TradeListComponent {
+  @Output() closeOverlay = new EventEmitter<void>();
   @Input() playerId: number;
   @Input() gameId: number;
 
@@ -27,6 +28,7 @@ export class TradeListComponent {
   }
 
   acceptTrade(gameId : number, tradeId : number) {
+    this.closeOverlay.emit();
     this.tradeService.acceptTrade(gameId, tradeId).subscribe({
         next: () => {
           this.trades = this.trades.filter(trade => trade.tradeId !== tradeId);
@@ -35,6 +37,7 @@ export class TradeListComponent {
   }
 
   declineTrade(gameId : number, tradeId : number) {
+    this.closeOverlay.emit();
     this.tradeService.declineTrade(gameId, tradeId).subscribe({
       next: () => {
         this.trades = this.trades.filter(trade => trade.tradeId !== tradeId);
