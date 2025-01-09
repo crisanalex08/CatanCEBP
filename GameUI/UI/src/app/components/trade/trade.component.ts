@@ -9,7 +9,6 @@ import { TradeService } from 'src/app/services/trade.service';
   styleUrl: './trade.component.css'
 })
 export class TradeComponent {
-  @Output() closeDialogEvent = new EventEmitter<void>();
   @Input() gameId: number;
   @Input() playerId: number;
 
@@ -51,12 +50,10 @@ export class TradeComponent {
   }
 
   tradeResources() {
-    this.closeDialogEvent.emit();
     this.tradeService.createPlayerTrade(this.mapResourceType(this.selectedRequest), this.mapResourceType(this.selectedOffer), this.gameId, this.playerId).subscribe();
     console.log(`Offer: ${this.selectedOffer}, Request: ${this.selectedRequest}`);
   }
 
   closeDialog() {
-    this.closeDialogEvent.emit();
   }
 }
