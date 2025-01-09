@@ -65,6 +65,11 @@ export class TradeComponent {
       .subscribe({
         next: (response) => {
           console.log('Trade response:', response);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Trade successful',
+            detail: 'Trade created successfully',
+          });
         },
         error: (error) => {
           console.error('Error creating trade:', error.error);

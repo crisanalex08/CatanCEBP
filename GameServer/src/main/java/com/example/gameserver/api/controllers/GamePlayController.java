@@ -46,6 +46,7 @@ public class GamePlayController {
     private final GamePlayService gamePlayService;
     private final GameService gameService;
     private final UserService userService;
+    private final ResourceService resourceService;
     private final BuildingService buildingService;
     private final GamesWebSocketHandler gamesWebSocketHandler;
 
@@ -54,6 +55,7 @@ public class GamePlayController {
     public GamePlayController(GamePlayService gamePlayService, ResourceService resourceService, BuildingService buildingService, GamesWebSocketHandler gamesWebSocketHandler, GameService gameService, UserService userService) {
         this.gamePlayService = gamePlayService;
         this.buildingService = buildingService;
+        this.resourceService = resourceService;
         this.gameService = gameService;
         this.userService = userService;
         this.gamesWebSocketHandler = gamesWebSocketHandler;
@@ -101,7 +103,8 @@ public class GamePlayController {
             return ResponseEntity.ok(building.get());
         } catch (Exception e) {
             log.error("Error constructing building", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            String message = e.getMessage().split(":")[1];
+            return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }

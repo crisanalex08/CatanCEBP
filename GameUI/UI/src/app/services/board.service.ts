@@ -8,7 +8,7 @@ import { GameService } from './game-service.service';
 import { GamePlayService } from './gameplay-service';
 import { ConfigService } from './config.service';
 import { PlayersColor } from '../enums/PlayersColor';
-import { MessageService } from 'primeng/api';
+
 
 @Injectable({
   providedIn: 'root',
@@ -55,7 +55,6 @@ export class GameBoardService {
   constructor(
     private userService: UserService,
     private gameService: GameService,
-    private messageService: MessageService,
     private gamePlayService: GamePlayService,
     private config: ConfigService
   ) {
@@ -77,7 +76,6 @@ export class GameBoardService {
       .pipe(
         catchError(error => {
           console.error('Error building settlement:', error);
-          this.messageService.add({ severity: 'error', summary: 'Error building settlement', detail: error} );
           return of(null);
         })
       )
@@ -95,12 +93,6 @@ export class GameBoardService {
     }
 
     this.gamePlayService.upgradeBuilding(this.currentGame.id, playerId, building)
-      .pipe(
-        catchError(error => {
-          console.error('Error upgrading building:', error);
-          return of(null);
-        })
-      )
       .subscribe(response => {
         if (response) {
           this.updateAllBuildings();

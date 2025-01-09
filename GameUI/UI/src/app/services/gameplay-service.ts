@@ -5,7 +5,7 @@ import { UserService } from './user.service';
 import { User } from '../models/user-model';
 import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
 import { ConfigService } from './config.service';
-
+import { MessageService } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +15,7 @@ export class GamePlayService{
     constructor(
         private http: HttpClient,
         private userService: UserService,
+        private messageService: MessageService,
         private config: ConfigService
     ) { }
 
@@ -32,15 +33,17 @@ export class GamePlayService{
     private handleError(error: HttpErrorResponse) {
       let errorMessage = 'An error occurred';
       
+      console.error('Error:', error);
       if (error.error instanceof ErrorEvent) {
         // Client-side error
         errorMessage = error.error.message;
       } else {
         // Server-side error
-        errorMessage = error.error?.message || `Error Code: ${error.status}`;
+        errorMessage = error.error? error.error : error.message;
       }
+
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessage });
   
-      console.error(errorMessage);
   
       return throwError(() => errorMessage);
     }
@@ -50,6 +53,7 @@ export class GamePlayService{
       return this.http.post(request_url, {}).pipe(
         tap(() => {
           console.log('Game started');
+          this.messageService.add({ severity: 'success', summary: 'Game started', detail: 'Good luck!' });
         }),
         catchError((error) => {
           console.error('Error:', error);
@@ -75,7 +79,7 @@ export class GamePlayService{
       return this.http.post(request_url, {}).pipe(
       tap(() => {
           console.log('Dice rolled');
-
+          
         }),
         catchError((error) => {
           console.error('Error:', error);
@@ -89,9 +93,12 @@ export class GamePlayService{
       return this.http.post(request_url, {}).pipe(
         tap(() => {
           
+          this.messageService.add({ severity: 'success', summary: 'Settlement built', detail: 'A new settlement has been built' });
           console.log('Settlement built');
         }),
-        catchError(this.handleError.bind(this))
+        catchError(this.handleError.bind(this),
+      
+      )
       );
     }
     upgradeBuilding(gameId: number, playerId: string, building: any) {
@@ -99,6 +106,7 @@ export class GamePlayService{
       return this.http.post(request_url, {}).pipe(
         tap(() => {
           console.log('Building upgraded');
+          this.messageService.add({ severity: 'success', summary: 'Building upgraded', detail: 'Building has been upgraded' });
         }),
         catchError(this.handleError.bind(this))
       );
