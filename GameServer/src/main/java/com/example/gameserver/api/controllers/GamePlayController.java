@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.http.HttpStatus;
 import com.example.gameserver.api.dto.GameMessage;
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
@@ -53,8 +54,8 @@ public class GamePlayController {
     @Autowired
     public GamePlayController(GamePlayService gamePlayService, ResourceService resourceService, BuildingService buildingService, GamesWebSocketHandler gamesWebSocketHandler, GameService gameService, UserService userService) {
         this.gamePlayService = gamePlayService;
-        this.resourceService = resourceService;
         this.buildingService = buildingService;
+        this.resourceService = resourceService;
         this.gameService = gameService;
         this.userService = userService;
         this.gamesWebSocketHandler = gamesWebSocketHandler;
@@ -69,7 +70,7 @@ public class GamePlayController {
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error starting game", e);
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -85,7 +86,7 @@ public class GamePlayController {
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error rolling dice", e);
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -102,8 +103,8 @@ public class GamePlayController {
             return ResponseEntity.ok(building.get());
         } catch (Exception e) {
             log.error("Error constructing building", e);
-            return ResponseEntity.internalServerError()
-                    .body("Failed to construct building because: " + e.getMessage());
+            String message = e.getMessage().split(":")[1];
+            return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -114,31 +115,36 @@ public class GamePlayController {
     @PostMapping("/{gameId}/upgrade/{playerId}/{buildingId}")
     public ResponseEntity<?> upgradeBuilding(@PathVariable Long gameId, @PathVariable Long playerId, @PathVariable Long buildingId) {
         try {
-            Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
+            Future<Building> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
 
             String userName = getUserName(playerId);
           
 
-            String upgradedBuilding = result.get();
+            String upgradedBuilding = result.get().getType().toString();
             System.out.println(upgradedBuilding);
             switch (upgradedBuilding){
                 
-                case "Castle":
+                case "CASTLE":
                     sendSystemMessage(gameId, "Player " + userName + " has upgraded a Town to Castle");
                     sendSystemMessage(gameId, "GameWon by Player: " + userName);
                     gameService.endGame(gameId);
                     buildingService.clearBuildings(gameId);
                     resourceService.clearResources(gameId);
                     break;
-                case "Town":
+                case "TOWN":
                     sendSystemMessage(gameId, "Player " + userName + " has upgraded a Settlement to Town");
                     break;
                 
             }
-            return ResponseEntity.ok(upgradedBuilding);
+            return ResponseEntity.ok(result.get());
         } catch (Exception e) {
             log.error("Error upgrading building", e);
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            String message = e.getMessage().split(":")[2];
+            if(message.contains("Player does not have enough resources to perform this action"))
+            {
+                return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

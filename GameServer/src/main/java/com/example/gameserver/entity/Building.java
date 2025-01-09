@@ -18,7 +18,7 @@ import com.example.gameserver.models.ProductionData;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
+
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 

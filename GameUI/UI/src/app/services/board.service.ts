@@ -93,12 +93,6 @@ export class GameBoardService {
     }
 
     this.gamePlayService.upgradeBuilding(this.currentGame.id, playerId, building)
-      .pipe(
-        catchError(error => {
-          console.error('Error upgrading building:', error);
-          return of(null);
-        })
-      )
       .subscribe(response => {
         if (response) {
           this.updateAllBuildings();

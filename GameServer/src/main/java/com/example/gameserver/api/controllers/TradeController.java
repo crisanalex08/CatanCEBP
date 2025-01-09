@@ -58,19 +58,27 @@ public class TradeController {
 
     @Operation (summary = "Make a merchant trade")
     @PostMapping("/merchant-trade")
-    public ResponseEntity<TradeStatus> createMerchantTrade(@RequestBody TradeRequest request) {
+    public ResponseEntity<?> createMerchantTrade(@RequestBody TradeRequest request) {
+        try{
         TradeStatus tradeStatus = tradeService.merchantTrade(request);
         if (tradeStatus == TradeStatus.CANCELLED) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
         String playerName = getUserName(request.getPlayerId());
         sendSystemMessage(request.getGameId(), "Player: " + playerName + " has done a merchant trade.");
         return new ResponseEntity<>(tradeStatus, HttpStatus.CREATED);
+        }
+        catch (Exception e) {
+            log.error("TradeController: Error creating merchant trade! ", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Operation (summary = "List a player trade")
     @PostMapping("/player-trade")
-    public ResponseEntity<Trade> createPlayerTrade(@RequestBody TradeRequest request) {
+    public ResponseEntity<?> createPlayerTrade(@RequestBody TradeRequest request) {
+        try{
         Trade trade = tradeService.playerTrade(request);
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -78,16 +86,28 @@ public class TradeController {
         String playerName = getUserName(request.getPlayerId());
         sendSystemMessage(request.getGameId(), "Player: " + playerName  +" has created a trade.");
         return new ResponseEntity<>(trade, HttpStatus.CREATED);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            log.error("TradeController: Error creating player trade! ", e);
+            return ResponseEntity.internalServerError().body("Failed to create trade because: " + e.getMessage());
+         
+        }
     }
 
     @Operation (summary = "Get all active trades that a player can accept")
     @GetMapping("/{playerId}/trades")
-    public ResponseEntity<List<Trade>> getMyActiveTrades(@PathVariable Long gameId, @PathVariable Long playerId) {
+    public ResponseEntity<?> getMyActiveTrades(@PathVariable Long gameId, @PathVariable Long playerId) {
+        try{
         List<Trade> trades = tradeService.getMyActiveTrades(gameId, playerId);
         if (trades == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(trades, HttpStatus.OK);
+        }catch(Exception e) {
+            log.error("TradeController: Error getting active trades! ", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Operation (summary = "Accept a trade")

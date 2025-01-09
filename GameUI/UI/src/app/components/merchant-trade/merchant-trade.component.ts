@@ -4,7 +4,7 @@ import { GameService } from 'src/app/services/game-service.service';
 import { GamePlayService } from 'src/app/services/gameplay-service';
 import { TradeService } from 'src/app/services/trade.service';
 import { switchMap } from 'rxjs/operators';
-
+import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-merchant-trade',
   templateUrl: './merchant-trade.component.html',
@@ -29,7 +29,7 @@ export class MerchantTradeComponent {
 
   constructor(private tradeService: TradeService,
     private gamePlayerService: GamePlayService,
-    private gameService: GameService) {
+    private messageService: MessageService) {
     this.selectedOffer = '';
     this.selectedRequest = '';
   }
@@ -66,13 +66,14 @@ export class MerchantTradeComponent {
       switchMap(() => this.gamePlayerService.getPlayerResources(this.gameId, this.playerId.toString()))
     ).subscribe({
       next: (resources) => {
-        // Update resources in GamePlayService
-        // this.gamePlayerService.playerResources.next(resources);
-        // this.gamePlayerService.playerResources$.next(resources);
+        
         console.log('Trade completed and resources updated:', resources);
+        this.messageService.add({ severity: 'success', summary: 'Trade successful', detail: 'Trade completed successfully' });
       },
       error: (err) => {
-        console.error('Error in trade or fetching resources:', err);
+        console.error('Error trading resources:', err);
+        this.messageService.add({ severity: 'error', summary: 'Trade failed', detail: err.error });
+
       }
     });
   }

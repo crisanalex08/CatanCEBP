@@ -202,7 +202,7 @@ public class BuildingService {
     }
 
     @Transactional
-    public BuildingType upgradeBuilding(Long gameId, Long playerId, Long buildingId) {
+    public Building upgradeBuilding(Long gameId, Long playerId, Long buildingId) {
         if(playerId == null || gameId == null || buildingId == null) {
             logger.error("There is a problem with the given Id's: GameId: " + gameId +  " PlayerId: " + playerId + " BuildingId: " + buildingId);
             throw new NullValueException("playerId: "+ playerId + ", gameId: " + gameId + ", or buildingId: " + buildingId + "| is null");
@@ -233,7 +233,7 @@ public class BuildingService {
                 
                 resourceRepository.save(playerResources);
                 buildingRepository.save(buildingToUpgrade.get());
-                return BuildingType.TOWN;
+                return buildingToUpgrade.get();
             case TOWN:  //Current building type is town
                 playerResources.subtract(ResourceType.WOOD, 3);
                 playerResources.subtract(ResourceType.STONE, 3);
@@ -244,7 +244,7 @@ public class BuildingService {
 
                 resourceRepository.save(playerResources);
                 buildingRepository.save(buildingToUpgrade.get());
-                return BuildingType.CASTLE;
+                return buildingToUpgrade.get();
             default:
                 logger.error("Building is already at max level");
                 return null;
