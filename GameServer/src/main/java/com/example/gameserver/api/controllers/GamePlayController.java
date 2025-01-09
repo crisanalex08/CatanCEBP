@@ -21,7 +21,6 @@ import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.User;
 import com.example.gameserver.models.DiceRollResponse;
-import com.example.gameserver.repository.UsersRepository;
 import com.example.gameserver.services.BuildingService;
 import com.example.gameserver.services.GamePlayService;
 import com.example.gameserver.services.GameService;
@@ -128,8 +127,8 @@ public class GamePlayController {
                     sendSystemMessage(gameId, "Player " + userName + " has upgraded a Town to Castle");
                     sendSystemMessage(gameId, "GameWon by Player: " + userName);
                     gameService.endGame(gameId);
-                    // buildingService.clearBuildings(gameId);
-                    // resourceService.clearResources(gameId);
+                    buildingService.clearBuildings(gameId);
+                    resourceService.clearResources(gameId);
                     break;
                 case "Town":
                     sendSystemMessage(gameId, "Player " + userName + " has upgraded a Settlement to Town");

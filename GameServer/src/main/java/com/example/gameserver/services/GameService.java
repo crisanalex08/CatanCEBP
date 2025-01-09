@@ -209,6 +209,13 @@ public class GameService {
         }
 
         if(game.getStatus() == GameStatus.FINISHED){
+            game.getPlayers().remove(player);
+            player.setGameId(null);
+            usersRepository.delete(player);
+            if(game.getPlayers().isEmpty()){ // game is finished and no players are left in the game(SAFE TO DELETE from DB)
+                gameRepository.delete(game);
+                return;
+            }
             return;
         }
 
@@ -231,7 +238,6 @@ public class GameService {
 
         gameRepository.save(game);
         usersRepository.delete(player);
-
     }
     // Get the game with the given gameId
     @Async
