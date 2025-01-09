@@ -125,8 +125,8 @@ public class GamePlayController {
                     sendSystemMessage(gameId, "Player " + userName + " has upgraded a Town to Castle");
                     sendSystemMessage(gameId, "GameWon by Player: " + userName);
                     gameService.endGame(gameId);
-                    // buildingService.clearBuildings(gameId);
-                    // resourceService.clearResources(gameId);
+                    buildingService.clearBuildings(gameId);
+                    resourceService.clearResources(gameId);
                     break;
                 case "Town":
                     sendSystemMessage(gameId, "Player " + userName + " has upgraded a Settlement to Town");
