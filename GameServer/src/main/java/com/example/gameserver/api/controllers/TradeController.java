@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.gameserver.api.dto.TradeRequest;
 import com.example.gameserver.entity.Trade;
+import com.example.gameserver.entity.User;
 import com.example.gameserver.services.TradeService;
+import com.example.gameserver.services.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 //import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -35,6 +37,7 @@ import java.util.Map;
 public class TradeController {
 
     private final TradeService tradeService;
+    private final UserService userService;
     private final GamesWebSocketHandler gamesWebSocketHandler;
 
     private final Map<String, ResourceType> ResourceMap = new HashMap<>() {{
@@ -47,8 +50,9 @@ public class TradeController {
     }};
 
     @Autowired
-    public TradeController(TradeService tradeService, GamesWebSocketHandler gamesWebSocketHandler) {
+    public TradeController(TradeService tradeService, UserService userService,GamesWebSocketHandler gamesWebSocketHandler) {
         this.gamesWebSocketHandler = gamesWebSocketHandler;
+        this.userService = userService;
         this.tradeService = tradeService;
     }
 
@@ -59,7 +63,8 @@ public class TradeController {
         if (tradeStatus == TradeStatus.CANCELLED) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        sendSystemMessage(request.getGameId(), "Player: " + request.getPlayerId() + " has done a merchant trade.");
+        String playerName = getUserName(request.getPlayerId());
+        sendSystemMessage(request.getGameId(), "Player: " + playerName + " has done a merchant trade.");
         return new ResponseEntity<>(tradeStatus, HttpStatus.CREATED);
     }
 
@@ -70,7 +75,8 @@ public class TradeController {
         if (trade == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        sendSystemMessage(request.getGameId(), "Player: " + request.getPlayerId() +" has created a trade.");
+        String playerName = getUserName(request.getPlayerId());
+        sendSystemMessage(request.getGameId(), "Player: " + playerName  +" has created a trade.");
         return new ResponseEntity<>(trade, HttpStatus.CREATED);
     }
 
@@ -124,5 +130,9 @@ public class TradeController {
         catch (Exception e) {
             log.error("GamePlayController: Error sending system message, could not map the message to string! ", e);
         }
+    }
+    private String getUserName(Long playerId) {
+        User user = userService.getUserById(playerId);
+        return user.getName();
     }
 }

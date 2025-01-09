@@ -23,7 +23,7 @@ export class GameUIComponent implements OnInit, OnDestroy {
     @Output() sendMessageEvent = new EventEmitter<ChatMessage>();
     @Input() game: Game = {} as Game;
     @ViewChild('opTradeButton', { static: true }) opTradeButton!: ElementRef;
-    @ViewChild('opTrade') opTrade: OverlayPanel
+    @ViewChild('opTrade') opTrade!: OverlayPanel
     currentPlayerId: number | null = null;
     playerBuildings: ServerBuilding[] = [];
     gameId: number = -1;

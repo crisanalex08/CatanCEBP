@@ -47,3 +47,21 @@
 <div class="game-board">
     <app-game-ui *ngIf="IsGameStarted"  [game]="game" (sendMessageEvent)="sendMessage($event)" ></app-game-ui>
 </div>
+
+<p-dialog 
+    [(visible)]="showGameWonDialog" 
+    [modal]="true" 
+    [blockScroll]="true"
+    [draggable]="false"
+    [closable]="false"
+    [style]="{ width:'50%', 'max-width': '500px',justifyContent: 'center', }">
+    <div class="game-over-dialog">
+        <h1> {{isWinner ? 'Congratulations!' : 'Game Over'}}</h1>
+        <h2>🎉 {{winnerName}} has won the game! 🎉</h2>
+        <p-button 
+            label="Leave Game" 
+            styleClass="p-button-lg mt-4"
+            (onClick)="leaveGame()">
+        </p-button>
+    </div>
+</p-dialog>

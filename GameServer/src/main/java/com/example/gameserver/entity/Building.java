@@ -60,13 +60,13 @@ public class Building {
             possibleResources = Arrays.asList(
                 ResourceType.WOOD, 
                 ResourceType.CLAY, 
-                ResourceType.STONE
+                ResourceType.WHEAT
             );
         }
         else if (this.type == BuildingType.TOWN) {
 
             possibleResources = Arrays.asList(
-                ResourceType.WHEAT, 
+                ResourceType.STONE, 
                 ResourceType.SHEEP, 
                 ResourceType.GOLD
             );

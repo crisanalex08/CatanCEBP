@@ -19,12 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.gameserver.api.dto.GameMessage;
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
+import com.example.gameserver.entity.User;
 import com.example.gameserver.models.DiceRollResponse;
 import com.example.gameserver.repository.UsersRepository;
 import com.example.gameserver.services.BuildingService;
 import com.example.gameserver.services.GamePlayService;
 import com.example.gameserver.services.GameService;
 import com.example.gameserver.services.ResourceService;
+import com.example.gameserver.services.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,17 +45,19 @@ import java.util.concurrent.CompletableFuture;
 public class GamePlayController {
     private final GamePlayService gamePlayService;
     private final GameService gameService;
+    private final UserService userService;
     private final ResourceService resourceService;
     private final BuildingService buildingService;
     private final GamesWebSocketHandler gamesWebSocketHandler;
 
 
     @Autowired
-    public GamePlayController(GamePlayService gamePlayService, ResourceService resourceService, BuildingService buildingService, GamesWebSocketHandler gamesWebSocketHandler, GameService gameService) {
+    public GamePlayController(GamePlayService gamePlayService, ResourceService resourceService, BuildingService buildingService, GamesWebSocketHandler gamesWebSocketHandler, GameService gameService, UserService userService) {
         this.gamePlayService = gamePlayService;
         this.resourceService = resourceService;
         this.buildingService = buildingService;
         this.gameService = gameService;
+        this.userService = userService;
         this.gamesWebSocketHandler = gamesWebSocketHandler;
     }
 
@@ -75,8 +79,9 @@ public class GamePlayController {
     public ResponseEntity<?> rollDiceAndDistributeResources(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
             DiceRollResponse result = gamePlayService.rollDiceAndDistributeResources(gameId, playerId);
+            String userName = getUserName(playerId);
             if(result.isSuccess()) {
-                sendSystemMessage(gameId, "Player " + playerId + " rolled " + result.getDiceRoll());
+                sendSystemMessage(gameId, "Player " + userName + " rolled " + result.getDiceRoll());
             }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
@@ -91,8 +96,9 @@ public class GamePlayController {
     public ResponseEntity<?> constructBuilding(@PathVariable Long gameId, @PathVariable Long playerId) {
         try {
             CompletableFuture<Building> building = gamePlayService.constructBuilding(playerId, gameId);
+            String userName = getUserName(playerId);
             if(building.get() != null) {
-                sendSystemMessage(gameId, "Player " + playerId + " constructed " + building.get().getType());
+                sendSystemMessage(gameId, "Player " + userName + " constructed " + building.get().getType());
             }
             return ResponseEntity.ok(building.get());
         } catch (Exception e) {
@@ -111,24 +117,24 @@ public class GamePlayController {
         try {
             Future<String> result = gamePlayService.upgradeBuilding(gameId, playerId, buildingId);
 
+            String userName = getUserName(playerId);
           
 
             String upgradedBuilding = result.get();
-
+            System.out.println(upgradedBuilding);
             switch (upgradedBuilding){
+                
                 case "Castle":
-                    sendSystemMessage(gameId, "Player with Id: " + playerId + " has upgraded a Town to Castle");
-                    sendSystemMessage(gameId, "GameWon by Player: " + playerId);
+                    sendSystemMessage(gameId, "Player " + userName + " has upgraded a Town to Castle");
+                    sendSystemMessage(gameId, "GameWon by Player: " + userName);
                     gameService.endGame(gameId);
                     // buildingService.clearBuildings(gameId);
                     // resourceService.clearResources(gameId);
                     break;
                 case "Town":
-                    sendSystemMessage(gameId, "Player with Id: " + playerId + " has upgraded a Settlement to Town");
+                    sendSystemMessage(gameId, "Player " + userName + " has upgraded a Settlement to Town");
                     break;
-                default:
-                    sendSystemMessage(gameId, "Player with Id: " + playerId + " has upgraded a building");
-                    break;
+                
             }
             return ResponseEntity.ok(upgradedBuilding);
         } catch (Exception e) {
@@ -168,6 +174,11 @@ public class GamePlayController {
         catch (Exception e) {
             log.error("GamePlayController: Error sending system message, could not map the message to string! ", e);
         }
+    }
+
+    private String getUserName(Long playerId) {
+        User user = userService.getUserById(playerId);
+        return user.getName();
     }
 
 }
