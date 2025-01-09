@@ -28,8 +28,7 @@ public class GamePlayService {
     private final GameService gameService;
     private final ResourceService resourceService;
     private final BuildingService buildingService;
-    private final TradeService tradeService;
-    private final BuildingRepository buildingRepository;
+
 
     @Autowired
     public GamePlayService(
@@ -43,8 +42,7 @@ public class GamePlayService {
         this.gameService = gameService;
         this.resourceService = resourceService;
         this.buildingService = buildingService;
-        this.tradeService = tradeService;
-        this.buildingRepository = buildingRepository;
+
     }
 
     @Transactional

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,13 +16,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.http.HttpStatus;
 import com.example.gameserver.api.dto.GameMessage;
 import com.example.gameserver.entity.Building;
 import com.example.gameserver.entity.Game;
 import com.example.gameserver.entity.User;
 import com.example.gameserver.models.DiceRollResponse;
-import com.example.gameserver.repository.UsersRepository;
 import com.example.gameserver.services.BuildingService;
 import com.example.gameserver.services.GamePlayService;
 import com.example.gameserver.services.GameService;
@@ -46,7 +46,6 @@ public class GamePlayController {
     private final GamePlayService gamePlayService;
     private final GameService gameService;
     private final UserService userService;
-    private final ResourceService resourceService;
     private final BuildingService buildingService;
     private final GamesWebSocketHandler gamesWebSocketHandler;
 
@@ -54,7 +53,6 @@ public class GamePlayController {
     @Autowired
     public GamePlayController(GamePlayService gamePlayService, ResourceService resourceService, BuildingService buildingService, GamesWebSocketHandler gamesWebSocketHandler, GameService gameService, UserService userService) {
         this.gamePlayService = gamePlayService;
-        this.resourceService = resourceService;
         this.buildingService = buildingService;
         this.gameService = gameService;
         this.userService = userService;
@@ -70,7 +68,7 @@ public class GamePlayController {
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error starting game", e);
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -86,7 +84,7 @@ public class GamePlayController {
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Error rolling dice", e);
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -103,8 +101,7 @@ public class GamePlayController {
             return ResponseEntity.ok(building.get());
         } catch (Exception e) {
             log.error("Error constructing building", e);
-            return ResponseEntity.internalServerError()
-                    .body("Failed to construct building because: " + e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -139,7 +136,7 @@ public class GamePlayController {
             return ResponseEntity.ok(upgradedBuilding);
         } catch (Exception e) {
             log.error("Error upgrading building", e);
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.example.gameserver.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ import com.example.gameserver.repository.UsersRepository;
 
 
 import java.util.HashSet;
-import java.util.Optional;
+
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,12 +27,11 @@ import java.util.concurrent.Future;
 
 import jakarta.transaction.Transactional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 @Service
 public class GameService {
-    private static final Logger logger = LoggerFactory.getLogger(GameService.class);
+
     private final GameRepository gameRepository;
     private final UsersRepository usersRepository;
 

@@ -34,7 +34,8 @@ import { GameBoardService } from './services/board.service';
 // import { TradeListComponent } from './components/trade-list/trade-list.component';
 import { TradeComponent } from './components/trade/trade.component';
 import { MerchantTradeComponent } from './components/merchant-trade/merchant-trade.component';
-
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 @NgModule({
   declarations: [
     AppComponent,
@@ -65,9 +66,10 @@ import { MerchantTradeComponent } from './components/merchant-trade/merchant-tra
     ChipModule,
     OverlayPanelModule,
     AccordionModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    ToastModule
 ],
-  providers: [GameService, WebSocketService, GameBoardService],
+  providers: [GameService, WebSocketService, GameBoardService, MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

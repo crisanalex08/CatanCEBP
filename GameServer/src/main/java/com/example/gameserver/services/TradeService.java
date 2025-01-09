@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.example.gameserver.entity.*;
+import com.example.gameserver.exceptions.GameNotFoundException;
 import com.example.gameserver.exceptions.NoPlayerFoundException;
 import com.example.gameserver.enums.TradeStatus;
 import org.slf4j.Logger;
@@ -48,24 +49,24 @@ public class TradeService {
         Optional<Game> game = gameRepository.findById(request.getGameId());
         if (game.isEmpty()) {
             logger.error("Game not found, ID: " + request.getGameId());
-            return null;
+            throw new GameNotFoundException(request.getGameId());
         }
 
         if (request.getOffer() == request.getRequest()) {
             logger.error("Offered and requested resource cannot be the same.");
-            return null;
+           throw new IllegalArgumentException("Offered and requested resource cannot be the same.");
         }
 
         List<Trade> activeTrades = tradeRepository.findAll().stream().filter(trade -> trade.getFromPlayerId().equals(request.getPlayerId()) && trade.getStatus().equals(TradeStatus.ACTIVE)).toList();
         if (!activeTrades.isEmpty()) {
             logger.error("Player " + request.getPlayerId() + " already has an active trade listed.");
-            return null;
+            throw new IllegalArgumentException("Player already has an active trade listed.");
         }
 
         Optional<Resources> resources = resourceRepository.findByGameIdAndPlayerId(request.getGameId(), request.getPlayerId());
         if (resources.isEmpty()) {
             logger.error("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + request.getPlayerId());
-            return null;
+          throw new IllegalArgumentException("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + request.getPlayerId());
         }
 
         Resources fromPlayerResources = resources.get();
@@ -80,7 +81,7 @@ public class TradeService {
                 Optional<Resources> toResources = resourceRepository.findByGameIdAndPlayerId(request.getGameId(), player.getId());
                 if (toResources.isEmpty()) {
                     logger.error("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + player.getId());
-                    return null;
+                    throw new IllegalArgumentException("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + player.getId());
                 }
                 Resources toPlayerResources = toResources.get();
                 if(toPlayerResources.hasEnoughResources(request.getRequest(), 1)) {
@@ -91,39 +92,43 @@ public class TradeService {
                 }
                 else {
                     logger.error("Player " + player.getId() + " doesn't have one " + request.getRequest() + " available.");
+                    throw new IllegalArgumentException("Player " + player.getId() + " doesn't have one " + request.getRequest() + " available.");
                 }
             }
             logger.error("There are no players having the requested resource.");
-            return null;
+            throw new IllegalArgumentException("There are no players having the requested resource.");
+            
         }
         else {
             logger.error("Player does not have the offering resources.");
+            throw new IllegalArgumentException("Player does not have the offering resources.");
         }
-        return null;
+       
     }
 
     @Transactional
     public TradeStatus merchantTrade(TradeRequest request) {
         if(request == null) {
             logger.error("Request body is null.");
-            return TradeStatus.CANCELLED;
+            throw new IllegalArgumentException("Request body is null.");
+           
         }
 
         Optional<Game> game = gameRepository.findById(request.getGameId());
         if (game.isEmpty()) {
             logger.error("Game not found, ID: " + request.getGameId());
-            return TradeStatus.CANCELLED;
+            throw new GameNotFoundException(request.getGameId());
         }
 
         if (request.getOffer() == request.getRequest()) {
             logger.error("Offered and requested resource cannot be the same.");
-            return TradeStatus.CANCELLED;
+            throw new IllegalArgumentException("Offered and requested resource cannot be the same.");
         }
 
         Optional<Resources> resources = resourceRepository.findByGameIdAndPlayerId(request.getGameId(), request.getPlayerId());
         if (resources.isEmpty()) {
             logger.error("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + request.getPlayerId());
-            return TradeStatus.CANCELLED;
+            throw new IllegalArgumentException("Resources not found, Game ID: " + request.getGameId() + ", Player ID: " + request.getPlayerId());
         }
         Resources playerResources = resources.get();
         if(playerResources.hasEnoughResources(request.getOffer(), 3)) {
@@ -134,8 +139,9 @@ public class TradeService {
         }
         else {
             logger.error("Player has not enough offering resources.");
+            throw new IllegalArgumentException("Player has not enough offering resources.");
         }
-        return TradeStatus.CANCELLED;
+        
     }
 
     @Transactional
@@ -143,13 +149,13 @@ public class TradeService {
         Optional<Game> game = gameRepository.findById(gameId);
         if (game.isEmpty()) {
             logger.error("Game not found, ID: " + gameId);
-            return null;
+            throw new GameNotFoundException(gameId);
         }
 
         List<Trade> activeTrades = tradeRepository.findAll().stream().filter(trade -> trade.getToPlayerId().equals(playerId) && trade.getStatus().equals(TradeStatus.ACTIVE)).toList();
         if (activeTrades.isEmpty()) {
             logger.error("No active trades are available for player " + playerId + " to deal with.");
-            return null;
+            throw new IllegalArgumentException("No active trades are available for player " + playerId + " to deal with.");
         }
         return activeTrades;
     }
