@@ -1,6 +1,15 @@
 # CatanCEBP
 
 CatanCEBP is a multiplayer online game inspired by the classic board game "Catan". This project includes a game server, a concurrent server for simulations, and a web-based user interface for players to interact with the game.
+![Alt text](https://github.com/crisanalex08/CatanCEBP/blob/RaulBus01-patch-3/Landing.png)
+![Alt text](https://github.com/crisanalex08/CatanCEBP/blob/RaulBus01-patch-3/CreateGame.png)
+![Alt text](https://github.com/crisanalex08/CatanCEBP/blob/RaulBus01-patch-3/StartGame.png)
+![Alt text](https://github.com/crisanalex08/CatanCEBP/blob/RaulBus01-patch-3/Game.png)
+![Alt text](https://github.com/crisanalex08/CatanCEBP/blob/RaulBus01-patch-3/MerchantTrade.png)
+![Alt text](https://github.com/crisanalex08/CatanCEBP/blob/RaulBus01-patch-3/TradeWithPlayer.png)
+![Alt text](https://github.com/crisanalex08/CatanCEBP/blob/RaulBus01-patch-3/BuiltSettlement.png)
+![Alt text](https://github.com/crisanalex08/CatanCEBP/blob/RaulBus01-patch-3/Upgrade%20Settlement.png)
+![Alt text](https://github.com/crisanalex08/CatanCEBP/blob/RaulBus01-patch-3/Winner.png)
 ## Project Structure
 ### Directories
 
